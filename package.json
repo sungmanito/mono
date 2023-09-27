@@ -21,6 +21,7 @@
 		"@typescript-eslint/eslint-plugin": "^6.0.0",
 		"@typescript-eslint/parser": "^6.0.0",
 		"autoprefixer": "^10.4.15",
+		"drizzle-kit": "^0.19.13",
 		"eslint": "^8.28.0",
 		"eslint-plugin-svelte": "^2.30.0",
 		"postcss": "^8.4.29",
@@ -34,5 +35,13 @@
 		"vite": "^4.4.2",
 		"vitest": "^0.32.2"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"@supabase/auth-helpers-sveltekit": "^0.10.3",
+		"@supabase/supabase-js": "^2.36.0",
+		"@vercel/postgres": "^0.5.0",
+		"drizzle-orm": "^0.28.6",
+		"postgres": "^3.3.5",
+		"ulid": "^2.3.0"
+	}
 }
