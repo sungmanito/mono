@@ -1,6 +1,12 @@
+export const load = async ({ locals }) => {
+  const { data: {
+    user
+  }, error } = await locals.supabase.auth.getUser()
 
-export const load = async ({ locals: { getSession }}) => {
+  if(error) console.error(error)
+  
   return {
-    session: await getSession(),
+    user: user || undefined,
+    session: locals.getSession() || {},
   };
 }

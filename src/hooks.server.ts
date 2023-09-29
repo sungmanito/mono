@@ -9,10 +9,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     event,
   });
 
-  supabase.auth.getSession();
   event.locals.supabase = supabase;
-
-  event.locals.supabase.auth.getSession();
 
   event.locals.getSession = async () => {
     const {
