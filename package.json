@@ -12,7 +12,9 @@
 		"lint": "eslint .",
 		"test:integration": "playwright test",
 		"test:unit": "vitest",
-		"turbo": "turbo"
+		"turbo": "turbo",
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate:pg"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.28.1",

@@ -1,10 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import { DB_URL } from '$env/static/private';
-import { pgTable, text, date, integer, pgSchema, uuid, varchar, index } from 'drizzle-orm/pg-core';
-
-const client = postgres(DB_URL)
+import { pgTable, text, date, integer, pgSchema, uuid, varchar, primaryKey } from 'drizzle-orm/pg-core';
 
 export const Bills = pgTable(
   'bills',
@@ -26,13 +21,11 @@ export const Households = pgTable(
 );
 
 export const usersToHouseholds = pgTable('users_to_households', {
-  id: uuid('id').primaryKey(),
   userId: uuid('user_id').notNull(),
   householdId: text('household_id').notNull(),
 }, ({ userId, householdId }) => {
   return {
-    userIdIndex: index('users_households_user_index').on(userId),
-    householdIdIndex: index('users_households_household_index').on(householdId),
+    usersToHouseholds: primaryKey(userId, householdId),
   }
 });
 
@@ -66,13 +59,11 @@ export const Users = authSchema.table(
     id: uuid('id').primaryKey(),
     email: varchar('email')
   },
-)
+);
 
 export const householdUsers = relations(Households, ({ many }) => ({
-  users: many(Users),
+  users: many(usersToHouseholds),
 }))
-
-export const userHouseHolds = relations
 
 export const paymentRelations = relations(Payments, ({ one }) => ({
   bill: one(Bills, {
@@ -80,5 +71,3 @@ export const paymentRelations = relations(Payments, ({ one }) => ({
     references: [Bills.id]
   })
 }));
-
-export const db = drizzle(client);
