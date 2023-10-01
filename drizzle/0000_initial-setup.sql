@@ -25,5 +25,5 @@ CREATE TABLE IF NOT EXISTS "auth"."users" (
 CREATE TABLE IF NOT EXISTS "users_to_households" (
 	"user_id" uuid NOT NULL,
 	"household_id" text NOT NULL,
-	CONSTRAINT users_to_households_user_id_household_id PRIMARY KEY("user_id","household_id")
+	anar
 );
