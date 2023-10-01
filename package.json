@@ -13,8 +13,9 @@
 		"test:integration": "playwright test",
 		"test:unit": "vitest",
 		"turbo": "turbo",
-		"db:push": "drizzle-kit push",
-		"db:generate": "drizzle-kit generate:pg"
+		"db:push": "drizzle-kit push:pg",
+		"db:generate": "drizzle-kit generate:pg",
+		"db:studio": "drizzle-kit studio"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.28.1",
@@ -27,6 +28,7 @@
 		"drizzle-kit": "^0.19.13",
 		"eslint": "^8.28.0",
 		"eslint-plugin-svelte": "^2.30.0",
+		"pg": "^8.11.3",
 		"postcss": "^8.4.29",
 		"sass": "^1.67.0",
 		"supabase": "^1.99.5",

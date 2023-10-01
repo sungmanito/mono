@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "9397a4e7-e933-4aeb-b560-42824bb44c49",
+  "id": "53debff3-9598-4de8-8b66-b178eb2f5f8f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "bills": {
@@ -29,7 +29,7 @@
         },
         "household_id": {
           "name": "household_id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         }
@@ -68,6 +68,12 @@
         "id": {
           "name": "id",
           "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "bill_id": {
+          "name": "bill_id",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -89,6 +95,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "for_month": {
+          "name": "for_month",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
         }
       },
       "indexes": {},
