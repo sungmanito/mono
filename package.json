@@ -15,9 +15,11 @@
 		"turbo": "turbo",
 		"db:push": "drizzle-kit push:pg",
 		"db:generate": "drizzle-kit generate:pg",
-		"db:studio": "drizzle-kit studio"
+		"db:studio": "drizzle-kit studio",
+		"story:dev": "histoire dev"
 	},
 	"devDependencies": {
+		"@histoire/plugin-svelte": "^0.17.0",
 		"@playwright/test": "^1.28.1",
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/kit": "^1.20.4",
@@ -25,9 +27,10 @@
 		"@typescript-eslint/parser": "^6.0.0",
 		"autoprefixer": "^10.4.15",
 		"dotenv": "^16.3.1",
-		"drizzle-kit": "^0.9.54",
+		"drizzle-kit": "^0.19.13",
 		"eslint": "^8.28.0",
 		"eslint-plugin-svelte": "^2.30.0",
+		"histoire": "^0.17.2",
 		"pg": "^8.11.3",
 		"postcss": "^8.4.29",
 		"sass": "^1.67.0",
@@ -46,8 +49,9 @@
 		"@supabase/auth-helpers-sveltekit": "^0.10.3",
 		"@supabase/supabase-js": "^2.36.0",
 		"@vercel/postgres": "^0.5.0",
+		"class-variance-authority": "^0.7.0",
 		"drizzle-orm": "^0.28.6",
 		"postgres": "^3.3.5",
-		"ulid": "^2.3.0"
+		"ulidx": "^2.2.0"
 	}
 }
