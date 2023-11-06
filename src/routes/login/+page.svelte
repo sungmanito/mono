@@ -1,8 +1,11 @@
 <script lang="ts">
   import client from '$lib/client/supabase';
   import { page } from '$app/stores';
-  import { goto } from '$app/navigation';
-    import { onMount } from 'svelte';
+  import { goto, invalidate } from '$app/navigation';
+  import { onMount } from 'svelte';
+  import { getToastStore } from '@skeletonlabs/skeleton';
+
+  const toastStore = getToastStore();
 
   let email = '';
   let password = '';
@@ -15,20 +18,24 @@
       password,
     });
 
-    console.info(data, error);
+    if(data.user) {
 
-    fetch('?/saveLogin', {
-      method: 'POST',
-      body: JSON.stringify(data || {}),
-    });
-  }
-
+      const f = await fetch('?/saveLogin', {
+        method: 'POST',
+        body: JSON.stringify(data || {}),
+      }).then(r => r.json());
   
-  onMount(() => {
-    if($page.data.user.id !== '') {
-      goto('/');
+  
+      if(f.type === 'success') {
+        await invalidate('/');
+        goto('/dashboard');
+      }
+    } else if(error) {
+      toastStore.trigger({
+        message: `Error occurred${error.message ? ': ' + error.message : null} `,
+      });
     }
-  })
+  }
 
 </script>
 
@@ -44,7 +51,9 @@
           options: {
             redirectTo: 'http://localhost:5173/login?/update',
           }
-        }).then(console.info).catch(console.error) }>
+        }).then((r) => {
+          goto('/dashboard')
+        }).catch(console.error) }>
           Google
         </button>
       </section>

@@ -1,6 +1,7 @@
 import { integer, pgTable, text } from "drizzle-orm/pg-core";
 import { households } from "./households.table";
 import { ulid } from 'ulidx';
+
 export const bills = pgTable(
   'bills',
   {

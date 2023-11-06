@@ -1,3 +1,4 @@
+import { deleteHousehold } from '$lib/server/actions/households.actions.js';
 import { db } from '$lib/server/db';
 import { households } from '$lib/server/db/schema/households.table.js';
 import { usersToHouseholds } from '$lib/server/db/schema/usersToHouseholds.table.js';
@@ -18,13 +19,15 @@ export const load = async ({ locals }) => {
       household: {
         with: {
           users: true,
+          bills: true,
         }
       },
     }
-  }).then(r => r.map(v => v.household )).catch(e => {
-    console.error(e);
-    return [];
-  });
+  })
+    .then(r => r.map(v => v.household )).catch(e => {
+      console.error(e);
+      return [];
+    });
 
   return {
     households: householdsValue,
@@ -61,7 +64,6 @@ export const actions = {
   deleteHousehold: async ({ request, locals }) => {
     const session = await locals.getSession();
     const data = await request.formData();
-    console.info(data.get('household-id'))
 
     if(!session) {
       return {
@@ -94,7 +96,6 @@ export const actions = {
     // Can only delete households with 1 member.
 
     if(household && household.users.length && household.users.every(v => v.userId === session.user.id)) {
-      console.info('delete me bb');
       const response = await db.delete(households).where(eq(households.id, householdId)).returning();
       console.info('RESPONSE', response);
     } else {

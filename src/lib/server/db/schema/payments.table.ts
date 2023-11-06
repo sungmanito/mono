@@ -13,6 +13,7 @@ export const payments = pgTable(
     updatedBy: text('updated_by'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     forMonth: smallint('for_month').notNull().default(1),
+    notes: text('notes'),
   }
 );
 

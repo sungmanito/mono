@@ -1,6 +1,5 @@
 import type { AuthTokenResponse } from '@supabase/supabase-js';
 import type { Actions } from './$types';
-import { invalidate } from '$app/navigation';
 
 export const actions = {
   saveLogin: async ({ request, locals }) => {
@@ -9,6 +8,9 @@ export const actions = {
       access_token: json.session?.access_token || '',
       refresh_token: json.session?.refresh_token || ''
     });
-    invalidate('/');
+
+    return {
+      success: true,
+    };
   }
 } satisfies Actions;

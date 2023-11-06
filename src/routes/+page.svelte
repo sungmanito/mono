@@ -1,13 +1,10 @@
 <script>
   import Hero from "$lib/components/hero.svelte";
-  import Navbar from "$lib/components/navbar.svelte";
 </script>
 
 <svelte:head>
   <title>Sungmanito</title>
 </svelte:head>
-
-<Navbar />
 
 <Hero />
 

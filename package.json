@@ -21,6 +21,8 @@
 	"devDependencies": {
 		"@histoire/plugin-svelte": "^0.17.0",
 		"@playwright/test": "^1.28.1",
+		"@skeletonlabs/skeleton": "^2.3.0",
+		"@skeletonlabs/tw-plugin": "^0.2.2",
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/kit": "^1.20.4",
 		"@typescript-eslint/eslint-plugin": "^6.0.0",
@@ -46,11 +48,14 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@floating-ui/dom": "^1.5.3",
+		"@js-temporal/polyfill": "^0.4.4",
 		"@supabase/auth-helpers-sveltekit": "^0.10.3",
 		"@supabase/supabase-js": "^2.36.0",
 		"@vercel/postgres": "^0.5.0",
 		"class-variance-authority": "^0.7.0",
 		"drizzle-orm": "^0.28.6",
+		"lucide-svelte": "^0.288.0",
 		"postgres": "^3.3.5",
 		"ulidx": "^2.2.0"
 	}

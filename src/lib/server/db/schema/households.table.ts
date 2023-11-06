@@ -8,7 +8,8 @@ export const households = pgTable(
   {
     id: text('id').primaryKey().$defaultFn(() => ulid()),
     name: text('name').notNull(),
-    createdAt: date('created_at').notNull().defaultNow()
+    createdAt: date('created_at').notNull().defaultNow(),
+    // ownerId: text('owner_id').notNull(),
   },
   // Creating an index on the name as we will search on it.
   ({ name }) => ({

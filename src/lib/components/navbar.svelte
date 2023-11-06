@@ -1,11 +1,18 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { AppBar, LightSwitch } from '@skeletonlabs/skeleton';
 </script>
-<nav>
-  I am the header
-  {#if $page.data.user && $page.data.user.id !== undefined}
-    <a href="/logout">Logout</a>
-  {:else}
-    <a href="/login">Login</a>
-  {/if}
-</nav>
+<AppBar shadow="shadow">
+	<svelte:fragment slot="lead">
+    Sungmanito
+  </svelte:fragment>
+	<svelte:fragment slot="trail">
+    <LightSwitch />
+    {#if $page.data.user && $page.data.user.id !== undefined}
+      <a class="btn btn-sm variant-filled" href="/logout">Logout</a>
+      <a class="btn btn-sm variant-ghost-primary" href="/dashboard">Dashboard</a>
+    {:else}
+      <a class="btn btn-sm variant-filled" href="/login">Login</a>
+    {/if}
+  </svelte:fragment>
+</AppBar>

@@ -47,7 +47,7 @@
       <input name="household-name" type="text" class="p-2 border rounded" placeholder="New Household name">
     </label>
     <footer class="p-4 flex justify-end">
-      <Button on:click={toggleHouseholds}>Add</Button>
+      <Button on:click={toggleHouseholds} class="bob">Add</Button>
     </footer>
   </form>
 </dialog>
