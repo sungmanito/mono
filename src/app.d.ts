@@ -7,6 +7,7 @@ declare global {
 		interface Locals {
       supabase: SupabaseClient;
       getSession: () => Promise<Session | null>;
+      config: { is_live: boolean };
     }
 		// interface PageData {}
 		// interface Platform {}

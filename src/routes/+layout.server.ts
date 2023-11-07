@@ -3,7 +3,7 @@ export const load = async ({ locals }) => {
     user
   }, error } = await locals.supabase.auth.getUser()
 
-  if(error) console.error(error)
+  if(error) console.error(error);
   
   return {
     user: user || undefined,

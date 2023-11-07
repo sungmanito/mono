@@ -37,7 +37,6 @@
 
   {#each households as household}
     <HouseholdListItem  household={household}/>
-    
   {/each}
 </div>
 
