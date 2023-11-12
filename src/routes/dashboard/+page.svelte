@@ -113,14 +113,16 @@
       <svelte:fragment slot="content">
         <div class="flex flex-col gap-4">
           {#each data.groupings.upcoming as { bills, household }}
-            <div class="card variant-ghost-primary">
+            <div class="card variant-outline-primary">
               <Header tag="h4" class="card-header">
                 {bills.billName} due on {bills.dueDate}
               </Header>
               <section class="p-4">
-                Other relevant information
+                {household.name}
               </section>
-  
+              <footer class="card-footer">
+                <button class="btn btn-sm variant-filled" on:click={() => console.info('somehow mark a payment to this bill')}>Pay bill</button>
+              </footer>
             </div>
             {:else}
             No Upcoming bills

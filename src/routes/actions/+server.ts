@@ -3,15 +3,42 @@ import { bills as billsTable } from '$lib/server/db/schema/bills.table.js';
 import { payments } from '$lib/server/db/schema/payments.table.js';
 import type { RequestHandler } from './$types';
 import { and, eq } from 'drizzle-orm';
+import type { Payment } from "$lib/server/actions/payments.actions";
+import { json } from '@sveltejs/kit';
 
 // Temporary thing to create a thing for the payments.
 export const GET: RequestHandler = async () => {
 
-  const d = new Date();
+  // Do some sort of JWT check to make sure this isn't getting hit randomly
+
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+
   const bills = await db
     .select()
     .from(billsTable)
-    .leftJoin(payments, and(eq(payments.billId, billsTable.id), eq(payments.forMonth, d.getMonth() + 1)));
+    .leftJoin(payments, and(eq(payments.billId, billsTable.id), eq(payments.forMonth, today.getMonth() + 1)));
 
-  return new Response();
+  const mapped = bills.map(v => {
+    return {
+      // if thre is a payment associated with this month already, we do not want to modify it.
+      id: v.payments?.id,
+      billId: v.bills.id,
+      forMonth: currentMonth,
+      forMonthD: `${today.getFullYear()}-${currentMonth}-${v.bills.dueDate}`
+    } as Payment;
+  });
+
+  console.info(mapped);
+
+  const response = await db.insert(payments)
+    .values(mapped)
+    .onConflictDoNothing({
+      target: [payments.billId, payments.forMonth]
+    })
+    .returning()
+    .execute();
+
+  // return new Response();
+  return json(response);
 }
