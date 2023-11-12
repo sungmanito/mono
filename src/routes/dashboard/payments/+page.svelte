@@ -2,6 +2,7 @@
   import Header from "$lib/components/header/header.svelte";
   import Modal from "$lib/components/modal/modal.svelte";
   import { Step, Stepper } from "@skeletonlabs/skeleton";
+    import { CheckIcon } from "lucide-svelte";
 
   export let data;
 
@@ -41,12 +42,28 @@
   Includes payments from this month.
 </p>
 
-{#each data.payments as payment}
-  <div>
-    {payment.bills.billName} Payment for {payment.payments.forMonthD.toLocaleDateString(undefined, {
-      month: 'long'
-    })}
-  </div>
-{:else}
-  <em>No Payments available</em>
-{/each}
+<div class="flex flex-col gap-3 mt-4">
+  {#each data.payments as payment}
+    <div class="card" class:variant-outline-success={payment.payments.paidAt !== null}>
+      <header class="card-header flex gap-2 items-baseline">
+        {#if payment.payments.paidAt !== null}
+          <CheckIcon size="1em"/>
+        {/if}
+        <div class="font-bold">
+          {payment.bills.billName}
+        </div>
+      </header>
+      
+      <section class="p-3">
+        {#if payment.payments.paidAt !== null}
+          <strong>Paid at {payment.payments.paidAt}</strong>
+        {:else}
+          <em>Waiting for payment...</em>
+        {/if}
+      </section>
+
+    </div>
+  {:else}
+    <em>No Payments available</em>
+  {/each}
+</div>

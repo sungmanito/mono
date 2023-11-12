@@ -34,7 +34,7 @@
       	</AppRailAnchor>
       </AppRail>
   </aside> 
-  <section class="flex-grow">
+  <section class="flex-grow pr-3">
     <div class="container mx-auto">
       <slot />
     </div>

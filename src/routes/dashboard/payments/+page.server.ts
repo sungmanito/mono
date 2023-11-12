@@ -1,5 +1,5 @@
 import { getUserHouseholds } from '$lib/server/actions/households.actions.js';
-import { getPayments, testing } from '$lib/server/actions/payments.actions.js';
+import { getPayments } from '$lib/server/actions/payments.actions.js';
 import { db } from '$lib/server/db/client.js';
 import { schema } from '$lib/server/db/index.js';
 import { redirect } from '@sveltejs/kit';
@@ -30,8 +30,5 @@ export const load = async ({ locals }) => {
 
   return {
     payments,
-    streamed: {
-      payments: getPayments(session.user.id, today.getMonth() - 2),
-    }
   };
 }
