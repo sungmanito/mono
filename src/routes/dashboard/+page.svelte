@@ -113,14 +113,16 @@
       <svelte:fragment slot="content">
         <div class="flex flex-col gap-4">
           {#each data.groupings.upcoming as { bills, household }}
-            <div class="card variant-ghost-primary">
+            <div class="card variant-outline-primary">
               <Header tag="h4" class="card-header">
                 {bills.billName} due on {bills.dueDate}
               </Header>
               <section class="p-4">
-                Other relevant information
+                {household.name}
               </section>
-  
+              <footer class="card-footer">
+                <button class="btn btn-sm variant-filled" on:click={() => console.info('somehow mark a payment to this bill')}>Pay bill</button>
+              </footer>
             </div>
             {:else}
             No Upcoming bills
@@ -152,11 +154,16 @@
       </svelte:fragment>
       <svelte:fragment slot="content">
         <div class="grid grid-cols-3 gap-32">
-          {#each data.groupings.paid as {bills, household}}
+          {#each data.groupings.paid as {bills, household, payments}}
             <div class="card variant-filled-primary">
               <header class="card-header p-4">
-                {bills.billName} - due on {bills.dueDate}
+                <a href={`/dashboard/payments/${payments?.id}`}>
+                  {bills.billName} - due on {bills.dueDate}
+                </a>
               </header>
+              <section class="p-3">
+                Paid <strong>{payments?.paidAt?.toLocaleString(undefined, { timeZoneName: 'shortOffset' })}</strong>
+              </section>
             </div>
           {:else}
             <div class="">

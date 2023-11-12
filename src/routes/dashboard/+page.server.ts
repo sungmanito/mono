@@ -1,5 +1,5 @@
 import { db } from "$lib/server/db";
-import { error, type Action } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
 import { bills, households, payments, usersToHouseholds } from '$lib/server/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
