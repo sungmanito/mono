@@ -26,6 +26,9 @@ dependencies:
   '@vercel/postgres':
     specifier: ^0.5.0
     version: 0.5.1
+  arktype:
+    specifier: 1.0.27-alpha
+    version: 1.0.27-alpha
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -1258,6 +1261,10 @@ packages:
     resolution: {integrity: sha512-b0P0sZPKtyu8HkeRAfCq0IfURZK+SuwMjY1UXGBU27wpAiTwQAIlq56IbIO+ytk/JjS1fMR14ee5WBBfKi5J6A==}
     dependencies:
       dequal: 2.0.3
+
+  /arktype@1.0.27-alpha:
+    resolution: {integrity: sha512-IGoOTif9W6y2folO1+JoPEffZwO56NSuxb7n4C/iYymKluGek1Z1W6Rsi2P3L27SuQpke3DdsjUxW2ABBhH4hQ==}
+    dev: false
 
   /array-union@2.1.0:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}

@@ -2,11 +2,14 @@
   import Header from "$lib/components/header/header.svelte";
   import Modal from "$lib/components/modal/modal.svelte";
   import { Step, Stepper } from "@skeletonlabs/skeleton";
-    import { CheckIcon } from "lucide-svelte";
+  import { CheckIcon } from "lucide-svelte";
 
   export let data;
 
   let showModal = false;
+  let showUpdateModal = false;
+
+  let paymentUpdater: typeof data.payments[0] = data.payments[0];
 </script>
 
 <svelte:head>
@@ -17,17 +20,29 @@
   <svelte:fragment slot="header">
     Add payment
   </svelte:fragment>
+  <Stepper>
+    <Step>
+      <svelte:fragment slot="header">Hi</svelte:fragment>
+      <input placeholder="hi" class="input px-2 py-1 variant-outline bg-surface-700-200-token" type="text">
+    </Step>
+  </Stepper>
+</Modal>
 
-  <div>
-    <Stepper>
-      <Step>
-        <svelte:fragment slot="header">Hi</svelte:fragment>
-        <input placeholder="hi" class="input px-2 py-1 variant-outline bg-surface-700-200-token" type="text">
-      </Step>
-    </Stepper>
-  </div>
-
-
+<Modal action="?/updatePayment" class="p-3 rounded" modal open={showUpdateModal} on:close={() => showUpdateModal = false}>
+  <svelte:fragment slot="header">
+    {paymentUpdater.bills.billName}
+  </svelte:fragment>
+  <section>
+    <label class="flex flex-col gap-3">
+      <span class="font-bold">Something</span>
+      <input name="proof" placeholder="Confirmation number, etc." class="input px-2 py-1" />
+    </label>
+  </section>
+  <svelte:fragment slot="footer">
+    <button type="submit" class="btn variant-filled-primary">
+      Save
+    </button>
+  </svelte:fragment>
 </Modal>
 
 <Header class="mt-4">
@@ -45,23 +60,37 @@
 <div class="flex flex-col gap-3 mt-4">
   {#each data.payments as payment}
     <div class="card" class:variant-outline-success={payment.payments.paidAt !== null}>
-      <header class="card-header flex gap-2 items-baseline">
-        {#if payment.payments.paidAt !== null}
-          <CheckIcon size="1em"/>
-        {/if}
-        <div class="font-bold">
-          {payment.bills.billName}
-        </div>
+      <header class="card-header">
+        <Header tag="h5" color="secondary">
+          <div class="flex gap-3">
+            {#if payment.payments.paidAt !== null}
+              <CheckIcon size="1em"/>
+            {/if}
+            {payment.bills.billName}
+          </div>
+          <svelte:fragment slot="actions">
+            {#if payment.payments.paidAt === null}
+              <button
+                class="btn btn-sm variant-outline-primary"
+                on:click={() => {
+                  console.info('Mark this as paid', payment);
+                  showUpdateModal = true;
+                }}
+              >
+                Mark as paid
+              </button>
+            {/if}
+          </svelte:fragment>
+        </Header>
       </header>
       
       <section class="p-3">
         {#if payment.payments.paidAt !== null}
-          <strong>Paid at {payment.payments.paidAt}</strong>
+          <strong>Paid at {payment.payments.paidAt.toLocaleDateString(undefined, { month: 'long' })}</strong>
         {:else}
           <em>Waiting for payment...</em>
         {/if}
       </section>
-
     </div>
   {:else}
     <em>No Payments available</em>

@@ -1,9 +1,9 @@
 import { getUserHouseholds } from '$lib/server/actions/households.actions.js';
-import { getPayments } from '$lib/server/actions/payments.actions.js';
 import { db } from '$lib/server/db/client.js';
 import { schema } from '$lib/server/db/index.js';
-import { redirect } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import { and, eq, inArray } from 'drizzle-orm';
+import { type, scope } from 'arktype';
 
 export const load = async ({ locals }) => {
   const today = new Date();
@@ -31,4 +31,18 @@ export const load = async ({ locals }) => {
   return {
     payments,
   };
+}
+
+export const actions = {
+  updatePayment: async ({ locals, request }) => {
+    const session = await locals.getSession();
+
+    if(!session || !session.user) throw error(401);
+
+    const formData = await request.formData();
+    
+    return {
+      waffles: [],
+    };
+  }
 }

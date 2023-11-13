@@ -55,6 +55,7 @@
 		"@sveltejs/adapter-vercel": "^3.0.3",
 		"@vercel/edge-config": "^0.4.1",
 		"@vercel/postgres": "^0.5.0",
+		"arktype": "1.0.27-alpha",
 		"class-variance-authority": "^0.7.0",
 		"drizzle-orm": "^0.28.6",
 		"lucide-svelte": "^0.288.0",
