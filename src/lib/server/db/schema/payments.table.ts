@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import { date, pgTable, smallint, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { bills } from "./bills.table";
 import { ulid } from 'ulidx';
+import { households } from "./households.table";
 
 export const payments = pgTable(
   'payments',
@@ -15,6 +16,7 @@ export const payments = pgTable(
     forMonth: smallint('for_month').notNull().default(1),
     forMonthD: date('for_month_d', { mode: 'date'}).notNull(),
     notes: text('notes'),
+    // householdId: text('household_id').notNull().references(() => households.id, { onDelete: 'no action'}),
   },
   ({ billId, forMonth }) => (
     {

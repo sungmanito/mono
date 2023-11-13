@@ -33,6 +33,7 @@
     {paymentUpdater.bills.billName}
   </svelte:fragment>
   <section>
+    <input type="hidden" name="payment-id" value={paymentUpdater.payments.id} />
     <label class="flex flex-col gap-3">
       <span class="font-bold">Something</span>
       <input name="proof" placeholder="Confirmation number, etc." class="input px-2 py-1" />

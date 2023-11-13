@@ -4,6 +4,7 @@ import { schema } from '$lib/server/db/index.js';
 import { error, redirect } from '@sveltejs/kit';
 import { and, eq, inArray } from 'drizzle-orm';
 import { type, scope } from 'arktype';
+import { formDataToObject } from '$lib/util/formData.js';
 
 export const load = async ({ locals }) => {
   const today = new Date();
@@ -39,7 +40,11 @@ export const actions = {
 
     if(!session || !session.user) throw error(401);
 
-    const formData = await request.formData();
+    const formData = formDataToObject(await request.formData());
+
+    if(!formData['payment-id']) throw error(400, 'Invalid payment');
+
+    // Double check that this is a payment that belongs to us.
     
     return {
       waffles: [],
