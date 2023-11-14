@@ -52,9 +52,12 @@
       <div>
         <slot name="header"></slot>
       </div>
-      <div>
+      <button type="button" class="btn-icon btn-icon-sm" title="Close Modal" on:click={e => {
+        modalElement.close();
+        dispatchEvent('close', e);
+      }}>
         <XIcon size="1em"/>
-      </div>
+      </button>
     </header>
     <section>
       <slot />

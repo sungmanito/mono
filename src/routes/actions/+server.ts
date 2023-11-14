@@ -3,7 +3,7 @@ import { bills as billsTable } from '$lib/server/db/schema/bills.table.js';
 import { payments } from '$lib/server/db/schema/payments.table.js';
 import type { RequestHandler } from './$types';
 import { and, eq } from 'drizzle-orm';
-import type { Payment } from "$lib/server/actions/payments.actions";
+import type { PaymentUpdateArgs } from "$lib/server/actions/payments.actions";
 import { json } from '@sveltejs/kit';
 
 // Temporary thing to create a thing for the payments.
@@ -25,8 +25,9 @@ export const GET: RequestHandler = async () => {
       id: v.payments?.id,
       billId: v.bills.id,
       forMonth: currentMonth,
-      forMonthD: `${today.getFullYear()}-${currentMonth}-${v.bills.dueDate}`
-    } as Payment;
+      forMonthD: new Date(`${today.getFullYear()}-${currentMonth}-${v.bills.dueDate}`),
+      householdId: v.bills.householdId,
+    } as PaymentUpdateArgs;
   });
 
   console.info(mapped);

@@ -9,7 +9,7 @@
   let showModal = false;
   let showUpdateModal = false;
 
-  let paymentUpdater: typeof data.payments[0] = data.payments[0];
+  let paymentUpdater: typeof data.payments[0] | null = null;
 </script>
 
 <svelte:head>
@@ -28,12 +28,12 @@
   </Stepper>
 </Modal>
 
-<Modal action="?/updatePayment" class="p-3 rounded" modal open={showUpdateModal} on:close={() => showUpdateModal = false}>
+<Modal action="?/updatePayment" class="p-3 rounded" modal open={showUpdateModal && paymentUpdater !== null} on:close={() => {showUpdateModal = false; paymentUpdater = null;}}>
   <svelte:fragment slot="header">
-    {paymentUpdater.bills.billName}
+    {paymentUpdater?.bills.billName}
   </svelte:fragment>
   <section>
-    <input type="hidden" name="payment-id" value={paymentUpdater.payments.id} />
+    <input type="hidden" name="payment-id" value={paymentUpdater?.payments.id} />
     <label class="flex flex-col gap-3">
       <span class="font-bold">Something</span>
       <input name="proof" placeholder="Confirmation number, etc." class="input px-2 py-1" />
@@ -49,7 +49,7 @@
 <Header class="mt-4">
   Payments
   <svelte:fragment slot="actions">
-      <button class="btn btn-sm variant-filled-primary" on:click={() => showModal = true}>
+    <button class="btn btn-sm variant-filled-primary" on:click={() => showModal = true}>
       Add payment
     </button>
   </svelte:fragment>
@@ -75,6 +75,7 @@
                 class="btn btn-sm variant-outline-primary"
                 on:click={() => {
                   console.info('Mark this as paid', payment);
+                  paymentUpdater = payment;
                   showUpdateModal = true;
                 }}
               >
@@ -87,7 +88,7 @@
       
       <section class="p-3">
         {#if payment.payments.paidAt !== null}
-          <strong>Paid at {payment.payments.paidAt.toLocaleDateString(undefined, { month: 'long' })}</strong>
+          <strong>Paid {payment.payments.paidAt.toLocaleString(undefined, { month: 'long', day: 'numeric', hour: '2-digit', hour12: true, minute: '2-digit',  })}</strong>
         {:else}
           <em>Waiting for payment...</em>
         {/if}
