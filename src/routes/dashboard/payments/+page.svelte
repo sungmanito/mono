@@ -3,6 +3,7 @@
   import Modal from "$lib/components/modal/modal.svelte";
   import { Step, Stepper } from "@skeletonlabs/skeleton";
   import { CheckIcon } from "lucide-svelte";
+  import { enhance } from '$app/forms';
 
   export let data;
 
@@ -28,14 +29,18 @@
   </Stepper>
 </Modal>
 
-<Modal action="?/updatePayment" class="p-3 rounded" modal open={showUpdateModal && paymentUpdater !== null} on:close={() => {showUpdateModal = false; paymentUpdater = null;}}>
+<Modal action="?/updatePayment" class="p-3 rounded bg-surface-active-token" modal open={showUpdateModal && paymentUpdater !== null} on:close={() => {
+  showUpdateModal = false; paymentUpdater = null;
+}}>
   <svelte:fragment slot="header">
-    {paymentUpdater?.bills.billName}
+    <Header tag="h4" color="secondary">
+      {paymentUpdater?.bills.billName}
+    </Header>
   </svelte:fragment>
   <section>
     <input type="hidden" name="payment-id" value={paymentUpdater?.payments.id} />
     <label class="flex flex-col gap-3">
-      <span class="font-bold">Something</span>
+      <span class="font-bold">Proof of payment</span>
       <input name="proof" placeholder="Confirmation number, etc." class="input px-2 py-1" />
     </label>
   </section>
@@ -73,14 +78,23 @@
             {#if payment.payments.paidAt === null}
               <button
                 class="btn btn-sm variant-outline-primary"
+                type="button"
                 on:click={() => {
-                  console.info('Mark this as paid', payment);
                   paymentUpdater = payment;
                   showUpdateModal = true;
                 }}
               >
                 Mark as paid
               </button>
+            {:else}
+              <form action="?/unpayBill" method="post" use:enhance>
+                <input name="paymentId" type="hidden" value={payment.payments.id} >
+                <button
+                  class="btn btn-sm variant-outline-secondary"
+                >
+                  Unmark as paid
+                </button>
+              </form>
             {/if}
           </svelte:fragment>
         </Header>

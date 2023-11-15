@@ -5,6 +5,7 @@ import { error, redirect } from '@sveltejs/kit';
 import { and, eq, inArray } from 'drizzle-orm';
 import { formDataToObject } from '$lib/util/formData.js';
 import { updatePayments } from '$lib/server/actions/payments.actions.js';
+import { validateUserSession } from '$lib/util/session.js';
 
 export const load = async ({ locals }) => {
   const today = new Date();
@@ -38,7 +39,7 @@ export const actions = {
   updatePayment: async ({ locals, request }) => {
     const session = await locals.getSession();
 
-    if(!session || !session.user) throw error(401);
+    if(!validateUserSession(session)) throw error(401);
 
     const formData = formDataToObject(await request.formData());
 
@@ -68,5 +69,37 @@ export const actions = {
     return {
       updated: newData,
     };
+  },
+  unpayBill: async ({ locals, request, url }) => {
+    console.info(url.searchParams);
+    const session = await locals.getSession();
+
+    if(!validateUserSession(session)) throw error(401);
+
+    const userHouseholds = locals.userHouseholds;
+
+    const formData = formDataToObject(await request.formData());
+
+    if(!formData.paymentId || typeof formData.paymentId !== 'string') throw error(400);
+
+    const [r] = await db.update(schema.payments)
+      .set({
+        proof: '',
+        updatedBy: session.user.id,
+        paidAt: null,
+      })
+      .where(
+        and(
+          eq(schema.payments.id, formData.paymentId),
+          inArray(schema.payments.householdId, userHouseholds.map(f => f.households.id))
+        )
+      )
+      .returning();
+
+    return {
+      success: true,
+      payment: r,
+    };
+    
   }
 }

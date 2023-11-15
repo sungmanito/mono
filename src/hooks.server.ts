@@ -3,6 +3,8 @@ import { createSupabaseServerClient } from '@supabase/auth-helpers-sveltekit';
 import type { Handle } from '@sveltejs/kit';
 import { getAll } from '@vercel/edge-config';
 import { EDGE_CONFIG } from '$env/static/private';
+import { getUserHouseholds } from '$lib/server/actions/households.actions';
+import { validateUserSession } from '$lib/util/session';
 
 // Little bit of tricksy shenanigans since we don't use .env around these parts,
 // but the vercel 
@@ -26,10 +28,19 @@ export const handle: Handle = async ({ event, resolve }) => {
   // Wrapper function
   event.locals.getSession = async () => {
     const {
-      data: { session }
+      data: { session },
     } = await event.locals.supabase.auth.getSession();
     return session;
   };
+
+  const session = await event.locals.getSession();
+  
+  if(validateUserSession(session)) {
+    event.locals.userHouseholds = await getUserHouseholds(session.user.id);
+  } else {
+    event.locals.userHouseholds = [];
+  }
+
 
   return resolve(event, {
     filterSerializedResponseHeaders(name) {

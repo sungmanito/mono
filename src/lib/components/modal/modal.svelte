@@ -2,7 +2,7 @@
   import { XIcon } from 'lucide-svelte';
   import { createEventDispatcher } from 'svelte';
   import { cx } from 'class-variance-authority';
-    import { invalidateAll } from '$app/navigation';
+  import { invalidateAll } from '$app/navigation';
 
   export let open = false;
   export let modal = false;
