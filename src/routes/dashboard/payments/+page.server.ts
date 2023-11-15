@@ -70,8 +70,7 @@ export const actions = {
       updated: newData,
     };
   },
-  unpayBill: async ({ locals, request, url }) => {
-    console.info(url.searchParams);
+  unpayBill: async ({ locals, request }) => {
     const session = await locals.getSession();
 
     if(!validateUserSession(session)) throw error(401);
@@ -82,7 +81,7 @@ export const actions = {
 
     if(!formData.paymentId || typeof formData.paymentId !== 'string') throw error(400);
 
-    const [r] = await db.update(schema.payments)
+    const [payment] = await db.update(schema.payments)
       .set({
         proof: '',
         updatedBy: session.user.id,
@@ -98,7 +97,7 @@ export const actions = {
 
     return {
       success: true,
-      payment: r,
+      payment: payment,
     };
     
   }

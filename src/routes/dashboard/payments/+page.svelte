@@ -30,7 +30,8 @@
 </Modal>
 
 <Modal action="?/updatePayment" class="p-3 rounded bg-surface-active-token" modal open={showUpdateModal && paymentUpdater !== null} on:close={() => {
-  showUpdateModal = false; paymentUpdater = null;
+  showUpdateModal = false;
+  paymentUpdater = null;
 }}>
   <svelte:fragment slot="header">
     <Header tag="h4" color="secondary">

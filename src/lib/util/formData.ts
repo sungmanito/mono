@@ -1,9 +1,9 @@
+import type { Type } from 'arktype';
 
 type EntriesTouple = [string, FormDataEntryValue];
 
 type FilterFn = (a: EntriesTouple) => boolean;
 
-// TODO: get this to be something a bit more robust, perhaps utilizing some sort of field testing / mapping?
 /**
  * 
  * @param fd the form data object
@@ -18,4 +18,22 @@ export function formDataToObject(fd: FormData, filterFn: FilterFn = () => true) 
     }
   }
   return obj;
+}
+/**
+ * 
+ * @param fd Form Data object
+ * @param obj an ArkType type validator
+ * @param filterFn Filter function to run when creating the form data object
+ * @returns 
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function formDataValidObject<T extends Type<R>, R = any>(fd: FormData, obj: T, filterFn?: FilterFn): R {
+  const fdo = formDataToObject(fd, filterFn);
+  const { data, problems } = obj(fdo);
+
+  if(data)
+    // @ts-expect-error I don't care enough about this to fight with it.
+    return data;
+
+  throw problems;
 }
