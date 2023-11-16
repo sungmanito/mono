@@ -41,7 +41,6 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.locals.userHouseholds = [];
   }
 
-
   return resolve(event, {
     filterSerializedResponseHeaders(name) {
       return name === 'content-range'

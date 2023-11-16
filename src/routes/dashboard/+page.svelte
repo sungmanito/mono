@@ -154,11 +154,16 @@
       </svelte:fragment>
       <svelte:fragment slot="content">
         <div class="grid grid-cols-3 gap-32">
-          {#each data.groupings.paid as {bills, household}}
+          {#each data.groupings.paid as {bills, household, payments}}
             <div class="card variant-filled-primary">
               <header class="card-header p-4">
-                {bills.billName} - due on {bills.dueDate}
+                <a href={`/dashboard/payments/${payments?.id}`}>
+                  {bills.billName} - due on {bills.dueDate}
+                </a>
               </header>
+              <section class="p-3">
+                Paid <strong>{payments?.paidAt?.toLocaleString(undefined, { timeZoneName: 'shortOffset' })}</strong>
+              </section>
             </div>
           {:else}
             <div class="">

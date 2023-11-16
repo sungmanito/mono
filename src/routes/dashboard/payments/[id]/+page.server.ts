@@ -3,9 +3,9 @@ import { db } from '$lib/server/db/client.js';
 import { schema } from '$lib/server/db/index.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error } from '@sveltejs/kit';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 
-export const load = async ({ locals, params }) => {
+export const load = async ({ locals, params, setHeaders }) => {
 
   const session = await locals.getSession();
 
@@ -17,6 +17,7 @@ export const load = async ({ locals, params }) => {
 
   const [payment] = await db.select()
     .from(schema.payments)
+    .innerJoin(schema.users, eq(schema.users.id, sql`${schema.payments.updatedBy}::uuid`))
     .where( 
       and(
         inArray(
@@ -28,10 +29,9 @@ export const load = async ({ locals, params }) => {
     );
 
   if(!payment) throw error(400);
-  // Fetch payment
-  // return payment
 
   return {
     payment,
+    user: session.user.user_metadata,
   };
 }

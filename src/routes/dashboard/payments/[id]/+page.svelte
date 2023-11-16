@@ -1,5 +1,7 @@
 <script lang="ts">
   export let data;
 </script>
-
-{JSON.stringify(data)}
+<pre>
+{JSON.stringify(data.payment, null, 2)}
+<img src={data.payment.users.userMetadata.avatar_url} alt="Jim" class="rounded-full">
+</pre>
