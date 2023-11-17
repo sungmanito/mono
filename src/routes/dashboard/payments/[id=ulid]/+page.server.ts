@@ -1,11 +1,10 @@
-import { getPayment } from '$lib/server/actions/payments.actions.js';
 import { db } from '$lib/server/db/client.js';
 import { schema } from '$lib/server/db/index.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error } from '@sveltejs/kit';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 
-export const load = async ({ locals, params, setHeaders }) => {
+export const load = async ({ locals, params }) => {
 
   const session = await locals.getSession();
 
@@ -13,10 +12,10 @@ export const load = async ({ locals, params, setHeaders }) => {
 
   const userHouseholds = locals.userHouseholds;
 
-  console.info(params.id, userHouseholds);
-
   const [payment] = await db.select()
     .from(schema.payments)
+    .innerJoin(schema.bills, eq(schema.bills.id, schema.payments.billId))
+    .innerJoin(schema.households, eq(schema.households.id, schema.payments.householdId))
     .innerJoin(schema.users, eq(schema.users.id, sql`${schema.payments.updatedBy}::uuid`))
     .where( 
       and(
@@ -32,6 +31,5 @@ export const load = async ({ locals, params, setHeaders }) => {
 
   return {
     payment,
-    user: session.user.user_metadata,
   };
 }
