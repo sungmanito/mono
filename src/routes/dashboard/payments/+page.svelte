@@ -11,6 +11,8 @@
   let showUpdateModal = false;
 
   let paymentUpdater: typeof data.payments[0] | null = null;
+  let paymentDetails: typeof data.payments[number] | null = null;
+
 </script>
 
 <svelte:head>
@@ -52,6 +54,25 @@
   </svelte:fragment>
 </Modal>
 
+<Modal
+  modal
+  open={paymentDetails !== null}
+  class="bg-surface-active-token rounded-lg p-3 min-w-[50%] max-w-max"
+  on:close={() => history.pushState(null, '', '/dashboard/payments')}
+>
+  <svelte:fragment slot="header">
+    <h3 class="h3">
+      {paymentDetails?.bills.billName}
+    </h3>
+  </svelte:fragment>
+  <div>
+    <div class="font-semibold">
+      Proof
+    </div>
+    {paymentDetails?.payments.proof}
+  </div>
+</Modal>
+
 <Header class="mt-4">
   Payments
   <svelte:fragment slot="actions">
@@ -73,7 +94,19 @@
             {#if payment.payments.paidAt !== null}
               <CheckIcon size="1em"/>
             {/if}
-            {payment.bills.billName}
+            <div>
+              {#if payment.payments.paidAt !== null}
+                <a href={`/dashboard/payments/${payment.payments.id}`} on:click={(e) => {
+                  e.preventDefault();
+                  paymentDetails = payment;
+                  history.pushState(null, '', e.currentTarget.href);
+                }}>
+                  {payment.bills.billName}
+                </a>
+              {:else}
+                {payment.bills.billName}
+              {/if}
+            </div>
           </div>
           <svelte:fragment slot="actions">
             {#if payment.payments.paidAt === null}
