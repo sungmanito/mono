@@ -40,3 +40,9 @@
     </div>
   </section>
 </div>
+
+<style>
+  :global([data-theme]) {
+    background-image: unset;
+  }
+</style>

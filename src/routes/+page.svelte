@@ -8,7 +8,7 @@
 
 <Hero />
 
-<div class="container mx-auto mt-8">
+<div id="something" class="container mx-auto mt-8 mb-6">
   <h1 class="text-4xl font-bold mb-8">
     Sungmanito, 
     <small><em>Noun</em></small>

@@ -1,6 +1,6 @@
 <script lang="ts">
   import Navbar from '$lib/components/navbar.svelte';
-    import { Toast, initializeStores } from '@skeletonlabs/skeleton';
+  import { Toast, initializeStores } from '@skeletonlabs/skeleton';
   import '../app.css';
 
   initializeStores();
@@ -12,5 +12,7 @@
 <div class="min-h-screen flex flex-col">
   <Navbar />
   <slot />
-  <footer class="bg-zinc-900">I am the footer here</footer>
+  <footer class="p-4 bg-surface-50-900-token flex justify-center">
+    &copy; Sungmanito
+  </footer>
 </div>

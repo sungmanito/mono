@@ -8,8 +8,10 @@ export const load = async ({ locals, params }) => {
 
   const session = await locals.getSession();
 
+  // Validate the session
   if(!validateUserSession(session)) throw error(401);
 
+  // Grab the user's households.
   const userHouseholds = locals.userHouseholds;
 
   const [payment] = await db.select()
@@ -27,8 +29,10 @@ export const load = async ({ locals, params }) => {
       )
     );
 
-  if(!payment) throw error(400);
+  // Throw a 404 error if we do not have a payment option.
+  if(!payment) throw error(404);
 
+  // Return the payment for this page.
   return {
     payment,
   };
