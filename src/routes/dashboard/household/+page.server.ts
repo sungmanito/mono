@@ -2,6 +2,7 @@ import { deleteHousehold } from '$lib/server/actions/households.actions.js';
 import { db } from '$lib/server/db';
 import { households } from '$lib/server/db/schema/households.table.js';
 import { usersToHouseholds } from '$lib/server/db/schema/usersToHouseholds.table.js';
+import { validateUserSession } from '$lib/util/session.js';
 import { fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { ulid } from 'ulidx';
@@ -39,10 +40,11 @@ export const actions = {
     const session = await locals.getSession();
     const data = await request.formData();
 
-    if(data.has('household-name') && session && session.user) {
+    if(data.has('household-name') && validateUserSession(session)) {
       const [household] = await db.insert(households).values({
         id: ulid(),
-        name: data.get('household-name') as string
+        name: data.get('household-name') as string,
+        ownerId: session.user.id
       }).returning();
 
       await db.insert(usersToHouseholds).values({

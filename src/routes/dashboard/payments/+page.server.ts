@@ -62,6 +62,7 @@ export const actions = {
     const newData = await updatePayments(formData['payment-id'], {
       proof: formData['proof'],
       paidAt: new Date(),
+      updatedBy: session.user.id,
     });
 
     // Double check that this is a payment that belongs to us.

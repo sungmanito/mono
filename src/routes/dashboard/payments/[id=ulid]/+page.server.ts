@@ -28,7 +28,7 @@ export const load = async ({ locals, params }) => {
         eq(schema.payments.id, params.id),
       )
     );
-
+  
   // Throw a 404 error if we do not have a payment option.
   if(!payment) throw error(404);
 

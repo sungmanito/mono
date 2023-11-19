@@ -20,7 +20,7 @@
           </svelte:fragment>
       		<span>Bills</span>
       	</AppRailAnchor>
-        <AppRailAnchor href="/dashboard/household" selected={$page.url.pathname === '/dashboard/household' }>
+        <AppRailAnchor href="/dashboard/household" selected={$page.url.pathname.startsWith('/dashboard/household') }>
       		<svelte:fragment slot="lead">
             <Users2Icon class="mx-auto" size={32} />
           </svelte:fragment>
