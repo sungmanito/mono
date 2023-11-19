@@ -11,4 +11,6 @@
 <div class="container mx-auto">
 
   <h1>{household.name}</h1>  
+
+  <p>IDK probably a list of members</p>
 </div>

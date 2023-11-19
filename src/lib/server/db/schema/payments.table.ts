@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { date, pgTable, smallint, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { date, pgTable, smallint, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { bills } from "./bills.table";
 import { ulid } from 'ulidx';
 import { households } from "./households.table";
@@ -11,7 +11,7 @@ export const payments = pgTable(
     billId: text('bill_id').notNull().references(() => bills.id, { onDelete: 'cascade'}),
     proof: text('proof'),
     paidAt: timestamp('paid_at', { withTimezone: true }),
-    updatedBy: text('updated_by'),
+    updatedBy: uuid('updated_by'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     forMonth: smallint('for_month').notNull().default(1),
     forMonthD: date('for_month_d', { mode: 'date'}).notNull(),

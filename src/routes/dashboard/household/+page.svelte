@@ -28,16 +28,19 @@
 </svelte:head>
 
 <div class="container mx-auto mt-4">
-  <Header>
+  <Header class="mb-4">
     Households
     <svelte:fragment slot="actions">
-      <Button on:click={toggleHouseholds}>Add</Button>
+      <Button size="sm" variant="primary" on:click={toggleHouseholds}>Add</Button>
     </svelte:fragment>
   </Header>
 
-  {#each households as household}
-    <HouseholdListItem  household={household}/>
-  {/each}
+  <section class="flex flex-col gap-4">
+    {#each households as household}
+      <HouseholdListItem  household={household}/>
+    {/each}
+  </section>
+
 </div>
 
 <dialog id="create-household" class="rounded-lg p-2 max-w-[30vw]">
