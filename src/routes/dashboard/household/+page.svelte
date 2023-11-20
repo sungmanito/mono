@@ -4,6 +4,7 @@
   import Header from "$lib/components/header/header.svelte";
   import type { PageData } from './$types';
   import HouseholdListItem from "./_components/householdListItem.svelte";
+    import Breadcrumb from "$lib/components/breadcrumb/breadcrumb.svelte";
   export let data: PageData;
   let households = data.households;
   $: households = data.households;
@@ -28,6 +29,19 @@
 </svelte:head>
 
 <div class="container mx-auto mt-4">
+  <Breadcrumb
+    class="mb-4"
+    crumbs={[
+      {
+        link: 'Dashboard',
+        href: '/dashboard',
+      },
+      {
+        link: 'Households',
+        href: '/dashboard/household'
+      }
+    ]}
+  />
   <Header class="mb-4">
     Households
     <svelte:fragment slot="actions">

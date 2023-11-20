@@ -28,12 +28,15 @@ export const handle: Handle = async ({ event, resolve }) => {
     }
   });
 
+  /**
+   * This is from the Vercel Edge Config
+   */
   event.locals.config = await getAll<{ is_live: boolean }>();
 
-  // Passes this on to the locals
+  // Passes this on to the locals so that load functions can use it later
   event.locals.supabase = supabase;
 
-  // Wrapper function
+  // Wrapper function to make getting the user session easier
   event.locals.getSession = async () => {
     const {
       data: { session },
@@ -43,6 +46,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   const session = await event.locals.getSession();
 
+  // We are gathering the logged in users' households a lot
+  // To hopefully save that, we store them in the locals.
   if (validateUserSession(session)) {
     event.locals.userHouseholds = await getUserHouseholds(session.user.id);
   } else {

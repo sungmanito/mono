@@ -4,6 +4,7 @@
   import { Step, Stepper } from "@skeletonlabs/skeleton";
   import { CheckIcon } from "lucide-svelte";
   import { enhance } from '$app/forms';
+    import Breadcrumb from "$lib/components/breadcrumb/breadcrumb.svelte";
 
   export let data;
 
@@ -73,76 +74,91 @@
   </div>
 </Modal>
 
-<Header class="mt-4">
-  Payments
-  <svelte:fragment slot="actions">
-    <button class="btn btn-sm variant-filled-primary" on:click={() => showModal = true}>
-      Add payment
-    </button>
-  </svelte:fragment>
-</Header>
-<p class="font-xl font-semibold text-zinc-300">
-  Includes payments from this month.
-</p>
-
-<div class="flex flex-col gap-3 mt-4">
-  {#each data.payments as payment}
-    <div class="card" class:variant-outline-success={payment.payments.paidAt !== null}>
-      <header class="card-header">
-        <Header tag="h5" color="secondary">
-          <div class="flex gap-3">
-            {#if payment.payments.paidAt !== null}
-              <CheckIcon size="1em"/>
-            {/if}
-            <div>
+<div class="container mx-auto px-3">
+  <Breadcrumb
+    class="mt-4"
+    crumbs={[
+      {
+        link: 'Dashboard',
+        href: '/dashboard'
+      },
+      {
+        link: 'Payments',
+        href: '/dashboard/payments'
+      }
+    ]}
+  />
+  <Header class="mt-4">
+    Payments
+    <svelte:fragment slot="actions">
+      <button class="btn btn-sm variant-filled-primary" on:click={() => showModal = true}>
+        Add payment
+      </button>
+    </svelte:fragment>
+  </Header>
+  <p class="font-xl font-semibold text-zinc-300">
+    Includes payments from this month.
+  </p>
+  
+  <div class="flex flex-col gap-3 mt-4">
+    {#each data.payments as payment}
+      <div class="card" class:variant-outline-success={payment.payments.paidAt !== null}>
+        <header class="card-header">
+          <Header tag="h5" color="secondary">
+            <div class="flex gap-3">
               {#if payment.payments.paidAt !== null}
-                <a href={`/dashboard/payments/${payment.payments.id}`} on:click={(e) => {
-                  e.preventDefault();
-                  paymentDetails = payment;
-                  history.pushState(null, '', e.currentTarget.href);
-                }}>
-                  {payment.bills.billName}
-                </a>
-              {:else}
-                {payment.bills.billName}
+                <CheckIcon size="1em"/>
               {/if}
+              <div>
+                {#if payment.payments.paidAt !== null}
+                  <a href={`/dashboard/payments/${payment.payments.id}`} on:click={(e) => {
+                    e.preventDefault();
+                    paymentDetails = payment;
+                    history.pushState(null, '', e.currentTarget.href);
+                  }}>
+                    {payment.bills.billName}
+                  </a>
+                {:else}
+                  {payment.bills.billName}
+                {/if}
+              </div>
             </div>
-          </div>
-          <svelte:fragment slot="actions">
-            {#if payment.payments.paidAt === null}
-              <button
-                class="btn btn-sm variant-outline-primary"
-                type="button"
-                on:click={() => {
-                  paymentUpdater = payment;
-                  showUpdateModal = true;
-                }}
-              >
-                Mark as paid
-              </button>
-            {:else}
-              <form action="?/unpayBill" method="post" use:enhance>
-                <input name="paymentId" type="hidden" value={payment.payments.id} >
+            <svelte:fragment slot="actions">
+              {#if payment.payments.paidAt === null}
                 <button
-                  class="btn btn-sm variant-outline-secondary"
+                  class="btn btn-sm variant-outline-primary"
+                  type="button"
+                  on:click={() => {
+                    paymentUpdater = payment;
+                    showUpdateModal = true;
+                  }}
                 >
-                  Unmark as paid
+                  Mark as paid
                 </button>
-              </form>
-            {/if}
-          </svelte:fragment>
-        </Header>
-      </header>
-      
-      <section class="p-3">
-        {#if payment.payments.paidAt !== null}
-          <strong>Paid {payment.payments.paidAt.toLocaleString(undefined, { month: 'long', day: 'numeric', hour: '2-digit', hour12: true, minute: '2-digit',  })}</strong>
-        {:else}
-          <em>Waiting for payment...</em>
-        {/if}
-      </section>
-    </div>
-  {:else}
-    <em>No Payments available</em>
-  {/each}
+              {:else}
+                <form action="?/unpayBill" method="post" use:enhance>
+                  <input name="paymentId" type="hidden" value={payment.payments.id} >
+                  <button
+                    class="btn btn-sm variant-outline-secondary"
+                  >
+                    Unmark as paid
+                  </button>
+                </form>
+              {/if}
+            </svelte:fragment>
+          </Header>
+        </header>
+  
+        <section class="p-3">
+          {#if payment.payments.paidAt !== null}
+            <strong>Paid {payment.payments.paidAt.toLocaleString(undefined, { month: 'long', day: 'numeric', hour: '2-digit', hour12: true, minute: '2-digit',  })}</strong>
+          {:else}
+            <em>Waiting for payment...</em>
+          {/if}
+        </section>
+      </div>
+    {:else}
+      <em>No Payments available</em>
+    {/each}
+  </div>
 </div>
