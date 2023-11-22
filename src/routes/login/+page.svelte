@@ -1,8 +1,6 @@
 <script lang="ts">
+  import { goto, invalidateAll } from '$app/navigation';
   import client from '$lib/client/supabase';
-  import { page } from '$app/stores';
-  import { goto, invalidate } from '$app/navigation';
-  import { onMount } from 'svelte';
   import { getToastStore } from '@skeletonlabs/skeleton';
 
   const toastStore = getToastStore();
@@ -27,7 +25,7 @@
   
   
       if(f.type === 'success') {
-        await invalidate('/');
+        await invalidateAll();
         goto('/dashboard');
       }
     } else if(error) {
@@ -49,7 +47,7 @@
         <button type="button" on:click={() => client.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: 'http://localhost:5173/login?/update',
+            redirectTo: `${window.location.protocol}//${window.location.host}`,
           }
         }).then((r) => {
           goto('/dashboard')

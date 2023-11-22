@@ -1,37 +1,36 @@
-import { deleteHousehold } from '$lib/server/actions/households.actions.js';
-import { db } from '$lib/server/db';
+import { householdsToUsersMap } from '$lib/server/actions/households.actions.js';
+import { db, schema } from '$lib/server/db';
 import { households } from '$lib/server/db/schema/households.table.js';
 import { usersToHouseholds } from '$lib/server/db/schema/usersToHouseholds.table.js';
 import { validateUserSession } from '$lib/util/session.js';
-import { fail } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
+import { fail, error } from '@sveltejs/kit';
+import { eq, sql } from 'drizzle-orm';
 import { ulid } from 'ulidx';
 
 export const load = async ({ locals }) => {
-  const { data: { user }, error } = await locals.supabase.auth.getUser();
 
-  if(error || !user ) {
-    return { households: []}
-  }
+  const session = await locals.getSession();
 
-  const householdsValue = await db.query.usersToHouseholds.findMany({
-    where: ({ userId }, { eq }) => eq(userId, user.id),
-    with: {
-      household: {
-        with: {
-          users: true,
-          bills: true,
-        }
-      },
-    }
-  })
-    .then(r => r.map(v => v.household )).catch(e => {
-      console.error(e);
-      return [];
-    });
+  if(!validateUserSession(session)) throw error(401);
+
+  const householdsValue = await db
+    .select({
+      id: schema.households.id,
+      name: schema.households.name,
+      ownerId: schema.households.ownerId,
+      billCount: sql<number>`count(${schema.bills.id})::integer as bill_count`,
+    })
+    .from(schema.households)
+    .leftJoin(schema.bills, eq(schema.bills.householdId, schema.households.id))
+    .groupBy(schema.households.id)
+    .orderBy(schema.households.name);
+
 
   return {
     households: householdsValue,
+    streamed: {
+      userHouseholds: householdsToUsersMap(locals.userHouseholds.map(f => f.households.id)),
+    }
   };
 }
 

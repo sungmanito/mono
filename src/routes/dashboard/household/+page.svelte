@@ -1,11 +1,13 @@
 <script lang="ts">
-  import Button from "$lib/components/button/button.svelte";
   import { enhance } from '$app/forms';
+  import Breadcrumb from "$lib/components/breadcrumb/breadcrumb.svelte";
+  import Button from "$lib/components/button/button.svelte";
   import Header from "$lib/components/header/header.svelte";
-  import type { PageData } from './$types';
-  import HouseholdListItem from "./_components/householdListItem.svelte";
-    import Breadcrumb from "$lib/components/breadcrumb/breadcrumb.svelte";
-  export let data: PageData;
+  import { PlusIcon } from "lucide-svelte";
+  import HouseholdSideItem from "./_components/householdSideItem.svelte";
+    import HouseholdSidebar from './_components/householdSidebar.svelte';
+  export let data;
+
   let households = data.households;
   $: households = data.households;
 
@@ -20,13 +22,39 @@
       el.showModal();
     }
   }
-
-  
 </script>
 
 <svelte:head>
   <title>Dashboard &ndash; Households</title>
 </svelte:head>
+
+<HouseholdSidebar
+  households={households}
+  userMap={data.streamed.userHouseholds}
+  on:click={toggleHouseholds}
+/>
+
+<!-- <section class="w-[15%] min-w-max bg-surface-50-900-token p-4">
+  <div class="flex flex-col gap-2">
+    <header class="flex justify-between gap-4">
+      
+      <h3 class="h3">
+        Households
+      </h3>
+      <section class="actions">
+        <Button variant="primary" class="inline-flex gap-2 items-center" on:click={toggleHouseholds}>
+          <PlusIcon size="1em" />
+          Add
+        </Button>
+      </section>
+    </header>
+
+    {#each households as household }     
+      <HouseholdSideItem household={household} userMap={data.streamed.userHouseholds} />
+    {/each}
+  </div>
+</section>
+-->
 
 <div class="container mx-auto mt-4">
   <Breadcrumb
@@ -50,9 +78,7 @@
   </Header>
 
   <section class="flex flex-col gap-4">
-    {#each households as household}
-      <HouseholdListItem  household={household}/>
-    {/each}
+    <p>Please select a household from the list to the left</p>
   </section>
 
 </div>

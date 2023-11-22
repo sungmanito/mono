@@ -1,5 +1,5 @@
 import { db } from "$lib/server/db";
-import { error } from "@sveltejs/kit";
+import { error, redirect } from "@sveltejs/kit";
 import { bills, households, payments, usersToHouseholds } from '$lib/server/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
@@ -11,7 +11,7 @@ export const load = async ({ locals }) => {
   const session = await locals.getSession();
 
   if(!session || !session.user) {
-    throw error(401, 'Not logged in');
+    throw redirect(303, '/login');
   }
 
   const today = new Date();
