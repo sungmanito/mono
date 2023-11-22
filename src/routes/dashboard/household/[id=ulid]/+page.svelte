@@ -5,6 +5,7 @@
   import { CrownIcon } from 'lucide-svelte';
 
   import { page } from "$app/stores";
+    import Button from '$lib/components/button/button.svelte';
 
   export let data;
   export let form;
@@ -25,18 +26,18 @@
 </svelte:head>
 
 <aside class="p-3 min-w-[15%] flex flex-col bg-surface-50-900-token gap-2 overflow-auto">
-  <h3 class="h3">Teams</h3>
+  <h3 class="h3">Households</h3>
   
   {#each data.households as household}
-    <div class="p-3 rounded" class:variant-filled-primary={household.households.id === data.household.id}>
-      <a href={`/dashboard/household/${household.households.id}`} class="inline-flex gap-2 items-center">
+    <a href={`/dashboard/household/${household.households.id}`} class="p-3 hover:bg-surface-hover-token rounded" class:variant-filled-primary={household.households.id === data.household.id}>
+      <div class="inline-flex gap-2 items-center">
         {#if household.households.ownerId === data.user.id}
           <span title="Owner">
             <CrownIcon size="1em" />
           </span>
         {/if}
-         {household.households.name}
-      </a>
+        {household.households.name}
+      </div>
       <div>
         {#await data.streamed.householdUsers}
           <div class="placeholder animate-pulse"></div>
@@ -48,12 +49,12 @@
           {/if}
         {/await}
       </div>
-    </div>
+    </a>
   {/each}
   
 </aside>
 
-<div class="flex-grow flex flex-col gap-3 px-3">
+<div class="flex-grow flex flex-col gap-3 p-5">
   <Breadcrumb class="mt-4" crumbs={[
     {
       href: '/dashboard',
@@ -68,7 +69,7 @@
       link: household.name
     }
   ]} />
-  
+
   <h1 class="h1">{household.name}</h1>
   <div class="flex gap-4">
 
@@ -89,7 +90,7 @@
     </main> 
         
   
-    <section class="w-1/6 bg-surface-300-600-token p-3 rounded flex flex-col gap-2">
+    <section class="w-1/5 bg-surface-300-600-token p-3 rounded flex flex-col gap-2">
       <h4 class="h4">
         Members
       </h4>

@@ -1,4 +1,4 @@
-import { integer, pgTable, text } from "drizzle-orm/pg-core";
+import { index, integer, pgTable, text } from "drizzle-orm/pg-core";
 import { households } from "./households.table";
 import { ulid } from 'ulidx';
 
@@ -11,4 +11,7 @@ export const bills = pgTable(
     dueDate: integer('due_date').notNull().default(16),
     householdId: text('household_id').notNull().references(() => households.id, { onDelete: 'cascade' }),
   },
+  ({ householdId }) => ({
+    householdIndex: index('household_idx').on(householdId),
+  })
 );

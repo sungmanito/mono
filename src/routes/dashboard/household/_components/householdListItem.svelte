@@ -56,7 +56,7 @@
         {household.id}
       </small>
       <span>
-        &ndash; {household.users.length} members
+        &ndash; {household.users} members
       </span>
       <span title="Owner">
         <CrownIcon size="1em" />

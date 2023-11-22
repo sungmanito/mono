@@ -36,10 +36,10 @@
   export let variant: ButtonStyleProps['variant'] = 'primary';
   export let size: ButtonStyleProps['size'] = 'sm';
 
-  const className = button({ className: $$props.class, size, variant })
+  const className = button({ size, variant, className: $$props.class })
 
 </script>
 
-<button class={className} on:click {...$$props}>
+<button {...$$props} class={className} on:click>
   <slot />
 </button>

@@ -1,17 +1,22 @@
 import { db } from '$lib/server/db/client.js';
 import { schema } from '$lib/server/db/index.js';
-import { formDataToObject } from '$lib/util/formData.js';
+import { formDataValidObject } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, redirect } from '@sveltejs/kit';
-import { and, eq, ilike, inArray, like, or, sql } from 'drizzle-orm';
+import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
+import { type } from 'arktype';
 
 type ArrayType<T> = T extends (infer U)[] ? U : never;
+
+const formDataValidator = type({
+  user: 'email | string',
+});
 
 export const load = async ({ params, locals }) => {
 
   const session = await locals.getSession();
 
-  if(!validateUserSession(session)) throw redirect(300, '/login');
+  if (!validateUserSession(session)) throw redirect(300, '/login');
 
   const household = await db.query.households.findFirst({
     where: ({ id }, { eq, and, inArray }) => and(eq(id, params.id), inArray(id, locals.userHouseholds.map(h => h.households.id))),
@@ -27,7 +32,7 @@ export const load = async ({ params, locals }) => {
   if (!household) {
     throw redirect(303, 'Nope');
   }
-  
+
   return {
     household,
     households: locals.userHouseholds,
@@ -47,19 +52,19 @@ export const load = async ({ params, locals }) => {
           ),
           eq(schema.usersToHouseholds.userId, schema.users.id)
         )
-      ).then(r => {
-        const map = r.reduce((all, cur) => {
-          if(!all[cur.householdId])
-            all[cur.householdId] = [];
-          all[cur.householdId].push(cur)
-          return all;
-        }, {} as Record<string, ArrayType<typeof r>[]>);
-        return map;
-      }),
+        ).then(r => {
+          const map = r.reduce((all, cur) => {
+            if (!all[cur.householdId])
+              all[cur.householdId] = [];
+            all[cur.householdId].push(cur)
+            return all;
+          }, {} as Record<string, ArrayType<typeof r>[]>);
+          return map;
+        }),
       bills: db.select()
         .from(schema.bills)
         .where(eq(schema.bills.householdId, household.id))
-          
+
     }
   };
 };
@@ -68,22 +73,29 @@ export const actions = {
   findUser: async ({ request, locals }) => {
     const session = await locals.getSession();
 
-    if(!validateUserSession(session)) throw error(401, 'Not logged in');
+    if (!validateUserSession(session)) throw error(401, 'Not logged in');
 
-    const formData = formDataToObject(await request.formData());
+    try {
+      const formData = formDataValidObject(await request.formData(), formDataValidator);
 
-    const b = await db.select().from(schema.users)
-      .where(
-        or(
-          sql`${schema.users.userMetadata}->>'name' ilike ${'%'+formData.user+'%'}`,
-          like(schema.users.email, `%${formData.user as string}%`)
-        )
-      );
+      const b = await db.select().from(schema.users)
+        .where(
+          or(
+            // Check if the value is the user's name, or part of it
+            sql`${schema.users.userMetadata}->>'name' ilike ${'%' + formData.user + '%'}`,
+            // Check if the value is part of the user's email
+            like(schema.users.email, `%${formData.user as string}%`),
+            // Check if the value is the user's actual name
+            eq(schema.users.email, formData.user as string)
+          )
+        );
 
-    console.info('JIM', b)
-
-    return {
-      users: b
+      return {
+        users: b
+      }
+    } catch (e) {
+      console.error(e)
+      throw error(400);
     }
   }
 }
