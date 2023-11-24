@@ -74,5 +74,15 @@ export const actions = {
       console.error(e)
       throw error(400);
     }
+  },
+  inviteUsers: async ({ request, locals }) => {
+    const session = await locals.getSession();
+
+    /**
+     * 1. Invite a user. 
+     */
+    if(!validateUserSession(session)) throw error(401);
+
+    return {};
   }
 }
