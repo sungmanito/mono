@@ -64,8 +64,7 @@ export async function householdsToUsersMap(households: Household['id'][]) {
       schema.households,
       eq(schema.households.id, schema.usersToHouseholds.householdId)
     )
-    .then(rows => {
-      const map = rows.reduce((all, cur) => {
+    .then(rows => rows.reduce((all, cur) => {
         if(!all[cur.householdId]) all[cur.householdId] = {
           householdId: cur.householdId,
           householdName: cur.householdName,
@@ -78,7 +77,6 @@ export async function householdsToUsersMap(households: Household['id'][]) {
           userMetadata: cur.userMetadata,
         });
         return all
-      }, {} as Record<string, {householdId: string; householdName: string; users: UserMapped[]; }>);
-      return map;
-    })
+      }, {} as Record<string, {householdId: string; householdName: string; users: UserMapped[]; }>)
+    )
 }

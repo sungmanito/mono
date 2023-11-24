@@ -2,8 +2,8 @@
 import { pgTable, text, uuid, timestamp } from 'drizzle-orm/pg-core';
 import { sql } from "drizzle-orm";
 import { ulid } from "ulidx";
-import { users } from './users.table';
 
+// I don't think we need this.
 export const invites = pgTable(
   'invites',
   {

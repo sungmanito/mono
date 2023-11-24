@@ -1,0 +1,7 @@
+{
+  "[typescript]": {
+    "typescript.preferences.quoteStyle": "single",
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "svelte.plugin.svelte.format.config.singleQuote": true
+}

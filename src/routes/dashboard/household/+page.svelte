@@ -3,7 +3,7 @@
   import Breadcrumb from "$lib/components/breadcrumb/breadcrumb.svelte";
   import Button from "$lib/components/button/button.svelte";
   import Header from "$lib/components/header/header.svelte";
-  import { PlusIcon } from "lucide-svelte";
+  import { PlusIcon, XIcon } from "lucide-svelte";
   import HouseholdSideItem from "./_components/householdSideItem.svelte";
     import HouseholdSidebar from './_components/householdSidebar.svelte';
   export let data;
@@ -30,31 +30,8 @@
 
 <HouseholdSidebar
   households={households}
-  userMap={data.streamed.userHouseholds}
-  on:click={toggleHouseholds}
+  userMap={data.streamable.userHouseholds}
 />
-
-<!-- <section class="w-[15%] min-w-max bg-surface-50-900-token p-4">
-  <div class="flex flex-col gap-2">
-    <header class="flex justify-between gap-4">
-      
-      <h3 class="h3">
-        Households
-      </h3>
-      <section class="actions">
-        <Button variant="primary" class="inline-flex gap-2 items-center" on:click={toggleHouseholds}>
-          <PlusIcon size="1em" />
-          Add
-        </Button>
-      </section>
-    </header>
-
-    {#each households as household }     
-      <HouseholdSideItem household={household} userMap={data.streamed.userHouseholds} />
-    {/each}
-  </div>
-</section>
--->
 
 <div class="container mx-auto mt-4">
   <Breadcrumb
@@ -84,6 +61,13 @@
 </div>
 
 <dialog id="create-household" class="rounded-lg p-2 max-w-[30vw]">
+  <header class="flex flex-end">
+    <button on:click={e => {
+      e.currentTarget.closest('dialog')?.close();
+    }}>
+      <XIcon size="0.8rem" />
+    </button>
+  </header>
   <form action="?/addHousehold" method="post" use:enhance>
     <label>
       <input name="household-name" type="text" class="p-2 border rounded" placeholder="New Household name">

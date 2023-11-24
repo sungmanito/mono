@@ -35,32 +35,9 @@ export const load = async ({ params, locals }) => {
 
   return {
     household,
-    households: locals.userHouseholds,
+    // households: locals.userHouseholds,
     user: session.user,
     streamed: {
-      householdUsers: db.select({
-        id: schema.users.id,
-        email: schema.users.email,
-        userMetadata: schema.users.userMetadata,
-        householdId: schema.usersToHouseholds.householdId
-      })
-        .from(schema.users)
-        .innerJoin(schema.usersToHouseholds, and(
-          inArray(
-            schema.usersToHouseholds.householdId,
-            locals.userHouseholds.map(h => h.households.id)
-          ),
-          eq(schema.usersToHouseholds.userId, schema.users.id)
-        )
-        ).then(r => {
-          const map = r.reduce((all, cur) => {
-            if (!all[cur.householdId])
-              all[cur.householdId] = [];
-            all[cur.householdId].push(cur)
-            return all;
-          }, {} as Record<string, ArrayType<typeof r>[]>);
-          return map;
-        }),
       bills: db.select()
         .from(schema.bills)
         .where(eq(schema.bills.householdId, household.id))

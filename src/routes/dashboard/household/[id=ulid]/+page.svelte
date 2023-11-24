@@ -6,6 +6,8 @@
 
   import { page } from "$app/stores";
     import Button from '$lib/components/button/button.svelte';
+    import HouseholdSideItem from '../_components/householdSideItem.svelte';
+    import HouseholdSidebar from '../_components/householdSidebar.svelte';
 
   export let data;
   export let form;
@@ -25,7 +27,12 @@
   </title>
 </svelte:head>
 
-<aside class="p-3 min-w-[15%] flex flex-col bg-surface-50-900-token gap-2 overflow-auto">
+<HouseholdSidebar
+  households={data.households}
+  userMap={data.streamable.userHouseholds}
+/>
+
+<!-- <aside class="p-3 min-w-[15%] flex flex-col bg-surface-50-900-token gap-2 overflow-auto">
   <h3 class="h3">Households</h3>
   
   {#each data.households as household}
@@ -52,7 +59,7 @@
     </a>
   {/each}
   
-</aside>
+</aside> -->
 
 <div class="flex-grow flex flex-col gap-3 p-5">
   <Breadcrumb class="mt-4" crumbs={[
@@ -112,11 +119,11 @@
           {/each}
         {/if}
       </form>
-      {#await data.streamed.householdUsers}
+      {#await data.streamable.userHouseholds}
         <div class="placeholder animate-pulse"></div>
       {:then userMap}
         {#if userMap[household.id]}
-          {#each userMap[household.id] as householdUser}
+          {#each userMap[household.id].users as householdUser}
             <span class="inline-flex gap-2 items-center">
 
               {#if householdUser.id === household.ownerId}
@@ -126,6 +133,8 @@
             </span>
           {/each}
         {/if}
+      {:catch}
+        Could not load household users. Please try again later.
       {/await}
     </section>
   </div>
