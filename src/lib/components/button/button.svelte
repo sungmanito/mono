@@ -11,11 +11,17 @@
           secondary: 'variant-filled-secondary',
           destructive: 'variant-filled-error',
           'primary:ghost': 'variant-ghost-primary',
+          'destructive:ghost': 'variant-ghost-error',
+          // Escape hatch, in case we need to get really weird with the buttons
+          custom: '',
         },
         size: {
           sm: 'btn-sm',
-          medium: 'btn-md'
+          medium: 'btn-md',
+          md: 'btn-md',
+          lg: 'btn-lg'
         },
+        // Don't need these anymore.
         rounded: {
           DEFAULT: 'rounded-full',
           lg: 'rounded-lg',

@@ -4,6 +4,8 @@ import { db, schema } from '$lib/server/db';
 import { validateUserSession } from '$lib/util/session.js';
 import { error } from '@sveltejs/kit';
 
+// These can be deleted, i wasn't aware of the `parent()` function you could load in
+
 export const load = async ({ locals }) => {
 
   const session = await locals.getSession();

@@ -3,11 +3,12 @@
   import { goto } from '$app/navigation';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import { CrownIcon } from 'lucide-svelte';
+  import { type } from "arktype";
 
   import { page } from "$app/stores";
-    import Button from '$lib/components/button/button.svelte';
-    import HouseholdSideItem from '../_components/householdSideItem.svelte';
-    import HouseholdSidebar from '../_components/householdSidebar.svelte';
+  import Button from '$lib/components/button/button.svelte';
+  import HouseholdSideItem from '../_components/householdSideItem.svelte';
+  import HouseholdSidebar from '../_components/householdSidebar.svelte';
 
   export let data;
   export let form;
@@ -32,35 +33,6 @@
   userMap={data.streamable.userHouseholds}
 />
 
-<!-- <aside class="p-3 min-w-[15%] flex flex-col bg-surface-50-900-token gap-2 overflow-auto">
-  <h3 class="h3">Households</h3>
-  
-  {#each data.households as household}
-    <a href={`/dashboard/household/${household.households.id}`} class="p-3 hover:bg-surface-hover-token rounded" class:variant-filled-primary={household.households.id === data.household.id}>
-      <div class="inline-flex gap-2 items-center">
-        {#if household.households.ownerId === data.user.id}
-          <span title="Owner">
-            <CrownIcon size="1em" />
-          </span>
-        {/if}
-        {household.households.name}
-      </div>
-      <div>
-        {#await data.streamed.householdUsers}
-          <div class="placeholder animate-pulse"></div>
-        {:then householdMap} 
-          {#if householdMap[household.households.id]}
-            {householdMap[household.households.id].length} member(s)
-          {:else}
-            1 member
-          {/if}
-        {/await}
-      </div>
-    </a>
-  {/each}
-  
-</aside> -->
-
 <div class="flex-grow flex flex-col gap-3 p-5">
   <Breadcrumb class="mt-4" crumbs={[
     {
@@ -77,7 +49,13 @@
     }
   ]} />
 
-  <h1 class="h1">{household.name}</h1>
+  <header class="flex justify-between gap-4 items-center mb-4">
+    <h1 class="h1">{household.name}</h1>
+    <div class="actions flex gap-2">
+      <Button size="sm" variant="primary:ghost">Edit</Button>
+      <Button size="sm" variant="destructive:ghost">Delete</Button>
+    </div>
+  </header>
   <div class="flex gap-4">
 
     <main class="flex-grow">
@@ -97,7 +75,7 @@
     </main> 
         
   
-    <section class="w-1/5 bg-surface-300-600-token p-3 rounded flex flex-col gap-2">
+    <section class="w-1/4 bg-surface-300-600-token p-3 rounded flex flex-col gap-2">
       <h4 class="h4">
         Members
       </h4>
@@ -134,7 +112,27 @@
           {/each}
         {/if}
       {:catch}
-        Could not load household users. Please try again later.
+          Error occurred
+      {/await}
+
+      <h4 class="h4">
+        Invites
+      </h4>
+
+      {#await data.streamed.invites}
+        <div class="placeholder"></div>
+      {:then invites}
+        {#each invites as invite (invite.id)}
+          <div>
+            {JSON.stringify(invite)}
+          </div>
+        {:else}
+          <em>
+            No outstanding invites. 
+          </em>
+        {/each}
+      {:catch e}
+        <strong>Error loading invites {e}</strong>
       {/await}
     </section>
   </div>

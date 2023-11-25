@@ -3,10 +3,8 @@ import { schema } from '$lib/server/db/index.js';
 import { formDataValidObject } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, redirect } from '@sveltejs/kit';
-import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
+import { eq, like, or, sql } from 'drizzle-orm';
 import { type } from 'arktype';
-
-type ArrayType<T> = T extends (infer U)[] ? U : never;
 
 const formDataValidator = type({
   user: 'email | string',
@@ -20,13 +18,7 @@ export const load = async ({ params, locals }) => {
 
   const household = await db.query.households.findFirst({
     where: ({ id }, { eq, and, inArray }) => and(eq(id, params.id), inArray(id, locals.userHouseholds.map(h => h.households.id))),
-    with: {
-      users: {
-        with: {
-          user: true
-        }
-      },
-    }
+    
   });
 
   if (!household) {
@@ -34,13 +26,19 @@ export const load = async ({ params, locals }) => {
   }
 
   return {
+    // Current household info
     household,
-    // households: locals.userHouseholds,
+    // Not 100% i need this anymore, but we'll leave it in for now.
     user: session.user,
     streamed: {
+      // The bills for the current household
       bills: db.select()
         .from(schema.bills)
-        .where(eq(schema.bills.householdId, household.id))
+        .where(eq(schema.bills.householdId, household.id)),
+      // Invites for the current household
+      invites: db.select()
+        .from(schema.invites)
+        .where(eq(schema.invites.householdId, household.id))
 
     }
   };
@@ -77,11 +75,15 @@ export const actions = {
   },
   inviteUsers: async ({ request, locals }) => {
     const session = await locals.getSession();
-
     /**
-     * 1. Invite a user. 
-     */
-    if(!validateUserSession(session)) throw error(401);
+     * 1. Validate form data
+     * 2. Find any users already in the system
+     * 3. Invite any others by email
+    */
+   if (!validateUserSession(session)) throw error(401);
+
+   const formData = formDataValidObject(await request.formData(), type({email: 'email[]'}));
+   console.info('formData', formData);
 
     return {};
   }
