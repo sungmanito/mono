@@ -12,6 +12,7 @@
           destructive: 'variant-filled-error',
           'primary:ghost': 'variant-ghost-primary',
           'destructive:ghost': 'variant-ghost-error',
+          'scondary:ghost': 'variant-ghost-secondary',
           // Escape hatch, in case we need to get really weird with the buttons
           custom: '',
         },

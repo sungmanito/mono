@@ -86,5 +86,12 @@ export const actions = {
    console.info('formData', formData);
 
     return {};
-  }
+  },
+  updateHousehold: async ({ request, locals }) => {
+    const session = await locals.getSession();
+    if(!validateUserSession(session)) throw error(401);
+    const formData = await request.formData();
+    console.info(formData);
+    return {}
+  },
 }
