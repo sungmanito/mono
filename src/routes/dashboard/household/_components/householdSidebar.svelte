@@ -31,7 +31,7 @@
 
 <section class="bg-surface-50-900-token p-4 overflow-auto min-w-max">
   <div class="flex flex-col gap-2">
-    <header class="flex justify-between gap-4">
+    <header class="flex justify-between gap-4 mb-4">
       <h3 class="h3">
         Households
       </h3>

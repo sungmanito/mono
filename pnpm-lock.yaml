@@ -14,6 +14,9 @@ dependencies:
   '@supabase/auth-helpers-sveltekit':
     specifier: ^0.10.7
     version: 0.10.7(@supabase/supabase-js@2.38.4)(@sveltejs/kit@1.27.6)
+  '@supabase/auth-ui-svelte':
+    specifier: ^0.2.8
+    version: 0.2.8(@supabase/supabase-js@2.38.4)
   '@supabase/ssr':
     specifier: ^0.0.10
     version: 0.0.10(@supabase/supabase-js@2.38.4)
@@ -697,6 +700,10 @@ packages:
       tailwindcss: 3.3.5
     dev: true
 
+  /@stitches/core@1.2.8:
+    resolution: {integrity: sha512-Gfkvwk9o9kE9r9XNBmJRfV8zONvXThnm1tcuojL04Uy5uRyqg93DC83lDebl0rocZCfKSjUv+fWYtMQmEDJldg==}
+    dev: false
+
   /@supabase/auth-helpers-shared@0.6.3(@supabase/supabase-js@2.38.4):
     resolution: {integrity: sha512-xYQRLFeFkL4ZfwC7p9VKcarshj3FB2QJMgJPydvOY7J5czJe6xSG5/wM1z63RmAzGbCkKg+dzpq61oeSyWiGBQ==}
     peerDependencies:
@@ -715,6 +722,25 @@ packages:
       '@supabase/auth-helpers-shared': 0.6.3(@supabase/supabase-js@2.38.4)
       '@supabase/supabase-js': 2.38.4
       '@sveltejs/kit': 1.27.6(svelte@4.2.3)(vite@4.5.0)
+    dev: false
+
+  /@supabase/auth-ui-shared@0.1.8(@supabase/supabase-js@2.38.4):
+    resolution: {integrity: sha512-ouQ0DjKcEFg+0gZigFIEgu01V3e6riGZPzgVD0MJsCBNsMsiDT74+GgCEIElMUpTGkwSja3xLwdFRFgMNFKcjg==}
+    peerDependencies:
+      '@supabase/supabase-js': ^2.21.0
+    dependencies:
+      '@supabase/supabase-js': 2.38.4
+    dev: false
+
+  /@supabase/auth-ui-svelte@0.2.8(@supabase/supabase-js@2.38.4):
+    resolution: {integrity: sha512-yzxo1fljuwx66JUysOYdiBhhjdU2ubVDBLbsbLGiIcRhZXyzSSqaDvmboZGOddQazHHRN5tr/zBXnSGv+1gC0A==}
+    peerDependencies:
+      '@supabase/supabase-js': ^2.21.0
+    dependencies:
+      '@stitches/core': 1.2.8
+      '@supabase/auth-ui-shared': 0.1.8(@supabase/supabase-js@2.38.4)
+      '@supabase/supabase-js': 2.38.4
+      svelte: 3.59.2
     dev: false
 
   /@supabase/functions-js@2.1.5:
@@ -4031,6 +4057,11 @@ packages:
       svelte: 4.2.3
       typescript: 5.2.2
     dev: true
+
+  /svelte@3.59.2:
+    resolution: {integrity: sha512-vzSyuGr3eEoAtT/A6bmajosJZIUWySzY2CzB3w2pgPvnkUjGqlDnsNnA0PMO+mMAhuyMul6C2uuZzY6ELSkzyA==}
+    engines: {node: '>= 8'}
+    dev: false
 
   /svelte@4.2.3:
     resolution: {integrity: sha512-sqmG9KC6uUc7fb3ZuWoxXvqk6MI9Uu4ABA1M0fYDgTlFYu1k02xp96u6U9+yJZiVm84m9zge7rrA/BNZdFpOKw==}

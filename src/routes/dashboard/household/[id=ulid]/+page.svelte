@@ -7,7 +7,6 @@
   import Button from '$lib/components/button/button.svelte';
   import Drawer from '$lib/components/drawer/drawer.svelte';
   import HouseholdSidebar from '../_components/householdSidebar.svelte';
-  import { getDrawerStore } from '@skeletonlabs/skeleton';
 
   export let data;
   export let form;
@@ -21,7 +20,6 @@
 
   let showDrawer = false;
 
-  const drawerStore = getDrawerStore();
 </script>
 
 <svelte:head>
@@ -114,31 +112,32 @@
       class="w-1/4 bg-surface-300-600-token p-3 rounded flex flex-col gap-2"
     >
       <h4 class="h4">Members</h4>
-      <form
-        method="post"
-        action="?/findUser"
-        use:enhance={() => {
-          return async ({ result }) => {
-            // Not 100% why this works but ok
-            form = {
-              users: result.data.users,
+      {#if data.session?.user && data.session.user.id === household.ownerId}
+        <form
+          method="post"
+          action="?/findUser"
+          use:enhance={() => {
+            return async ({ result }) => {
+              // Not 100% why this works but ok
+              form = {
+                users: result.data.users,
+              };
             };
-          };
-        }}
-      >
-        <input
-          type="text"
-          name="user"
-          class="input px-2 py-1"
-          placeholder="Invite a new user"
-        />
-        {#if form?.users}
-          {#each form.users as user}
-            {user.userMetadata?.name}
-            {user.email}
-          {/each}
-        {/if}
-      </form>
+          }}
+        >
+          <textarea
+            name="emails"
+            class="textarea"
+            placeholder="Invite new members by email"
+          ></textarea>
+          {#if form?.users}
+            {#each form.users as user}
+              {user.userMetadata?.name}
+              {user.email}
+            {/each}
+          {/if}
+        </form>
+      {/if}
       {#await data.streamable.userHouseholds}
         <div class="placeholder animate-pulse" />
       {:then userMap}

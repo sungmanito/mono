@@ -2,6 +2,7 @@
   import { goto, invalidateAll } from '$app/navigation';
   import client from '$lib/client/supabase';
   import { getToastStore } from '@skeletonlabs/skeleton';
+  import { Auth } from '@supabase/auth-ui-svelte';
 
   const toastStore = getToastStore();
 
@@ -36,6 +37,11 @@
   }
 
 </script>
+<!-- WIP -->
+<Auth
+  supabaseClient={client}
+  providers={['google']}
+/>
 
 <form on:submit={handleLoginWithPassword}>
   <div class="bg-zinc-800 h-screen flex items-center">

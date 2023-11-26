@@ -82,8 +82,10 @@ export const actions = {
     */
    if (!validateUserSession(session)) throw error(401);
 
-   const formData = formDataValidObject(await request.formData(), type({email: 'email[]'}));
+   const formData = formDataValidObject(await request.formData(), type({emails: 'string'}));
    console.info('formData', formData);
+   const emails = formData.emails.split(/\n|,\s?/g);
+   console.info(emails);
 
     return {};
   },

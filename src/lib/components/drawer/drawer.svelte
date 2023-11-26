@@ -19,8 +19,7 @@
   class="drawer-backdrop flex fixed top-0 bottom-0 left-0 right-0 bg-surface-backdrop-token z-50" class:hidden={!open}
   use:focusTrap={true}
 >
-  <div role="dialog" class="drawer bg-surface bg-surface-100-800-token shadow-xl rounded-l-xl h-full w-5/6" >
+  <div role="dialog" class="drawer bg-surface-100-800-token shadow-xl rounded-r-xl h-full w-5/6" >
     <slot close={() => dispatchCloseEvent()} />
   </div>
 </div>
-
