@@ -3,7 +3,7 @@ import { schema } from '$lib/server/db/index.js';
 import { formDataValidObject } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, redirect } from '@sveltejs/kit';
-import { eq, inArray, like, or, sql } from 'drizzle-orm';
+import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
 import { type } from 'arktype';
 import { isValid } from 'ulidx';
 
@@ -161,4 +161,26 @@ export const actions = {
     console.info(formData);
     return {}
   },
+  deleteInvite: async ({ request, locals }) => {
+    const session = await locals.getSession();
+    if(!validateUserSession(session)) throw error(401);
+    const {'invite-id': inviteId} = formDataValidObject(await request.formData(), type({ 'invite-id': 'string' }))
+    console.info('FORMDATA', inviteId);
+    const [row] = await db.delete(schema.invites)
+      .where(
+        and(
+          eq(schema.invites.id, inviteId),
+          inArray(
+            schema.invites.householdId,
+            db.select({ id: schema.households.id })
+              .from(schema.households)
+              .where(eq(schema.households.ownerId, session.user.id ))
+          )
+        )
+      ).returning();
+    if(!row) throw error(500);
+    return {
+      deleted: row,
+    };
+  }
 }

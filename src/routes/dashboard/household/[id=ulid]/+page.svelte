@@ -2,7 +2,7 @@
   import { enhance } from '$app/forms';
   import { goto } from '$app/navigation';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
-  import { CrownIcon } from 'lucide-svelte';
+  import { CrownIcon, XIcon } from 'lucide-svelte';
 
   import Button from '$lib/components/button/button.svelte';
   import Drawer from '$lib/components/drawer/drawer.svelte';
@@ -162,13 +162,18 @@
       {#await data.streamed.invites}
         <div class="placeholder" />
       {:then invites}
-        {#each invites as invite (invite.id)}
-          <div>
-            {JSON.stringify(invite)}
-          </div>
-        {:else}
-          <em> No outstanding invites. </em>
-        {/each}
+        <form action="?/deleteInvite" method="post" use:enhance>
+          {#each invites as invite (invite.id)}
+            <div class="flex gap-2 items-center">
+              {invite.toEmail}
+              <button name="invite-id" value={invite.id} class="btn-icon btn-icon-sm hover:variant-filled-error">
+                <XIcon size="0.9em"/>
+              </button>
+            </div>
+          {:else}
+            <em> No outstanding invites. </em>
+          {/each}
+        </form>
       {:catch e}
         <strong>Error loading invites {e}</strong>
       {/await}
