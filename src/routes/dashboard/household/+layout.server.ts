@@ -1,5 +1,5 @@
 import { householdsToUsersMap } from '$lib/server/actions/households.actions'
-import { sql, eq } from 'drizzle-orm';
+import { sql, eq, inArray } from 'drizzle-orm';
 import { db, schema } from '$lib/server/db';
 import { validateUserSession } from '$lib/util/session.js';
 import { error } from '@sveltejs/kit';
@@ -22,7 +22,8 @@ export const load = async ({ locals }) => {
     .from(schema.households)
     .leftJoin(schema.bills, eq(schema.bills.householdId, schema.households.id))
     .groupBy(schema.households.id)
-    .orderBy(schema.households.name);
+    .orderBy(schema.households.name)
+    .having(inArray(schema.households.id, locals.userHouseholds.map(h => h.households.id )));
 
 
   return {

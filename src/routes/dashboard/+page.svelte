@@ -19,6 +19,7 @@
 <div class="container mx-auto p-3">
 
   <Header class="mt-4 mb-4">
+    {data.user?.email || ''}
     Dashboard
     <svelte:fragment slot="actions">
       <button

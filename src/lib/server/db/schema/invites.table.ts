@@ -9,6 +9,7 @@ export const invites = pgTable(
   {
     id: text('id').primaryKey().$defaultFn(() => ulid()),
     toEmail: text('to_email').notNull(),
+    toId: uuid('to_id').notNull(),
     fromEmail: text('from_email').notNull(),
     fromId: uuid('from_id').notNull(),
     householdId: text('household_id').notNull(),

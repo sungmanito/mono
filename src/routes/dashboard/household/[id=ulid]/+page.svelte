@@ -115,7 +115,7 @@
       {#if data.session?.user && data.session.user.id === household.ownerId}
         <form
           method="post"
-          action="?/findUser"
+          action="?/inviteUsers"
           use:enhance={() => {
             return async ({ result }) => {
               // Not 100% why this works but ok
@@ -125,11 +125,13 @@
             };
           }}
         >
+          <input type="hidden" name="household-id" value={household.id}>
           <textarea
             name="emails"
             class="textarea"
             placeholder="Invite new members by email"
           ></textarea>
+          <button>Submit</button>
           {#if form?.users}
             {#each form.users as user}
               {user.userMetadata?.name}
