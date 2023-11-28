@@ -23,7 +23,7 @@
 </script>
 
 {#await info}
-Loading...
+  Loading...
 {:then dd}
   {dd.data.user?.id}
 {/await}

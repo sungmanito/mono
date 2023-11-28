@@ -74,6 +74,38 @@ export const actions = {
       throw error(400);
     }
   },
+  removeMember: async ({ request, locals, params }) => {
+    const session = await locals.getSession();
+    if(!validateUserSession(session)) throw error(401);
+    const formData = formDataValidObject(await request.formData(), type({
+      userId: 'string'
+    }));
+
+    const [household] = await db.select({ ownerId: schema.households.ownerId })
+      .from(schema.households)
+      .where(eq(schema.households.id, params.id ));
+
+    const { sessionUserIwOwner, sessionUserRemovingSelf } = {
+      sessionUserIwOwner: session.user.id === household.ownerId,
+      sessionUserRemovingSelf: session.user.id === formData.userId,
+    }
+
+    if(!(sessionUserIwOwner || sessionUserRemovingSelf)) throw error(400);
+
+    await db.delete(schema.usersToHouseholds)
+      .where(
+        and(
+          eq(schema.usersToHouseholds.userId, formData.userId),
+          eq(schema.usersToHouseholds.householdId, params.id)
+        )
+      );
+    
+    return {
+      success: true
+    }
+    
+
+  },
   inviteUsers: async ({ request, locals, url }) => {
     const session = await locals.getSession();
     /**

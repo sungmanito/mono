@@ -5,3 +5,7 @@ export const actions = {
     });
   }
 }
+
+export const load = async () => {
+  return {};
+}

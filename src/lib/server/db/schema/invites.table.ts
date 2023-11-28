@@ -1,5 +1,5 @@
 
-import { pgTable, text, uuid, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, text, uuid, timestamp, index } from 'drizzle-orm/pg-core';
 import { sql } from "drizzle-orm";
 import { ulid } from "ulidx";
 
@@ -15,5 +15,9 @@ export const invites = pgTable(
     householdId: text('household_id').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     expiresAt: timestamp('expires_at').notNull().$default(() => sql<string>`now() + interval '30 days'`),
-  }
+  },
+  ({ toId, fromId }) => ({
+    toIdIdx: index('to_id_idx').on(toId),
+    fromIdx: index('from_id_idx').on(fromId),
+  })
 );

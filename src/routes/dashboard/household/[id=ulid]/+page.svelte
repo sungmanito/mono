@@ -9,7 +9,6 @@
   import HouseholdSidebar from '../_components/householdSidebar.svelte';
 
   export let data;
-  export let form;
 
   let household = data.household;
 
@@ -131,27 +130,30 @@
             class="textarea"
             placeholder="Invite new members by email"
           ></textarea>
-          <button>Submit</button>
-          {#if form?.users}
-            {#each form.users as user}
-              {user.userMetadata?.name}
-              {user.email}
-            {/each}
-          {/if}
+          <button class="btn btn-sm variant-filled-primary mt-4">Submit</button>
         </form>
       {/if}
       {#await data.streamable.userHouseholds}
         <div class="placeholder animate-pulse" />
       {:then userMap}
         {#if userMap[household.id]}
-          {#each userMap[household.id].users as householdUser}
-            <span class="inline-flex gap-2 items-center">
-              {#if householdUser.id === household.ownerId}
-                <CrownIcon size="0.9em" />
-              {/if}
-              {householdUser.userMetadata?.name || householdUser.email}
-            </span>
-          {/each}
+          <form action="?/removeMember" method="post" use:enhance>
+            {#each userMap[household.id].users as householdUser}
+              <div class="flex gap-2 items-center">
+                <div class="flex gap-2 items-center">
+                  {#if householdUser.id === household.ownerId}
+                    <CrownIcon size="0.9em" />
+                  {/if}
+                  {householdUser.userMetadata?.name || householdUser.email}
+                </div>
+                {#if (household.ownerId === data.user.id && householdUser.id !== household.ownerId) || (householdUser.id === data.user.id)}
+                  <button name="userId" value={householdUser.id} class="btn-icon btn-icon-sm hover:variant-outline-error">
+                    <XIcon size="1em" />
+                  </button>
+                {/if}
+              </div>
+            {/each}
+          </form>
         {/if}
       {:catch}
         Error occurred
