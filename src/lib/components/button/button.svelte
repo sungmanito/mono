@@ -18,22 +18,15 @@
         },
         size: {
           sm: 'btn-sm',
-          medium: 'btn-md',
           md: 'btn-md',
-          lg: 'btn-lg'
+          lg: 'btn-lg',
+          // Escape hatch.
+          custom: '',
         },
-        // Don't need these anymore.
-        rounded: {
-          DEFAULT: 'rounded-full',
-          lg: 'rounded-lg',
-          md: 'rounded',
-          none: ''
-        }
       },
       defaultVariants: {
         variant: 'primary',
-        size: 'medium',
-        rounded: 'DEFAULT',
+        size: 'md',
       }
     },
   );
