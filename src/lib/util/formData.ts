@@ -11,10 +11,41 @@ type FilterFn = (a: EntriesTouple) => boolean;
  * @returns an object mapped from the entries.
  */
 export function formDataToObject(fd: FormData, filterFn: FilterFn = () => true) {
-  const obj: Record<string, FormDataEntryValue> = {};
+  const obj: Record<string, FormDataEntryValue | number | boolean | bigint> = {};
   for(const [key, value] of fd.entries()) {
+    // If this passes our key, add in value
     if(filterFn([key, value])) {
-      obj[key] = value;
+
+      switch(typeof value) {
+        // If it is a string we have some parsing optins
+        case 'string':
+
+          // Check for numbers
+          if (/^(?:\+|-)?\d+(?:\.\d+)?$/.test(value) && value < '9007199254740991') {
+            obj[key] = Number(value);
+            continue;
+          }
+
+          // Check for boolean
+          if(/^true|false$/.test(value)) {
+            obj[key] = value === 'true';
+            continue;
+          }
+
+          // Incredibly unlikely, but check for BigInts, JIC
+          if (/^\d+n$/.test(value) || (value > '9007199254740991' && /^\d+$/.test(value))) {
+            obj[key] = BigInt(value.charAt(value.length -1 ) === 'n' ? value.slice(0, -1) : value);
+            continue;
+          }
+
+          obj[key] = value;
+
+          break;
+        // Otherwise it's a file and honestly, fuck it.
+        default:
+          obj[key] = value;
+      }
+      
     }
   }
   return obj;
@@ -27,12 +58,11 @@ export function formDataToObject(fd: FormData, filterFn: FilterFn = () => true) 
  * @returns 
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function formDataValidObject<T extends Type<R>, R = any>(fd: FormData, obj: T, filterFn?: FilterFn): R {
+export function formDataValidObject<T extends Type<any>>(fd: FormData, obj: T, filterFn?: FilterFn): T extends Type<infer R> ? R : any {
   const fdo = formDataToObject(fd, filterFn);
   const { data, problems } = obj(fdo);
 
   if(data)
-    // @ts-expect-error I don't care enough about this to fight with it.
     return data;
 
   throw problems;

@@ -3,7 +3,7 @@
   import { CreditCardIcon, HomeIcon, LayoutDashboardIcon, MenuIcon, ReceiptIcon, Users2Icon } from "lucide-svelte";
   import { page } from '$app/stores';
 </script>
-<div class="flex gap-3 flex-grow">
+<div class="flex flex-grow">
   <aside role="list">
     <AppRail>
       	<svelte:fragment slot="lead">
@@ -34,11 +34,7 @@
       	</AppRailAnchor>
       </AppRail>
   </aside> 
-  <section class="flex-grow pr-3">
-    <div class="container mx-auto">
       <slot />
-    </div>
-  </section>
 </div>
 
 <style>

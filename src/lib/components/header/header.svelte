@@ -6,12 +6,12 @@
     {
       variants: {
         tag: {
-          h1: 'text-4xl font-bold',
-          h2: 'text-3xl font-semibold',
-          h3: 'text-2xl font-bold',
-          h4: 'text-2xl font-semibold underline',
-          h5: 'text-xl font-semibold',
-          h6: 'text-xl font-medium italic'
+          h1: 'h1',
+          h2: 'h2',
+          h3: 'h3',
+          h4: 'h4',
+          h5: 'h5',
+          h6: 'h6'
         },
         color: {
           primary: 'dark:text-emerald-400 text-emerald-800',
@@ -33,11 +33,11 @@
   const classes = headers({ tag, color, class: $$restProps.class });
 </script>
 
-<svelte:element this={tag} class="flex justify-between items-baseline">
-  <div class={classes}>
+<div class="flex justify-between items-baseline">
+  <svelte:element this={tag} class={classes}>
     <slot />
-  </div>
+  </svelte:element>
   <section class="actions inline-flex gap-2">
     <slot name="actions" />
   </section>
-</svelte:element>
+</div>

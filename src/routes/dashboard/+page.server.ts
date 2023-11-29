@@ -1,8 +1,10 @@
 import { db } from "$lib/server/db";
-import { error } from "@sveltejs/kit";
+import { error, redirect } from "@sveltejs/kit";
 import { bills, households, payments, usersToHouseholds } from '$lib/server/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
+import { formDataToObject, formDataValidObject } from '$lib/util/formData.js';
+import { type } from 'arktype';
 
 const household = alias(households, 'household');
 
@@ -11,7 +13,7 @@ export const load = async ({ locals }) => {
   const session = await locals.getSession();
 
   if(!session || !session.user) {
-    throw error(401, 'Not logged in');
+    throw redirect(303, '/login');
   }
 
   const today = new Date();
@@ -88,19 +90,26 @@ export const actions = {
     const session = await locals.getSession();
     const data = await request.formData();
     const today = new Date();
+    const formData = formDataValidObject(data, type({
+      'bill-name': 'string',
+      'household-id': 'string',
+      'due-date': 'number'
+    }));
 
     if(session && session.user) {
       const [bill] = await db.insert(bills).values({
-        billName: data.get('bill-name') || 'default',
-        householdId: data.get('household-id') || '01',
-        dueDate: sql<string>`${data.get('due-date')}::integer`
+        billName: formData['bill-name'],
+        householdId: formData['household-id'],
+        dueDate: sql<string>`${data.get('due-date')}::integer`,
       }).returning();
 
       // If the bill is further forward in the month than the current date, we must assume that the user wants to track this bill for this month too
       if(bill.dueDate > today.getDate()) {
         await db.insert(payments).values({
-          forMonth: today.getMonth() + 1,
           billId: bill.id,
+          forMonthD: new Date(today.getFullYear(), today.getMonth(), bill.dueDate),
+          householdId: bill.householdId,
+          forMonth: today.getMonth() + 1,
         });
       }
 

@@ -1,9 +1,8 @@
 <script lang="ts">
+  import { goto, invalidateAll } from '$app/navigation';
   import client from '$lib/client/supabase';
-  import { page } from '$app/stores';
-  import { goto, invalidate } from '$app/navigation';
-  import { onMount } from 'svelte';
   import { getToastStore } from '@skeletonlabs/skeleton';
+  import { Auth } from '@supabase/auth-ui-svelte';
 
   const toastStore = getToastStore();
 
@@ -27,7 +26,7 @@
   
   
       if(f.type === 'success') {
-        await invalidate('/');
+        await invalidateAll();
         goto('/dashboard');
       }
     } else if(error) {
@@ -38,6 +37,11 @@
   }
 
 </script>
+<!-- WIP -->
+<Auth
+  supabaseClient={client}
+  providers={['google']}
+/>
 
 <form on:submit={handleLoginWithPassword}>
   <div class="bg-zinc-800 h-screen flex items-center">
@@ -49,7 +53,7 @@
         <button type="button" on:click={() => client.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: 'http://localhost:5173/login?/update',
+            redirectTo: `${window.location.protocol}//${window.location.host}`,
           }
         }).then((r) => {
           goto('/dashboard')

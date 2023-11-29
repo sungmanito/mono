@@ -11,22 +11,22 @@
           secondary: 'variant-filled-secondary',
           destructive: 'variant-filled-error',
           'primary:ghost': 'variant-ghost-primary',
+          'destructive:ghost': 'variant-ghost-error',
+          'scondary:ghost': 'variant-ghost-secondary',
+          // Escape hatch, in case we need to get really weird with the buttons
+          custom: '',
         },
         size: {
           sm: 'btn-sm',
-          medium: 'btn-md'
+          md: 'btn-md',
+          lg: 'btn-lg',
+          // Escape hatch.
+          custom: '',
         },
-        rounded: {
-          DEFAULT: 'rounded-full',
-          lg: 'rounded-lg',
-          md: 'rounded',
-          none: ''
-        }
       },
       defaultVariants: {
         variant: 'primary',
-        size: 'medium',
-        rounded: 'DEFAULT',
+        size: 'md',
       }
     },
   );
@@ -36,10 +36,10 @@
   export let variant: ButtonStyleProps['variant'] = 'primary';
   export let size: ButtonStyleProps['size'] = 'sm';
 
-  const className = button({ className: $$props.class, size, variant })
+  const className = button({ size, variant, className: $$props.class })
 
 </script>
 
-<button class={className} on:click {...$$props}>
+<button {...$$props} class={className} on:click>
   <slot />
 </button>

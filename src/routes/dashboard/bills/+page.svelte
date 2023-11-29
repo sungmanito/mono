@@ -5,6 +5,7 @@
   import { invalidate, invalidateAll } from "$app/navigation";
   import { getToastStore } from '@skeletonlabs/skeleton';
     import Modal from "$lib/components/modal/modal.svelte";
+    import Breadcrumb from "$lib/components/breadcrumb/breadcrumb.svelte";
 
   export let data;
 
@@ -126,62 +127,78 @@
   </form>
 </dialog>
 
+<div class="container mx-auto px-3">
 
+  <Breadcrumb
+    class="my-4"
+    crumbs={[
+      {
+        link: 'Dashboard',
+        href: '/dashboard'
+      },
+      {
+        link: 'Bills',
+        href: '/dashboard/bills'
+      }
+    ]}
+  />
 
-<Header class="mt-4 mb-6">
-  Bills
-</Header>
-
-<!-- TODO: Fancy todo table -->
-<table class="table table-compact table-hover">
-  <thead>
-    <tr>
-      <th>
-        Bill name
-      </th>
-      <th>
-        Due date
-      </th>
-      <th>
-        Household
-      </th>
-      <th>
-        Actions
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    {#each data.bills as bill}
-      <tr on:click={() => console.info(bill)}>
-        <td>
-          {bill.billName}
-        </td>
-        <td>
-          {bill.billDueDate}
-        </td>
-        <td>
-          {bill.householdName}
-        </td>
-        <td>
-          <div class="flex gap-2">
-
-            <button class="btn-icon btn-icon-sm variant-filled-secondary" title={`Edit Bill ${bill.billName}`} on:click={() => {
-              selectedBill = bill;
-              editModal.showModal();
-            }}>
-              <PencilIcon size='1em' />
-            </button>
-
-            <button class="btn-icon btn-icon-sm variant-filled-secondary" title={`Delete bill ${bill.billName}`} on:click={() => {
-              selectedBill = bill;
-              deleteModal.showModal();
-            }}>
-              <TrashIcon size='1em' />
-            </button>
-
-          </div>
-        </td>
+  <Header class="mb-6">
+    Bills
+  </Header>
+  
+  <!-- TODO: Fancy todo table -->
+  <table class="table table-compact table-hover">
+    <thead>
+      <tr>
+        <th>
+          Bill name
+        </th>
+        <th>
+          Due date
+        </th>
+        <th>
+          Household
+        </th>
+        <th>
+          Actions
+        </th>
       </tr>
-    {/each}
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      {#each data.bills as bill}
+        <tr on:click={() => console.info(bill)}>
+          <td>
+            {bill.billName}
+          </td>
+          <td>
+            {bill.billDueDate}
+          </td>
+          <td>
+            {bill.householdName}
+          </td>
+          <td>
+            <div class="flex gap-2">
+  
+              <button class="btn-icon btn-icon-sm variant-filled-secondary" title={`Edit Bill ${bill.billName}`} on:click={() => {
+                selectedBill = bill;
+                editModal.showModal();
+              }}>
+                <PencilIcon size='1em' />
+              </button>
+  
+              <button class="btn-icon btn-icon-sm variant-filled-secondary" title={`Delete bill ${bill.billName}`} on:click={() => {
+                selectedBill = bill;
+                deleteModal.showModal();
+              }}>
+                <TrashIcon size='1em' />
+              </button>
+  
+            </div>
+          </td>
+        </tr>
+      {/each}
+    </tbody>
+  </table>
+</div>
+
