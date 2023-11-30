@@ -1,5 +1,6 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
+  import { enhance } from '$app/forms';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import Button from '$lib/components/button/button.svelte';
   import Drawer from '$lib/components/drawer/drawer.svelte';
@@ -18,6 +19,7 @@
 
   const toastStore = getToastStore();
   let showAdd = false;
+  let addBillCount = 1;
 
   async function submitForm(
     e: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement }
@@ -60,7 +62,14 @@
 </svelte:head>
 
 <Drawer on:close={() => (showAdd = false)} open={showAdd} let:close={closeAdd}>
-  <form action="?/addBill" method="post">
+  <form action="?/addBill" method="post" use:enhance={() => {
+    return async ({ result, formElement }) => {
+      console.info(result);
+      showAdd = false;
+      formElement.reset();
+      addBillCount = 1;
+    }
+  }}>
     <div class="p-4">
       <Header tag="h2" color="secondary" class="mb-4">
         Add bill
@@ -70,7 +79,51 @@
           </button>
         </svelte:fragment>
       </Header>
-      <section />
+      <section>
+        <div class="grid grid-cols-4 gap-3">
+          {#each Array.from({ length: addBillCount }) as bill, i}
+          <div>
+            <label class="label flex-col gap-2">
+              <span class="font-semibold">Bill Name</span>
+              <input type="text" class="input" name="bill-name[]" placeholder="Rent, Credit Card, Cell Phones, etc.">
+            </label>
+          </div>
+          <div>
+            <label class="label flex-col gap-2">
+              <span class="font-semibold">Due date</span>
+              <input type="number" min="1" max="28" class="input" name="due-date[]" placeholder="1">
+            </label>
+          </div>
+          <div>
+            <label class="label flex-col gap-2">
+              <span class="font-semibold">Household</span>
+              <select class="select" name="household-id[]">
+                <option disabled>Choose a household</option>
+                {#each data.households as household}
+                <option value={household.households.id}>{household.households.name}</option>
+                {/each}
+              </select>
+            </label>
+          </div>
+          <div class="flex items-end">
+            {#if i === addBillCount - 1}
+              <button class="btn-icon btn-icon-sm variant-outline-tertiary" on:click={() => addBillCount = addBillCount + 1}>
+                <PlusIcon size="1.5em"/>
+              </button>
+            {/if}
+          </div>
+          {/each}
+        </div>
+        <div class="flex justify-end mt-4 gap-4">
+          <Button type="button" on:click={() => closeAdd()} variant="filled">
+            Close
+          </Button>
+          <Button>
+            Submit
+          </Button>
+        </div>
+        
+      </section>
     </div>
   </form>
 </Drawer>

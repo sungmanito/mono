@@ -4,6 +4,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { error, redirect } from '@sveltejs/kit'
 import { getUserHouseholds } from "$lib/server/actions/households.actions.js";
 import { getBill, updateBill, type BillUpdateArgs } from "$lib/server/actions/bills.actions.js";
+import { validateUserSession } from '$lib/util/session.js';
 
 export const load = async ({ locals }) => {
   const session = await locals.getSession();
@@ -39,11 +40,17 @@ export const load = async ({ locals }) => {
   
   return {
     bills: bills,
-    households: userHouseholds
+    households: locals.userHouseholds, 
   };
 }
 
 export const actions = {
+  addBill: async ({ locals, request }) => {
+    const session = await locals.getSession();
+    if(!validateUserSession(session)) throw error(401);
+    console.info(await request.formData());
+    return {}
+  },
   updateBill: async ({ request, locals }) => {
 
     const session = await locals.getSession();
