@@ -23,3 +23,31 @@
     <slot close={() => dispatchCloseEvent()} />
   </div>
 </div>
+
+<style>
+  @keyframes slide-in {
+    0% {
+      translate: -10% 0;
+      opacity: 0.75
+    }
+    100% {
+      translate: 0 0;
+      opacity: 1;
+    }
+  }
+  .drawer {
+    animation: slide-in;
+    animation-duration: 200ms;
+    animation-iteration-count: 1;
+  }
+  @keyframes slide-out {
+    0% {
+      translate: 0 0;
+      opacity: 1;
+    }
+    100% {
+      translate: -10% 0;
+      opacity: 0.75;
+    }
+  }
+</style>

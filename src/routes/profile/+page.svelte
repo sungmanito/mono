@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { goto, invalidateAll } from '$app/navigation';
   import { page } from '$app/stores';
   import Header from '$lib/components/header/header.svelte';
   import { MailIcon, XIcon } from 'lucide-svelte';
@@ -23,6 +23,7 @@
   }
 
   let editProfile = false;
+  let profileSaving = false;
 </script>
 
 <svelte:head>
@@ -33,11 +34,14 @@
 
 <Drawer open={editProfile} on:close={() => editProfile = false} let:close={closeEditDrawer}>
   <form action="?/updateProfile" class="p-4" method="post" use:enhance={() => {
-    return async ({ formElement, }) => {
-
+    profileSaving = true;
+    return async ({ formElement, update, result }) => {
+      profileSaving = false;
+      closeEditDrawer();
+      await invalidateAll();
     }
   }}>
-    <Header color="secondary" tag="h2">
+    <Header color="secondary" tag="h2" class="mb-10">
       Edit Profile
       <svelte:fragment slot="actions">
         <button class="btn-icon btn-icon-sm" on:click={() => closeEditDrawer()}>
@@ -48,13 +52,13 @@
     <div class="grid grid-cols-3 gap-2">
       <div class="flex gap-2">
         {#if data.user && data.user.user_metadata?.avatar_url}
-          <img src={data.user.user_metadata.avatar_url} class="rounded-full" alt="Profile" />
+          <img src={data.user.user_metadata.avatar_url} class="rounded-full max-w-[100px]" alt="Profile" />
         {/if}
         <label class="flex flex-col gap-2 flex-grow">
           <span class="font-semibold">
             Avatar URL
           </span>
-          <input type="url" class="input" name="avatar-url" value={data?.user?.user_metadata?.avatar_url || ''} placeholder="https://images.website.com/your-profile.png">
+          <input disabled={profileSaving} type="url" class="input" name="avatar-url" value={data?.user?.user_metadata?.avatar_url || ''} placeholder="https://images.website.com/your-profile.png">
         </label>
       </div>
       <div>
@@ -62,7 +66,7 @@
           <span class="font-semibold">
             Name
           </span>
-          <input type="text" class="input" name="name" value={data.user?.user_metadata?.name || ''} placeholder="Name others will see">
+          <input disabled={profileSaving} type="text" class="input" name="name" value={data.user?.user_metadata?.name || ''} placeholder="Name others will see">
         </label>
       </div>
       <div>
@@ -70,10 +74,18 @@
           <span class="font-semibold">
             Email
           </span>
-          <input type="email" name="email" class="input" value={data.user?.email}>
+          <input disabled={profileSaving} type="email" name="email" class="input" value={data.user?.email}>
         </label>
       </div>
     </div>
+    <footer class="mt-8 flex justify-end gap-3">
+      <Button variant="filled" on:click={() => closeEditDrawer()} disabled={profileSaving}>
+        Close
+      </Button>
+      <Button disabled={profileSaving}>
+        Save
+      </Button>
+    </footer>
   </form>
 </Drawer>
 
@@ -91,7 +103,7 @@
     <div class="grid grid-cols-12 gap-3">
       {#if data.user.user_metadata?.avatar_url}
         <div class="col-span-1">
-          <img src={data.user.user_metadata.avatar_url} class="rounded-full" alt="profile for"/>
+          <img src={data.user.user_metadata.avatar_url} class="rounded-full max-w-[90px]" alt="profile for"/>
         </div>
       {/if}
 
@@ -122,6 +134,8 @@
         <Header tag="h2" color="secondary">
           Identities
         </Header>
+
+        <p class="text-lg dark:text-zinc-400 text-zinc-500">Currently read-only. Full identity management coming soon</p>
 
         {#if data.user.identities}
           {#each data.user.identities as identity}
