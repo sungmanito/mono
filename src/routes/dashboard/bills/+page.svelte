@@ -1,13 +1,14 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
-  import { enhance } from '$app/forms';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import Button from '$lib/components/button/button.svelte';
-  import Drawer from '$lib/components/drawer/drawer.svelte';
   import Header from '$lib/components/header/header.svelte';
   import { getToastStore } from '@skeletonlabs/skeleton';
   import type { ActionResult } from '@sveltejs/kit';
   import { PencilIcon, PlusIcon, TrashIcon, XIcon } from 'lucide-svelte';
+  import CreateBill from '$lib/components/bills/create.svelte';
+  import EditBill from '$lib/components/bills/edit.svelte';
+    import type { Bill } from '$lib/server/actions/bills.actions';
 
   export let data;
 
@@ -20,6 +21,7 @@
   const toastStore = getToastStore();
   let showAdd = false;
   let addBillCount = 1;
+  let editBill: Bill | null = null;
 
   async function submitForm(
     e: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement }
@@ -61,72 +63,39 @@
   <title>Sungmanito &ndash; Bills</title>
 </svelte:head>
 
-<Drawer on:close={() => (showAdd = false)} open={showAdd} let:close={closeAdd}>
-  <form action="?/addBill" method="post" use:enhance={() => {
-    return async ({ result, formElement }) => {
-      console.info(result);
-      showAdd = false;
+<CreateBill
+  on:close={() => showAdd = false}
+  households={data.households.map(h => ({
+    id: h.households.id,
+    name: h.households.name,
+  }))}
+  open={showAdd}
+  submit={() => {
+    return async ({ formElement, update }) => {
       formElement.reset();
-      addBillCount = 1;
+      await update();
+      await invalidateAll();
+      showAdd = false;
     }
-  }}>
-    <div class="p-4">
-      <Header tag="h2" color="secondary" class="mb-4">
-        Add bill
-        <svelte:fragment slot="actions">
-          <button type="button" class="btn-icon btn-icon-lg" on:click={() => closeAdd()}>
-            <XIcon size="1em" />
-          </button>
-        </svelte:fragment>
-      </Header>
-      <section>
-        <div class="grid grid-cols-4 gap-3">
-          {#each Array.from({ length: addBillCount }) as bill, i}
-          <div>
-            <label class="label flex-col gap-2">
-              <span class="font-semibold">Bill Name</span>
-              <input type="text" class="input" name="bill-name[]" placeholder="Rent, Credit Card, Cell Phones, etc.">
-            </label>
-          </div>
-          <div>
-            <label class="label flex-col gap-2">
-              <span class="font-semibold">Due date</span>
-              <input type="number" min="1" max="28" class="input" name="due-date[]" placeholder="1">
-            </label>
-          </div>
-          <div>
-            <label class="label flex-col gap-2">
-              <span class="font-semibold">Household</span>
-              <select class="select" name="household-id[]">
-                <option disabled>Choose a household</option>
-                {#each data.households as household}
-                <option value={household.households.id}>{household.households.name}</option>
-                {/each}
-              </select>
-            </label>
-          </div>
-          <div class="flex items-end">
-            {#if i === addBillCount - 1}
-              <button class="btn-icon btn-icon-sm variant-outline-tertiary" on:click={() => addBillCount = addBillCount + 1}>
-                <PlusIcon size="1.5em"/>
-              </button>
-            {/if}
-          </div>
-          {/each}
-        </div>
-        <div class="flex justify-end mt-4 gap-4">
-          <Button type="button" on:click={() => closeAdd()} variant="filled">
-            Close
-          </Button>
-          <Button>
-            Submit
-          </Button>
-        </div>
-        
-      </section>
-    </div>
-  </form>
-</Drawer>
+  }}
+/>
+
+<EditBill
+  open={editBill !== null}
+  on:close={() => editBill = null}
+  submit={() => {
+    return async ({ formElement }) => {
+      formElement.reset();
+      editBill = null;
+      await invalidateAll()
+    }
+  }}
+  households={data.households.map(h => ({
+    id: h.households.id,
+    name: h.households.name
+  }))}
+  bill={editBill}
+/>
 
 <dialog
   bind:this={deleteModal}
@@ -138,7 +107,7 @@
     action="?/deleteBill"
     on:submit={submitForm}
   >
-    <input type="hidden" name="bill-id" value={selectedBill.billId} />
+    <input type="hidden" name="bill-id" value={selectedBill.id} />
     <header class="h4 border-b pb-2">
       Delete &quot;{selectedBill.billName}&quot;?
     </header>
@@ -165,76 +134,6 @@
   </form>
 </dialog>
 
-<dialog
-  bind:this={editModal}
-  class="p-4 rounded bg-surface-active-token shadow shadow-gray-400 text-token backdrop:bg-surface-600"
->
-  <form method="dialog" action="?/updateBill" on:submit={submitForm}>
-    <input type="hidden" name="bill-id" value={selectedBill.billId} />
-    <div class="min-w-max flex flex-col gap-2">
-      <header class="h4 flex justify-between items-center text-token">
-        <div>
-          Edit {selectedBill.billName}
-        </div>
-        <div>
-          <button
-            type="button"
-            class="btn-icon btn-icon-sm"
-            on:click={() => editModal.close()}
-          >
-            <XIcon size="1em" />
-          </button>
-        </div>
-      </header>
-      <section>
-        <label>
-          <span>Bill Name</span>
-          <input
-            class="input variant-filled px-3 py-2"
-            name="bill-name"
-            type="text"
-            value={selectedBill.billName}
-          />
-        </label>
-        <label>
-          <span>Due Date</span>
-          <input
-            class="input variant-filled px-3 py-2"
-            name="due-date"
-            type="number"
-            value={selectedBill.billDueDate}
-          />
-        </label>
-        <label>
-          <span> Household </span>
-          <select name="household-id" class="input variant-filled px-3 py-2">
-            {#each data.households as { households }}
-              <option
-                value={households.id}
-                selected={households.id === selectedBill.householdId}
-              >
-                {households.name}
-              </option>
-            {/each}
-          </select>
-        </label>
-      </section>
-      <footer class="flex justify-end gap-3">
-        <button
-          type="button"
-          on:click={() => editModal.close()}
-          class="btn btn-sm variant-outline"
-        >
-          Close
-        </button>
-        <button type="submit" class="btn btn-sm variant-filled-primary">
-          Submit
-        </button>
-      </footer>
-    </div>
-  </form>
-</dialog>
-
 <div class="container mx-auto px-3">
   <Breadcrumb
     class="my-4"
@@ -246,7 +145,7 @@
       {
         link: 'Bills',
         href: '/dashboard/bills',
-      },
+      }
     ]}
   />
 
@@ -277,7 +176,7 @@
             {bill.billName}
           </td>
           <td>
-            {bill.billDueDate}
+            {bill.dueDate}
           </td>
           <td>
             {bill.householdName}
@@ -288,8 +187,7 @@
                 class="btn-icon btn-icon-sm variant-filled-secondary"
                 title={`Edit Bill ${bill.billName}`}
                 on:click={() => {
-                  selectedBill = bill;
-                  editModal.showModal();
+                  editBill = bill;
                 }}
               >
                 <PencilIcon size="1em" />

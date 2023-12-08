@@ -3,5 +3,11 @@
     "typescript.preferences.quoteStyle": "single",
     "editor.defaultFormatter": "vscode.typescript-language-features"
   },
-  "svelte.plugin.svelte.format.config.singleQuote": true
+  "svelte.plugin.svelte.format.config.singleQuote": true,
+  "lnf.aliases": {
+    "$/": "${workspaceRoot}/",
+    "$lib/": "${workspaceRoot}/src/lib",
+    "$src/": "${workspaceRoot}/src/",
+    "$routes/": "${workspaceRoot}/src/routes"
+  }
 }

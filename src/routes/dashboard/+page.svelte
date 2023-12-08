@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { invalidateAll } from "$app/navigation";
+  import CreateBill from "$lib/components/bills/create.svelte";
+  import Button from "$lib/components/button/button.svelte";
   import Header from "$lib/components/header/header.svelte";
   import { Accordion, AccordionItem, Step, Stepper } from "@skeletonlabs/skeleton";
   import { PlusIcon, HomeIcon, XIcon } from "lucide-svelte";
@@ -10,11 +13,27 @@
 
   let modalEl: HTMLDialogElement;
 
+  let showCreateBillModal = false;
+
 </script>
 
 <svelte:head>
   <title>Dashboard</title>
 </svelte:head>
+
+<CreateBill
+  open={showCreateBillModal}
+  on:close={() => showCreateBillModal = false}
+  households={data.households}
+  submit={() => {
+    return async ({ update, formElement }) => {
+      formElement.reset();
+      await update();
+      showCreateBillModal = false;
+      await invalidateAll();
+    }
+  }}
+/>
 
 <div class="container mx-auto p-3">
 
@@ -22,11 +41,10 @@
     {data.user?.email || ''}
     Dashboard
     <svelte:fragment slot="actions">
-      <button
-        class="btn variant-ghost-primary btn-sm flex gap-1"
-        on:click={() => {
-          modalEl.showModal();
-        }}><PlusIcon size="1.1em" />New Bill</button>
+      <Button variant="primary:ghost" on:click={() => showCreateBillModal = true} class="flex gap-1">
+        <PlusIcon size="1.1em" />
+        New Bill
+      </Button>
       <button class='btn variant-ghost-primary btn-sm flex gap-2'>
         <HomeIcon size='1.1em' />
         New Household
