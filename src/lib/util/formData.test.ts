@@ -1,12 +1,12 @@
 import {
   expect, describe, it
 } from 'vitest';
-import { formDataToObject, formDataValidObject } from './formData';
+import { formDataToObject, formDataToObject2, formDataValidObject } from './formData';
 import { type } from 'arktype';
 
 
 describe('formDataToObject', () => {
-
+  
   it('Should parse empty formData object', () => {
     const obj = formDataToObject(new FormData());
     expect(Object.keys(obj).length).toBe(0)
@@ -68,7 +68,17 @@ describe('formDataToObject', () => {
 
     const obj = formDataToObject(fd, ([key]) => key !== 'notAllowed');
     expect(obj).toStrictEqual({name: 'bob', surname: 'surbob'});
-  })
+  });
+
+  it('Should work with repeated items', () => {
+    const fd = new FormData();
+    fd.append('names', 'bob');
+    fd.append('names', 'jerome');
+    fd.append('names', 'phteven');
+    expect(formDataToObject(fd)).toStrictEqual({
+      names: ['bob', 'jerome', 'phteven']
+    });
+  });
 });
 
 describe('formDataValidObject', () => {
@@ -91,6 +101,33 @@ describe('formDataValidObject', () => {
     });
 
     expect(() => formDataValidObject(fd, wontPassSchema)).toThrow();
+
+  });
+
+  it('Validates a more complex schema', () => {
+    const fd = new FormData();
+    fd.append('emails', 'jim@jim.jim');
+    fd.append('emails', 'bob@bob.email');
+    fd.append('something', 'true');
+    fd.append('something-else', '101n');
+
+    const passSchema = type({
+      emails: 'email[]',
+      something: 'boolean',
+      'something-else': 'bigint'
+    });
+
+    const obj = formDataValidObject(fd, passSchema);
+
+    expect(obj).toStrictEqual({
+      emails: ['jim@jim.jim', 'bob@bob.email'],
+      something: true,
+      'something-else': 101n
+    });
+
+    fd.append('emails', 'bad@');
+
+    expect(() => formDataValidObject(fd, passSchema)).toThrow()
 
   });
 });
