@@ -127,7 +127,7 @@ describe('formDataValidObject', () => {
 
     fd.append('emails', 'bad@');
 
-    expect(() => formDataValidObject(fd, passSchema)).toThrow()
+    expect(() => formDataValidObject(fd, passSchema)).toThrow();
 
   });
 });

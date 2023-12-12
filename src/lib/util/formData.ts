@@ -15,27 +15,31 @@ type FormDataObjectEntry = FormDataEntryValue | number | boolean | bigint;
  * `key` in the resulting object
  * @returns an object mapped from the entries.
  */
-export function formDataToObject(fd: FormData, filterFn: FilterFn = () => true, pruneKeyNames = true): Record<string, FormDataObjectEntry | FormDataObjectEntry[]> {
-  
+export function formDataToObject(
+  fd: FormData,
+  filterFn: FilterFn = () => true,
+  pruneKeyNames = true
+): Record<string, FormDataObjectEntry | FormDataObjectEntry[]> {
+
   const ret: Record<string, FormDataObjectEntry | FormDataObjectEntry[]> = {};
 
-  for(let key of fd.keys()) {
-    if(filterFn([key, ''])) {
+  for (let key of fd.keys()) {
+    if (filterFn([key, ''])) {
 
       const all = fd.getAll(key);
-  
-      if(all.length === 1) {
+
+      if (all.length === 1) {
         // regular stuff
         ret[key] = typeof all[0] === 'string' ? stringToJSValue(all[0]) : all[0];
       } else {
-        if(pruneKeyNames && /\[.?\]/.test(key)) {
+        if (pruneKeyNames && /\[.?\]/.test(key)) {
           key = key.replace(/\[.?\]/, '');
         }
-        ret[key] = all.map(v => typeof v === 'string' ?  stringToJSValue(v) : v);
+        ret[key] = all.map(v => typeof v === 'string' ? stringToJSValue(v) : v);
       }
     }
   }
-  
+
   return ret;
 }
 
@@ -52,10 +56,10 @@ function stringToJSValue(str: string): NonFileFormEntries<FormDataObjectEntry> {
     return Number(str);
   }
 
-  if(/^true|false$/.test(str)) return str === 'true';
+  if (/^true|false$/.test(str)) return str === 'true';
 
   if (/^\d+n$/.test(str) || (str > '9007199254740991' && /^\d+$/.test(str)))
-    return BigInt(str.charAt(str.length -1) === 'n' ? str.slice(0, -1): str);
+    return BigInt(str.charAt(str.length - 1) === 'n' ? str.slice(0, -1) : str);
 
   return str;
 
@@ -74,7 +78,7 @@ export function formDataValidObject<T extends Type<any>>(fd: FormData, obj: T, f
   const fdo = formDataToObject(fd, filterFn);
   const { data, problems } = obj(fdo);
 
-  if(data)
+  if (data)
     return data;
 
   throw problems;
