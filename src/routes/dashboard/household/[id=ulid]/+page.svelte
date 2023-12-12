@@ -1,12 +1,13 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import { goto } from '$app/navigation';
+  import { goto, invalidateAll } from '$app/navigation';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import { CrownIcon, XIcon } from 'lucide-svelte';
 
   import Button from '$lib/components/button/button.svelte';
   import Drawer from '$lib/components/drawer/drawer.svelte';
   import HouseholdSidebar from '../_components/householdSidebar.svelte';
+  import DeleteHousehold from '$lib/components/households/delete.svelte';
 
   export let data;
 
@@ -18,6 +19,7 @@
   }
 
   let showDrawer = false;
+  let showDelete = false;
 
 </script>
 
@@ -29,7 +31,15 @@
 
 <Drawer on:close={() => showDrawer = false} open={showDrawer} let:close={closeDrawer}>
   <section class="p-4">
-      <form action="?/editHousehold" class="flex flex-col gap-4" method="post">
+      <form action="/dashboard/household?/updateHousehold" class="flex flex-col gap-4" method="post" use:enhance={() => {
+        return async ({ formElement, update }) => {
+          await update();
+          formElement.reset();
+          showDrawer = false;
+          await invalidateAll();
+        }
+      }}>
+        <input type="hidden" name="household-id" value={household.id} >
         <h2 class="h2">
           Edit {household.name}
         </h2>
@@ -38,7 +48,7 @@
         <label class="label">
           <span>Household Name</span>
           <input
-            name="household-name"
+            name="name"
             type="text"
             class="input"
             value={household.name}
@@ -58,6 +68,12 @@
 <HouseholdSidebar
   households={data.households}
   userMap={data.streamable.userHouseholds}
+/>
+
+<DeleteHousehold
+  household={household}
+  open={showDelete}
+  on:close={() => showDelete = false}
 />
 
 <div class="flex-grow flex flex-col gap-3 p-5">
@@ -87,7 +103,7 @@
         variant="primary:ghost"
         on:click={() => showDrawer = true}>Edit</Button
       >
-      <Button size="sm" variant="destructive:ghost">Delete</Button>
+      <Button size="sm" variant="destructive:ghost" on:click={() => showDelete = true}>Delete</Button>
     </div>
   </header>
   <div class="flex gap-4">

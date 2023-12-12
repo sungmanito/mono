@@ -6,6 +6,7 @@
 
   export let open = false;
   export let modal = false;
+  export let submitFn: (response: Response) => Promise<unknown> = () => Promise.resolve(void 0);
 
   export let action = '/';
 
@@ -40,7 +41,12 @@
 
     // If the response is OK then we invalidate all of the data.
     if(response.ok) {
-      await invalidateAll();
+      if(submitFn) {
+        await submitFn(response);
+      } else {
+        invalidateAll();
+        dispatchEvent('close');
+      }
     }
 
   }
@@ -63,7 +69,7 @@
       <slot />
     </section>
     <footer>
-      <slot name="footer">
+      <slot name="footer" close={() => dispatchEvent('close')}>
         <button
           class="btn variant-filled-primary"
           on:click={(e) => dispatchEvent('close', e)}

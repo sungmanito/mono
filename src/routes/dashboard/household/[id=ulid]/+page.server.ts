@@ -6,6 +6,7 @@ import { error, redirect } from '@sveltejs/kit';
 import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
 import { type } from 'arktype';
 import { isValid } from 'ulidx';
+import { validate } from '$lib/util/ark-utils.js';
 
 const formDataValidator = type({
   user: 'email | string',
@@ -118,9 +119,8 @@ export const actions = {
     const formData = formDataValidObject(await request.formData(), type({ emails: 'string', 'household-id': 'string' }));
     if(!isValid(formData['household-id'])) throw error(400);
     const emailsTmp = formData.emails.split(/\r?\n|,\s?/g);
+    
     const { data: emails, problems } = type({ emails: 'email[]' })({ emails: emailsTmp });
-
-    console.info(emails, problems);
 
     if (!emails) throw error(400);
 
