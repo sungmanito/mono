@@ -99,12 +99,31 @@ export const actions = {
         ? []
         : [data.members];
 
-    const [household] = await db.insert(schema.households)
-      .values({
-        name: data['household-name'],
-        ownerId: session.user.id,
-      })
-      .returning();
+    const household = await db.transaction(async tx => {
+      const [household] = await tx.insert(schema.households)
+        .values({
+          name: data['household-name'],
+          ownerId: session.user.id
+        }).returning();
+      if(!household) {
+        console.info('FUCK', data['household-name'], session.user.id);
+        tx.rollback();
+        return null;
+      }
+
+      const [ownerRow] = await tx.insert(schema.usersToHouseholds)
+        .values({
+          householdId: household.id,
+          userId: session.user.id,
+        })
+        .returning();
+      
+      if(!ownerRow) {
+        tx.rollback();
+        return null;
+      }
+      return household;
+    });
 
     if(!household) throw error(400);
     

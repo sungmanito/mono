@@ -108,8 +108,8 @@
   
   
   <div class="">
-    <Accordion class="flex flex-col gap-2">
-      <AccordionItem open class="card variant-soft-surface">
+    <Accordion class="grid grid-cols-4 gap-2">
+      <AccordionItem open class="card variant-soft-surface col-span-2">
         <svelte:fragment slot="summary">
           <Header tag="h3" color="secondary">
             Past Due
@@ -125,7 +125,7 @@
           </section>
         </svelte:fragment>
       </AccordionItem>
-      <AccordionItem open class="card variant-soft-surface">
+      <AccordionItem open class="card variant-soft-surface col-span-2">
         <svelte:fragment slot="summary">
           <Header tag="h3" color="secondary">
             Upcoming
@@ -151,7 +151,7 @@
           </div>
         </svelte:fragment>
       </AccordionItem>
-      <AccordionItem open={data.groupings.comingSoon.length > 0} class="card variant-soft-surface">
+      <AccordionItem open={data.groupings.comingSoon.length > 0} class="card variant-soft-surface col-span-2">
         <svelte:fragment slot="summary">
           <Header tag="h3" color="secondary">
             Coming Soon
@@ -167,7 +167,7 @@
           </div>
         </svelte:fragment>
       </AccordionItem>
-      <AccordionItem open={data.groupings.paid.length > 0} class="card variant-soft-surface">
+      <AccordionItem open={data.groupings.paid.length > 0} class="card variant-soft-surface col-span-2">
         <svelte:fragment slot="summary">
           <Header tag="h3" color="secondary">
             Paid
@@ -194,7 +194,7 @@
           </div>
         </svelte:fragment>
       </AccordionItem>
-      <AccordionItem open={data.groupings.rest.length > 0}>
+      <AccordionItem open={data.groupings.rest.length > 0} class="col-span-4">
         <svelte:fragment slot="summary">
           <Header tag="h3" color="secondary">
             Other bills
@@ -226,6 +226,8 @@
         </svelte:fragment>
       </AccordionItem>
     </Accordion>
-  
+    <AccordionItem>
+      Hi
+    </AccordionItem>
   </div>
 </div>

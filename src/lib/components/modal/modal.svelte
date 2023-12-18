@@ -1,6 +1,6 @@
 <script lang="ts">
   import { XIcon } from 'lucide-svelte';
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { cx } from 'class-variance-authority';
   import { invalidateAll } from '$app/navigation';
 
@@ -50,6 +50,7 @@
     }
 
   }
+
 </script>
 
 <dialog class={cx($$props.class)} bind:this={modalElement}>
@@ -66,7 +67,7 @@
       </button>
     </header>
     <section>
-      <slot />
+      <slot close={() => dispatchEvent('close')} />
     </section>
     <footer>
       <slot name="footer" close={() => dispatchEvent('close')}>
