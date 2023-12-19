@@ -1,12 +1,13 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import { goto } from '$app/navigation';
+  import { goto, invalidateAll } from '$app/navigation';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import { CrownIcon, XIcon } from 'lucide-svelte';
 
   import Button from '$lib/components/button/button.svelte';
   import Drawer from '$lib/components/drawer/drawer.svelte';
   import HouseholdSidebar from '../_components/householdSidebar.svelte';
+  import DeleteHousehold from '$lib/components/households/delete.svelte';
 
   export let data;
 
@@ -18,7 +19,7 @@
   }
 
   let showDrawer = false;
-
+  let showDelete = false;
 </script>
 
 <svelte:head>
@@ -27,37 +28,53 @@
   </title>
 </svelte:head>
 
-<Drawer on:close={() => showDrawer = false} open={showDrawer} let:close={closeDrawer}>
+<Drawer
+  on:close={() => (showDrawer = false)}
+  open={showDrawer}
+  let:close={closeDrawer}
+>
   <section class="p-4">
-      <form action="?/editHousehold" class="flex flex-col gap-4" method="post">
-        <h2 class="h2">
-          Edit {household.name}
-        </h2>
-        <p class="text-surface-700-200-token">ID: {household.id}</p>
+    <form
+      action="/dashboard/household?/updateHousehold"
+      class="flex flex-col gap-4"
+      method="post"
+      use:enhance={() => {
+        return async ({ formElement, update }) => {
+          await update();
+          formElement.reset();
+          showDrawer = false;
+          await invalidateAll();
+        };
+      }}
+    >
+      <input type="hidden" name="household-id" value={household.id} />
+      <h2 class="h2">
+        Edit {household.name}
+      </h2>
+      <p class="text-surface-700-200-token">ID: {household.id}</p>
 
-        <label class="label">
-          <span>Household Name</span>
-          <input
-            name="household-name"
-            type="text"
-            class="input"
-            value={household.name}
-          />
-        </label>
+      <label class="label">
+        <span>Household Name</span>
+        <input name="name" type="text" class="input" value={household.name} />
+      </label>
 
-        <section class="flex gap-3">
-          <Button variant="filled" on:click={() => closeDrawer()}>
-            Close
-          </Button>
-          <Button>Save</Button>
-        </section>
-      </form>
+      <section class="flex gap-3">
+        <Button variant="filled" on:click={() => closeDrawer()}>Close</Button>
+        <Button>Save</Button>
+      </section>
+    </form>
   </section>
 </Drawer>
 
 <HouseholdSidebar
   households={data.households}
   userMap={data.streamable.userHouseholds}
+/>
+
+<DeleteHousehold
+  {household}
+  open={showDelete}
+  on:close={() => (showDelete = false)}
 />
 
 <div class="flex-grow flex flex-col gap-3 p-5">
@@ -85,9 +102,13 @@
       <Button
         size="sm"
         variant="primary:ghost"
-        on:click={() => showDrawer = true}>Edit</Button
+        on:click={() => (showDrawer = true)}>Edit</Button
       >
-      <Button size="sm" variant="destructive:ghost">Delete</Button>
+      <Button
+        size="sm"
+        variant="destructive:ghost"
+        on:click={() => (showDelete = true)}>Delete</Button
+      >
     </div>
   </header>
   <div class="flex gap-4">
@@ -124,7 +145,7 @@
             };
           }}
         >
-          <input type="hidden" name="household-id" value={household.id}>
+          <input type="hidden" name="household-id" value={household.id} />
           <textarea
             name="emails"
             class="textarea"
@@ -146,8 +167,12 @@
                   {/if}
                   {householdUser.userMetadata?.name || householdUser.email}
                 </div>
-                {#if (household.ownerId === data.user.id && householdUser.id !== household.ownerId) || (householdUser.id === data.user.id)}
-                  <button name="userId" value={householdUser.id} class="btn-icon btn-icon-sm hover:variant-outline-error">
+                {#if (household.ownerId === data.user.id && householdUser.id !== household.ownerId) || householdUser.id === data.user.id}
+                  <button
+                    name="userId"
+                    value={householdUser.id}
+                    class="btn-icon btn-icon-sm hover:variant-outline-error"
+                  >
                     <XIcon size="1em" />
                   </button>
                 {/if}
@@ -168,8 +193,12 @@
           {#each invites as invite (invite.id)}
             <div class="flex gap-2 items-center">
               {invite.toEmail}
-              <button name="invite-id" value={invite.id} class="btn-icon btn-icon-sm hover:variant-filled-error">
-                <XIcon size="0.9em"/>
+              <button
+                name="invite-id"
+                value={invite.id}
+                class="btn-icon btn-icon-sm hover:variant-filled-error"
+              >
+                <XIcon size="0.9em" />
               </button>
             </div>
           {:else}

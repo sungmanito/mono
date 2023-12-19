@@ -37,6 +37,8 @@
 		"histoire": "^0.17.5",
 		"pg": "^8.11.3",
 		"postcss": "^8.4.31",
+		"prettier": "^3.1.0",
+		"prettier-plugin-svelte": "^3.1.2",
 		"sass": "^1.69.5",
 		"supabase": "^1.112.0",
 		"svelte": "^4.2.3",

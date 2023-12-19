@@ -3,9 +3,10 @@
   import Breadcrumb from "$lib/components/breadcrumb/breadcrumb.svelte";
   import Button from "$lib/components/button/button.svelte";
   import Header from "$lib/components/header/header.svelte";
-  import { CheckIcon, PlusIcon, XIcon } from "lucide-svelte";
-  import HouseholdSideItem from "./_components/householdSideItem.svelte";
-    import HouseholdSidebar from './_components/householdSidebar.svelte';
+  import { CheckIcon, XIcon } from "lucide-svelte";
+  import HouseholdSidebar from './_components/householdSidebar.svelte';
+  import CreateHousehold from '$lib/components/households/create.svelte';
+    import { invalidateAll } from '$app/navigation';
   export let data;
 
   let households = data.households;
@@ -22,6 +23,8 @@
       el.showModal();
     }
   }
+
+  let addHousehold = false;
 </script>
 
 <svelte:head>
@@ -31,6 +34,26 @@
 <HouseholdSidebar
   households={households}
   userMap={data.streamable.userHouseholds}
+/>
+
+<CreateHousehold
+  open={addHousehold}
+  on:close={() => addHousehold = false}
+  submit={({formData}) => {
+    const members = formData.get('members') || '';
+    if(members && typeof members === 'string') {
+      console.info('what', members);
+      formData.delete('members');
+      for(const member of members.split(/\r?\n|,|\s+/)) {
+        formData.append('members',member.trim());
+      }
+    }
+    return async ({ formElement, update }) => {
+      await update();
+      await invalidateAll();
+      formElement.reset();
+    }
+  }}
 />
 
 <div class="container mx-auto mt-4 px-6">
@@ -50,7 +73,7 @@
   <Header class="mb-4">
     Households
     <svelte:fragment slot="actions">
-      <Button size="sm" variant="primary" on:click={toggleHouseholds}>Add</Button>
+      <Button size="sm" variant="primary" on:click={() => addHousehold = true}>Add</Button>
     </svelte:fragment>
   </Header>
 

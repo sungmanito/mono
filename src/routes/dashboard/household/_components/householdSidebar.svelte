@@ -5,7 +5,8 @@
   import type { PageData } from '../$types';
   import HouseholdSideItem from './householdSideItem.svelte';
   import { page } from '$app/stores';
-    import Modal from '$lib/components/modal/modal.svelte';
+  import Create from '$lib/components/households/create.svelte';
+  import { invalidateAll } from '$app/navigation';
 
   export let households: PageData['households'];
   export let userMap: PageData['streamable']['userHouseholds'];
@@ -14,20 +15,32 @@
 
 </script>
 
-<Modal
+<Create
   open={showModal}
-  modal
-  action="/dashboard/household?/addHousehold"
-  class="p-3 rounded variant-filled-surface"
-  on:close={() => showModal = false }
->
-  <svelte:fragment slot="header">
-    Add household
-  </svelte:fragment>
-  <label for="">
-    <input type="text" class="input px-2 py-1" placeholder="Household name">
-  </label>
-</Modal>
+  on:close={() => showModal = false}
+  submit={({ formData }) => {
+    const members = formData.get('members') || '';
+    console.info('WTF', members);
+    if(typeof members === 'string') {
+      console.info('Members', members);
+      formData.delete('members');
+      console.info('pre', formData.get('members'));
+      for(const member of members.split(/\r?\n|,\s?|\s+/).filter(f => f)) {
+        console.info('hookers and blow')
+        formData.append('members',member.trim());
+      }
+      console.info(formData.get('members'));
+    }
+    return async ({
+      formElement,
+      update
+    }) => {
+      await update();
+      formElement.reset();
+      await invalidateAll();
+    }
+  }}
+/>
 
 <section class="bg-surface-50-900-token p-4 overflow-auto min-w-max">
   <div class="flex flex-col gap-2">

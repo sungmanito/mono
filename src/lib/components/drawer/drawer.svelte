@@ -15,7 +15,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
-  on:click={() => dispatchCloseEvent()}
+  on:click={(e) => e.currentTarget === e.target ? dispatchCloseEvent() : null}
   class="drawer-backdrop flex fixed top-0 bottom-0 left-0 right-0 bg-surface-backdrop-token z-50" class:hidden={!open}
   use:focusTrap={true}
 >

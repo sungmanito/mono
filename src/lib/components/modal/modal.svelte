@@ -1,11 +1,12 @@
 <script lang="ts">
   import { XIcon } from 'lucide-svelte';
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { cx } from 'class-variance-authority';
   import { invalidateAll } from '$app/navigation';
 
   export let open = false;
   export let modal = false;
+  export let submitFn: (response: Response) => Promise<unknown> = () => Promise.resolve(void 0);
 
   export let action = '/';
 
@@ -40,10 +41,16 @@
 
     // If the response is OK then we invalidate all of the data.
     if(response.ok) {
-      await invalidateAll();
+      if(submitFn) {
+        await submitFn(response);
+      } else {
+        invalidateAll();
+        dispatchEvent('close');
+      }
     }
 
   }
+
 </script>
 
 <dialog class={cx($$props.class)} bind:this={modalElement}>
@@ -60,10 +67,10 @@
       </button>
     </header>
     <section>
-      <slot />
+      <slot close={() => dispatchEvent('close')} />
     </section>
     <footer>
-      <slot name="footer">
+      <slot name="footer" close={() => dispatchEvent('close')}>
         <button
           class="btn variant-filled-primary"
           on:click={(e) => dispatchEvent('close', e)}
