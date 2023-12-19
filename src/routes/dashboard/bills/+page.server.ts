@@ -12,7 +12,7 @@ export const load = async ({ locals }) => {
   const session = await locals.getSession();
 
   if(!session || !session?.user) {
-    throw redirect(300, '/login');
+    redirect(300, '/login');
   }
 
   const bills = await db
@@ -81,7 +81,7 @@ export const actions = {
 
     const session = await locals.getSession();
 
-    if(!session || !session?.user) throw error(401, 'nope');
+    if(!session || !session?.user) error(401, 'nope');
 
     const data = await formDataValidObject(await request.formData(), type({
       'bill-id': 'string',
@@ -93,7 +93,7 @@ export const actions = {
     const userHouseholds = locals.userHouseholds;
 
     if(userHouseholds.findIndex(uh => uh.households.id === data['household-id']) === -1) 
-      throw error(400, 'Not authorized');
+      error(400, 'Not authorized');
 
     const [response] = await db.update(billsTable)
       .set({
@@ -107,7 +107,7 @@ export const actions = {
       .returning();
     
     if(response === undefined)
-      throw error(400);
+      error(400);
 
     return {
       status: 200,
@@ -119,7 +119,7 @@ export const actions = {
 
     const session = await locals.getSession();
 
-    if(!validateUserSession(session)) throw error(401);
+    if(!validateUserSession(session)) error(401);
 
     const data = formDataValidObject(await request.formData(), type({
       'bill-id': 'string',
@@ -138,7 +138,7 @@ export const actions = {
       )
       .returning();
 
-    if(deleted === undefined) throw error(400, 'nope');
+    if(deleted === undefined)  error(400, 'nope');
 
     return {
       bill: deleted

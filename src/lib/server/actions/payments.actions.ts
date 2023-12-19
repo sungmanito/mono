@@ -67,7 +67,7 @@ export async function createPayment(data: PaymentInsertArgs) {
 
 export async function addProofToPayment(paymentId: Payment['id'], proof: Payment['proof'], updatedBy: string) {
 
-  if(proof === '' || updatedBy === '') throw error(400);
+  if(proof === '' || updatedBy === '') error(400);
 
   return db.update(schema.payments)
     .set({
