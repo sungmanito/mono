@@ -9,7 +9,7 @@ import { and, eq, inArray, sql } from 'drizzle-orm';
 
 export const load = async ({ locals }) => {
   const session = await locals.getSession();
-  if (!validateUserSession(session)) throw redirect(303, '/login');
+  if(!validateUserSession(session)) redirect(303, '/login');
 
   return {
     streamed: {
@@ -77,7 +77,8 @@ export const actions = {
         )
         .returning();
 
-      if (!response) throw error(400, 'Could not resolve invite');
+      if(!response) error(400, 'Could not resolve invite');
+
     }
     return {};
   },

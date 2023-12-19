@@ -12,7 +12,7 @@ export const load = async ({ locals }) => {
   const session = await locals.getSession();
 
   if(!session || !session.user) {
-    throw redirect(300, '/login');
+    redirect(300, '/login');
   }
 
   const households = await getUserHouseholds(session.user.id);
@@ -39,11 +39,11 @@ export const actions = {
   updatePayment: async ({ locals, request }) => {
     const session = await locals.getSession();
 
-    if(!validateUserSession(session)) throw error(401);
+    if(!validateUserSession(session)) error(401);
 
     const formData = formDataToObject(await request.formData());
 
-    if(!formData['payment-id'] || typeof formData['payment-id'] !== 'string' || typeof formData['proof'] !== 'string') throw error(400, 'Invalid payment');
+    if(!formData['payment-id'] || typeof formData['payment-id'] !== 'string' || typeof formData['proof'] !== 'string') error(400, 'Invalid payment');
 
     // Grab the user households
     const userHouseholds = await getUserHouseholds(session.user.id);
@@ -57,7 +57,7 @@ export const actions = {
         )
       )
 
-    if(verified.length !== 1) throw error(401, 'Not authorized');
+    if(verified.length !== 1) error(401, 'Not authorized');
 
     const newData = await updatePayments(formData['payment-id'], {
       proof: formData['proof'],
@@ -74,13 +74,13 @@ export const actions = {
   unpayBill: async ({ locals, request }) => {
     const session = await locals.getSession();
 
-    if(!validateUserSession(session)) throw error(401);
+    if(!validateUserSession(session)) error(401);
 
     const userHouseholds = locals.userHouseholds;
 
     const formData = formDataToObject(await request.formData());
 
-    if(!formData.paymentId || typeof formData.paymentId !== 'string') throw error(400);
+    if(!formData.paymentId || typeof formData.paymentId !== 'string') error(400);
 
     const [payment] = await db.update(schema.payments)
       .set({
