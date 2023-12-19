@@ -9,7 +9,7 @@ export const load = async ({ locals }) => {
   const session = await locals.getSession();
 
   if(!session || !session?.user) {
-    throw redirect(300, '/login');
+    redirect(300, '/login');
   }
 
   const bills = await db
@@ -48,28 +48,28 @@ export const actions = {
 
     const session = await locals.getSession();
 
-    if(!session || !session?.user) throw error(401, 'nope');
+    if(!session || !session?.user) error(401, 'nope');
 
     const data = await request.formData();
     const billId = data.get('bill-id');
     const userHouseholds = await getUserHouseholds(session.user.id);
 
-    if(!billId || typeof billId !== 'string') throw error(400, 'No bill ID provided');
+    if(!billId || typeof billId !== 'string') error(400, 'No bill ID provided');
 
     const base  = await getBill(billId);
 
     if(!userHouseholds.some(f => f.households.id === base.householdId)) {
-      throw error(400, 'You are not authorized to modify this bill');
+      error(400, 'You are not authorized to modify this bill');
     }
 
     const dueDate = Number(data.get('due-date') || 1);
 
     if(isNaN(dueDate)) {
-      throw error(400, 'Bad request');
+      error(400, 'Bad request');
     }
 
     if(dueDate < 1 || dueDate > 28) {
-      throw error(400, 'Invalid due date');
+      error(400, 'Invalid due date');
     }
 
     const obj: BillUpdateArgs = {
@@ -80,7 +80,7 @@ export const actions = {
 
     const newBill = await updateBill(billId, obj);
 
-    if(!newBill) throw error(405, 'Update failed');
+    if(!newBill) error(405, 'Update failed');
 
     return {
       status: 200,
@@ -93,7 +93,7 @@ export const actions = {
     const session = await locals.getSession();
     const formData = await request.formData();
 
-    if(!session || !session.user) throw error(401, 'Not logged in');
+    if(!session || !session.user) error(401, 'Not logged in');
 
     const parsedData = Object.fromEntries(formData.entries());
 
@@ -108,7 +108,7 @@ export const actions = {
       )
       .returning();
     
-    if (resp.length !== 1) throw error(400, 'Bill not found');
+    if (resp.length !== 1) error(400, 'Bill not found');
 
     return {
       success: true,
