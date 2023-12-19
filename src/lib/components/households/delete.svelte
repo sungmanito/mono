@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { goto, invalidateAll } from "$app/navigation";
   import type { Household } from "$lib/server/actions/households.actions";
   import Button from "../button/button.svelte";
   import Modal from "../modal/modal.svelte";
@@ -9,7 +10,10 @@
 
 </script>
 
-<Modal {open} on:close modal action="/dashboard/household?/deleteHousehold" class="p-4 rounded shadow-xl">
+<Modal {open} on:close modal action="/dashboard/household?/deleteHousehold" class="p-4 rounded shadow-xl" submitFn={async () => {
+  await goto('/dashboard/household');
+  await invalidateAll();
+}}>
   <svelte:fragment slot="header">
     <h1>Delete &quot;{household.name}&quot;?</h1>
   </svelte:fragment>

@@ -4,7 +4,6 @@ type EntriesTouple = [string, FormDataEntryValue];
 
 type FilterFn = (a: EntriesTouple) => boolean;
 
-
 type FormDataObjectEntry = FormDataEntryValue | number | boolean | bigint;
 
 /**
@@ -83,3 +82,6 @@ export function formDataValidObject<T extends Type<any>>(fd: FormData, obj: T, f
 
   throw problems;
 }
+
+// Need to rename this function, don't have the energy to do it now.
+export const validateFormData = formDataValidObject;

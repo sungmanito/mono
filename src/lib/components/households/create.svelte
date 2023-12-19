@@ -6,12 +6,14 @@
   import Button from '../button/button.svelte';
   import { enhance } from '$app/forms';
   import FormLabel from '../formLabel/formLabel.svelte';
+  import { invalidateAll } from '$app/navigation';
 
   export let open = false;
   export let submit: SubmitFunction = () => {
     return async ({ formElement, update }) => {
       await update();
       formElement.reset();
+      invalidateAll();
     };
   };
 </script>
@@ -24,7 +26,7 @@
     use:enhance={submit}
   >
     <Header color="secondary" tag="h2" class="mb-8">
-      New bill
+      New household 
       <svelte:fragment slot="actions">
         <button
           type="button"
