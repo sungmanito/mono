@@ -107,7 +107,7 @@ export const actions = {
       .returning();
     
     if(response === undefined)
-      throw error(400);
+      error(400);
 
     return {
       status: 200,
@@ -119,13 +119,11 @@ export const actions = {
 
     const session = await locals.getSession();
 
-    if(!validateUserSession(session)) throw error(401);
+    if(!validateUserSession(session)) error(401);
 
     const data = formDataValidObject(await request.formData(), type({
       'bill-id': 'string',
     }));
-
-    console.info(data);
 
     const [deleted] = await db.delete(billsTable)
       .where(
@@ -138,7 +136,7 @@ export const actions = {
       )
       .returning();
 
-    if(deleted === undefined) throw error(400, 'nope');
+    if(deleted === undefined)  error(400, 'nope');
 
     return {
       bill: deleted

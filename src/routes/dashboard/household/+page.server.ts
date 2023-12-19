@@ -1,10 +1,12 @@
 import { inviteMembersByEmail } from '$lib/server/actions/invites.action.js';
+import { inviteMembersByEmail } from '$lib/server/actions/invites.action.js';
 import { db, schema } from '$lib/server/db';
 import { households } from '$lib/server/db/schema/households.table.js';
 import { formDataValidObject } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 
 export const load = async ({ locals }) => {
@@ -28,7 +30,7 @@ export const load = async ({ locals }) => {
 export const actions = {
   updateInvite: async ({ request, locals }) => {
     const session = await locals.getSession();
-    if (!validateUserSession(session)) throw error(401);
+    if (!validateUserSession(session)) error(401);
     const formData = formDataValidObject(
       await request.formData(),
       type({ 'invite-id': 'string', action: "'accept'|'delete'" }),
@@ -100,31 +102,12 @@ export const actions = {
         ? []
         : [data.members];
 
-    const household = await db.transaction(async tx => {
-      const [household] = await tx.insert(schema.households)
-        .values({
-          name: data['household-name'],
-          ownerId: session.user.id
-        }).returning();
-      if(!household) {
-        console.info('FUCK', data['household-name'], session.user.id);
-        tx.rollback();
-        return null;
-      }
-
-      const [ownerRow] = await tx.insert(schema.usersToHouseholds)
-        .values({
-          householdId: household.id,
-          userId: session.user.id,
-        })
-        .returning();
-      
-      if(!ownerRow) {
-        tx.rollback();
-        return null;
-      }
-      return household;
-    });
+    const [household] = await db.insert(schema.households)
+      .values({
+        name: data['household-name'],
+        ownerId: session.user.id,
+      })
+      .returning();
 
     if(!household) throw error(400);
     
