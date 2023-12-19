@@ -124,11 +124,6 @@ export const actions = {
     const data = formDataValidObject(await request.formData(), type({
       'bill-id': 'string',
     }));
-    const data = formDataValidObject(await request.formData(), type({
-      'bill-id': 'string',
-    }));
-
-    console.info(data);
 
     const [deleted] = await db.delete(billsTable)
       .where(
