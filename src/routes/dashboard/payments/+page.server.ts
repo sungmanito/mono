@@ -11,7 +11,7 @@ export const load = async ({ locals }) => {
   const today = new Date();
   const session = await locals.getSession();
 
-  if(!session || !session.user) {
+  if (!session || !session.user) {
     redirect(300, '/login');
   }
 
@@ -21,11 +21,14 @@ export const load = async ({ locals }) => {
     .select()
     .from(schema.payments)
     .innerJoin(
-      schema.bills, 
+      schema.bills,
       and(
         eq(schema.bills.id, schema.payments.billId),
-        inArray(schema.bills.householdId, households.map(h => h.households.id)),
-      )
+        inArray(
+          schema.bills.householdId,
+          households.map((h) => h.households.id),
+        ),
+      ),
     )
     .where(eq(schema.payments.forMonth, today.getMonth() + 1))
     .orderBy(schema.payments.forMonth);
@@ -33,31 +36,40 @@ export const load = async ({ locals }) => {
   return {
     payments,
   };
-}
+};
 
 export const actions = {
   updatePayment: async ({ locals, request }) => {
     const session = await locals.getSession();
 
-    if(!validateUserSession(session)) error(401);
+    if (!validateUserSession(session)) error(401);
 
     const formData = formDataToObject(await request.formData());
 
-    if(!formData['payment-id'] || typeof formData['payment-id'] !== 'string' || typeof formData['proof'] !== 'string') error(400, 'Invalid payment');
+    if (
+      !formData['payment-id'] ||
+      typeof formData['payment-id'] !== 'string' ||
+      typeof formData['proof'] !== 'string'
+    )
+      error(400, 'Invalid payment');
 
     // Grab the user households
     const userHouseholds = await getUserHouseholds(session.user.id);
 
-    const verified = await db.select()
+    const verified = await db
+      .select()
       .from(schema.payments)
       .where(
         and(
-          inArray(schema.payments.householdId, userHouseholds.map(f => f.households.id)),
-          eq(schema.payments.id, formData['payment-id'])
-        )
-      )
+          inArray(
+            schema.payments.householdId,
+            userHouseholds.map((f) => f.households.id),
+          ),
+          eq(schema.payments.id, formData['payment-id']),
+        ),
+      );
 
-    if(verified.length !== 1) error(401, 'Not authorized');
+    if (verified.length !== 1) error(401, 'Not authorized');
 
     const newData = await updatePayments(formData['payment-id'], {
       proof: formData['proof'],
@@ -66,7 +78,7 @@ export const actions = {
     });
 
     // Double check that this is a payment that belongs to us.
-    
+
     return {
       updated: newData,
     };
@@ -74,15 +86,17 @@ export const actions = {
   unpayBill: async ({ locals, request }) => {
     const session = await locals.getSession();
 
-    if(!validateUserSession(session)) error(401);
+    if (!validateUserSession(session)) error(401);
 
     const userHouseholds = locals.userHouseholds;
 
     const formData = formDataToObject(await request.formData());
 
-    if(!formData.paymentId || typeof formData.paymentId !== 'string') error(400);
+    if (!formData.paymentId || typeof formData.paymentId !== 'string')
+      error(400);
 
-    const [payment] = await db.update(schema.payments)
+    const [payment] = await db
+      .update(schema.payments)
       .set({
         proof: '',
         updatedBy: session.user.id,
@@ -91,8 +105,11 @@ export const actions = {
       .where(
         and(
           eq(schema.payments.id, formData.paymentId),
-          inArray(schema.payments.householdId, userHouseholds.map(f => f.households.id))
-        )
+          inArray(
+            schema.payments.householdId,
+            userHouseholds.map((f) => f.households.id),
+          ),
+        ),
       )
       .returning();
 
@@ -100,6 +117,5 @@ export const actions = {
       success: true,
       payment: payment,
     };
-    
-  }
-}
+  },
+};

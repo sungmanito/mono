@@ -3,4 +3,5 @@
   export let from: Date | number;
 </script>
 
-{from} {to}
+{from}
+{to}

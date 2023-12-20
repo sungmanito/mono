@@ -53,15 +53,10 @@
       </h2>
       <p class="text-surface-700-200-token">ID: {household.id}</p>
 
-        <label class="label">
-          <span>Household Name</span>
-          <input
-            name="name"
-            type="text"
-            class="input"
-            value={household.name}
-          />
-        </label>
+      <label class="label">
+        <span>Household Name</span>
+        <input name="name" type="text" class="input" value={household.name} />
+      </label>
 
       <section class="flex gap-3">
         <Button variant="filled" on:click={() => closeDrawer()}>Close</Button>

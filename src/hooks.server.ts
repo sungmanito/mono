@@ -8,7 +8,7 @@ import { getUserHouseholds } from '$lib/server/actions/households.actions';
 import { validateUserSession } from '$lib/util/session';
 
 // Little bit of tricksy shenanigans since we don't use .env around these parts,
-// but the vercel 
+// but the vercel
 process.env.EDGE_CONFIG = EDGE_CONFIG;
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -16,17 +16,21 @@ export const handle: Handle = async ({ event, resolve }) => {
    * Creates a supabase server client using some ENV variables.
    * This is an admin-level client, so be careful when calling any deletes.
    */
-  const supabase = createServerClient(PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE, {
-    cookies: {
-      get: key => event.cookies.get(key),
-      set: (key, value, options) => {
-        event.cookies.set(key, value, options)
+  const supabase = createServerClient(
+    PUBLIC_SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE,
+    {
+      cookies: {
+        get: (key) => event.cookies.get(key),
+        set: (key, value, options) => {
+          event.cookies.set(key, value, options);
+        },
+        remove: (key, options) => {
+          event.cookies.delete(key, options);
+        },
       },
-      remove: (key, options) => {
-        event.cookies.delete(key, options);
-      }
-    }
-  });
+    },
+  );
 
   /**
    * This is from the Vercel Edge Config
@@ -56,7 +60,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   return resolve(event, {
     filterSerializedResponseHeaders(name) {
-      return name === 'content-range'
-    }
+      return name === 'content-range';
+    },
   });
-}
+};

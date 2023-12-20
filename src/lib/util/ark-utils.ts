@@ -2,11 +2,11 @@
 import type { Problems, Type } from 'arktype';
 
 /**
- * 
+ *
  * @throws {Problems}
  * @param value an unknown value
  * @param validator an arktype validator
- * @returns 
+ * @returns
  */
 export function validate<
   T,

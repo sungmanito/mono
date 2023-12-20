@@ -1,7 +1,5 @@
 import { invalidateAll } from '$app/navigation';
-import type { 
-  Action
-} from 'svelte/action';
+import type { Action } from 'svelte/action';
 
 async function sendFormData(e: SubmitEvent) {
   // Stop the default event
@@ -19,13 +17,17 @@ async function sendFormData(e: SubmitEvent) {
   const serverResponse = await fetch(action, {
     method,
     headers: new Headers({
-      accept: 'application/json'
+      accept: 'application/json',
     }),
     body: formData,
   });
 
   // If the server comes back correct, send all the data back
-  if(serverResponse.ok && serverResponse.status < 400 && serverResponse.status >= 200) {
+  if (
+    serverResponse.ok &&
+    serverResponse.status < 400 &&
+    serverResponse.status >= 200
+  ) {
     invalidateAll();
   }
 
@@ -33,12 +35,9 @@ async function sendFormData(e: SubmitEvent) {
 }
 
 export const modalForm: Action<HTMLFormElement> = (form) => {
-
   form.addEventListener('submit', sendFormData);
 
   return {
-    destroy() {
-      
-    },
-  }
-}
+    destroy() {},
+  };
+};

@@ -8,28 +8,33 @@ export const usersToHouseholds = pgTable(
   {
     id: uuid('id').notNull().primaryKey().defaultRandom(),
     userId: uuid('user_id').notNull(),
-    householdId: text('household_id').notNull().references(() => households.id, { onDelete: 'cascade' }),
+    householdId: text('household_id')
+      .notNull()
+      .references(() => households.id, { onDelete: 'cascade' }),
   },
   ({ userId }) => ({
-    userIdIndex: index('household_user_id_index').on(userId)
-  })
+    userIdIndex: index('household_user_id_index').on(userId),
+  }),
 );
 
-export const usersToHouseholdsRelations = relations(usersToHouseholds, ({ one }) => ({
-  user: one(users, {
-    fields: [usersToHouseholds.userId],
-    references: [users.id],
+export const usersToHouseholdsRelations = relations(
+  usersToHouseholds,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [usersToHouseholds.userId],
+      references: [users.id],
+    }),
+    household: one(households, {
+      fields: [usersToHouseholds.householdId],
+      references: [households.id],
+    }),
   }),
-  household: one(households, {
-    fields: [usersToHouseholds.householdId],
-    references: [households.id],
-  })
-}));
+);
 
 export const usersHouseholds = relations(users, ({ many }) => ({
-  households: many(usersToHouseholds)
+  households: many(usersToHouseholds),
 }));
 
 export const householdUsers = relations(households, ({ many }) => ({
-  users: many(usersToHouseholds)
+  users: many(usersToHouseholds),
 }));

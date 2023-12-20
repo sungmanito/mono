@@ -13,51 +13,74 @@
   export let bill: Bill | null;
   export let households: Pick<Household, 'id' | 'name'>[] = [];
   export let submit: SubmitFunction = () => {
-    return async ({
-      update,
-      formElement
-    }) => {
+    return async ({ update, formElement }) => {
       formElement.reset();
       await update();
       await invalidateAll();
-    }
+    };
   };
   let saving = false;
 </script>
 
-<Drawer open={open} on:close let:close={closeDrawer}>
-  <form action="/dashboard/bills?/updateBill" method="post" class="p-4" use:enhance={submit}>
-    <input type="hidden" name="bill-id" value={bill?.id}>
+<Drawer {open} on:close let:close={closeDrawer}>
+  <form
+    action="/dashboard/bills?/updateBill"
+    method="post"
+    class="p-4"
+    use:enhance={submit}
+  >
+    <input type="hidden" name="bill-id" value={bill?.id} />
     <Header color="secondary" tag="h2">
       Update {bill?.billName}
     </Header>
     <section class="grid grid-cols-3 gap-3">
       <div>
         <FormLabel label="Bill name">
-          <input type="text" class="input" name="bill-name" value={bill?.billName}>
+          <input
+            type="text"
+            class="input"
+            name="bill-name"
+            value={bill?.billName}
+          />
         </FormLabel>
       </div>
       <div>
         <FormLabel label="Household">
-          <select class="select" name="household-id" required placeholder="Holding">
+          <select
+            class="select"
+            name="household-id"
+            required
+            placeholder="Holding"
+          >
             {#each households as household (household.id)}
-            <option value={household.id}>{household.name}</option>
+              <option value={household.id}>{household.name}</option>
             {/each}
           </select>
         </FormLabel>
       </div>
       <div>
         <FormLabel label="Due Date">
-          <input type="number" name="due-date" class="input" required min="1" max="28" value={bill?.dueDate}>
+          <input
+            type="number"
+            name="due-date"
+            class="input"
+            required
+            min="1"
+            max="28"
+            value={bill?.dueDate}
+          />
         </FormLabel>
       </div>
       <div class="col-span-3 flex justify-end gap-3">
-        <Button type="button" variant="filled" disabled={saving} on:click={() => closeDrawer()}>
+        <Button
+          type="button"
+          variant="filled"
+          disabled={saving}
+          on:click={() => closeDrawer()}
+        >
           Close
         </Button>
-        <Button type="submit" disabled={saving}>
-          Save
-        </Button>
+        <Button type="submit" disabled={saving}>Save</Button>
       </div>
     </section>
   </form>
