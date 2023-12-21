@@ -1,16 +1,16 @@
 <script lang="ts">
-  import type { UserIdentity } from "@supabase/supabase-js";
-    import { MailIcon } from "lucide-svelte";
-    import { formatDate } from "./util";
+  import type { UserIdentity } from '@supabase/supabase-js';
+  import { MailIcon } from 'lucide-svelte';
+  import { formatDate } from './util';
 
   export let identity: UserIdentity;
 </script>
 
 {#if identity.provider !== 'email'}
-Error
+  Error
 {:else}
   <div class="flex gap-3 rounded p-4 variant-filled-surface">
-    <MailIcon class="w-8 h-8"/>
+    <MailIcon class="w-8 h-8" />
     <div class="flex flex-col gap-3">
       <div>
         Identity ID: {identity.id}

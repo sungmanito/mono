@@ -7,5 +7,5 @@ export default {
   driver: 'pg',
   dbCredentials: {
     connectionString: process.env.DB_URL!,
-  }
+  },
 } satisfies Config;

@@ -1,38 +1,37 @@
-
 export const parser = new Intl.RelativeTimeFormat(undefined, {
   numeric: 'auto',
-  style: 'short'
+  style: 'short',
 });
 
 export type IntlLevel = {
   level: Intl.RelativeTimeFormatUnit;
   count: number;
-}
+};
 
 export const intlLevels: IntlLevel[] = [
   {
     level: 'seconds',
-    count: 60
+    count: 60,
   },
   {
     level: 'minutes',
-    count: 60
+    count: 60,
   },
   {
     level: 'hours',
-    count: 24
+    count: 24,
   },
   {
     level: 'days',
-    count: 7
+    count: 7,
   },
   {
     level: 'weeks',
-    count: 4
+    count: 4,
   },
   {
     level: 'months',
-    count: 12
+    count: 12,
   },
   {
     level: 'years',
@@ -40,6 +39,9 @@ export const intlLevels: IntlLevel[] = [
   },
 ];
 
-export function parseToClosest(from: Date | number, to: Date|number = Date.now()) {
+export function parseToClosest(
+  from: Date | number,
+  to: Date | number = Date.now(),
+) {
   console.info(from, to);
 }

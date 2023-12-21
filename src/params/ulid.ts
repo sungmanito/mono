@@ -1,3 +1,3 @@
-import type { ParamMatcher } from "@sveltejs/kit";
+import type { ParamMatcher } from '@sveltejs/kit';
 import { isValid } from 'ulidx';
-export const match: ParamMatcher = param => isValid(param);
+export const match: ParamMatcher = (param) => isValid(param);

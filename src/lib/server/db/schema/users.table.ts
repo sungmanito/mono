@@ -10,5 +10,5 @@ export const users = authSchema.table('users', {
     email: string;
     picture: string;
     avatar_url: string;
-  }>()
+  }>(),
 });

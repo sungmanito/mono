@@ -1,5 +1,5 @@
 export function sleep(timeout: number) {
-  return new Promise(res => {
+  return new Promise((res) => {
     setTimeout(() => res(void 0), timeout);
   });
 }
@@ -10,10 +10,9 @@ export async function* rateLimit(reqsPerSecond: number, signal?: AbortSignal) {
   // Should we run?
   let run = true;
   // If we are passed a signal, we want to add the event listener
-  if(signal)
-    signal.addEventListener('abort', () => run = false);
+  if (signal) signal.addEventListener('abort', () => (run = false));
   // While we are running, yield the timeout value, sleep the given amount of time, and move
-  while(run) {
+  while (run) {
     yield timeout;
     await sleep(timeout);
   }

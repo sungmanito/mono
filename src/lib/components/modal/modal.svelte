@@ -6,7 +6,8 @@
 
   export let open = false;
   export let modal = false;
-  export let submitFn: (response: Response) => Promise<unknown> = () => Promise.resolve(void 0);
+  export let submitFn: (response: Response) => Promise<unknown> = () =>
+    Promise.resolve(void 0);
 
   export let action = '/';
 
@@ -14,19 +15,21 @@
 
   let modalElement: HTMLDialogElement;
 
-  $: if(open && modal && modalElement) {
+  $: if (open && modal && modalElement) {
     modalElement.showModal();
   }
 
-  $: if(open && !modal && modalElement) {
+  $: if (open && !modal && modalElement) {
     modalElement.show();
   }
 
-  $: if(!open && modalElement) {
+  $: if (!open && modalElement) {
     modalElement.close();
   }
 
-  async function submitForm(e: SubmitEvent & { currentTarget: HTMLFormElement }) {
+  async function submitForm(
+    e: SubmitEvent & { currentTarget: HTMLFormElement },
+  ) {
     // Grab the action
     const action = e.currentTarget.action;
 
@@ -40,30 +43,38 @@
     });
 
     // If the response is OK then we invalidate all of the data.
-    if(response.ok) {
-      if(submitFn) {
+    if (response.ok) {
+      if (submitFn) {
         await submitFn(response);
       } else {
         invalidateAll();
         dispatchEvent('close');
       }
     }
-
   }
-
 </script>
 
 <dialog class={cx($$props.class)} bind:this={modalElement}>
-  <form method="dialog" class="flex flex-col gap-4" action={action} on:submit={submitForm}>
+  <form
+    method="dialog"
+    class="flex flex-col gap-4"
+    {action}
+    on:submit={submitForm}
+  >
     <header class="flex justify-between">
       <div>
-        <slot name="header"></slot>
+        <slot name="header" />
       </div>
-      <button type="button" class="btn-icon btn-icon-sm" title="Close Modal" on:click={e => {
-        modalElement.close();
-        dispatchEvent('close', e);
-      }}>
-        <XIcon size="1em"/>
+      <button
+        type="button"
+        class="btn-icon btn-icon-sm"
+        title="Close Modal"
+        on:click={(e) => {
+          modalElement.close();
+          dispatchEvent('close', e);
+        }}
+      >
+        <XIcon size="1em" />
       </button>
     </header>
     <section>

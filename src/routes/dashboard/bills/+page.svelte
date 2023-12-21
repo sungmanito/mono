@@ -8,7 +8,7 @@
   import { PencilIcon, PlusIcon, TrashIcon, XIcon } from 'lucide-svelte';
   import CreateBill from '$lib/components/bills/create.svelte';
   import EditBill from '$lib/components/bills/edit.svelte';
-    import type { Bill } from '$lib/server/actions/bills.actions';
+  import type { Bill } from '$lib/server/actions/bills.actions';
 
   export let data;
 
@@ -24,7 +24,7 @@
   let editBill: Bill | null = null;
 
   async function submitForm(
-    e: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement }
+    e: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement },
   ) {
     // Cancel this
     e.preventDefault();
@@ -64,8 +64,8 @@
 </svelte:head>
 
 <CreateBill
-  on:close={() => showAdd = false}
-  households={data.households.map(h => ({
+  on:close={() => (showAdd = false)}
+  households={data.households.map((h) => ({
     id: h.households.id,
     name: h.households.name,
   }))}
@@ -76,23 +76,23 @@
       await update();
       await invalidateAll();
       showAdd = false;
-    }
+    };
   }}
 />
 
 <EditBill
   open={editBill !== null}
-  on:close={() => editBill = null}
+  on:close={() => (editBill = null)}
   submit={() => {
     return async ({ formElement }) => {
       formElement.reset();
       editBill = null;
-      await invalidateAll()
-    }
+      await invalidateAll();
+    };
   }}
-  households={data.households.map(h => ({
+  households={data.households.map((h) => ({
     id: h.households.id,
-    name: h.households.name
+    name: h.households.name,
   }))}
   bill={editBill}
 />
@@ -145,7 +145,7 @@
       {
         link: 'Bills',
         href: '/dashboard/bills',
-      }
+      },
     ]}
   />
 
