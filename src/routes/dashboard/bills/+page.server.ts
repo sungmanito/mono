@@ -85,13 +85,12 @@ export const actions = {
 
     const data = await request.formData();
     const billId = data.get('bill-id');
-    const userHouseholds = await getUserHouseholds(session.user.id);
 
     if(!billId || typeof billId !== 'string') throw error(400, 'No bill ID provided');
 
     const userHouseholds = locals.userHouseholds;
 
-    if(!userHouseholds.some(f => f.households.id === base.householdId)) {
+    if(!userHouseholds.some(f => f.households.id === billId)) {
       throw error(400, 'You are not authorized to modify this bill');
     }
 
