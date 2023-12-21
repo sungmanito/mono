@@ -12,7 +12,7 @@ export const load = async ({ locals }) => {
   const session = await locals.getSession();
 
   if(!session || !session?.user) {
-    redirect(300, '/login');
+    throw redirect(300, '/login');
   }
 
   const bills = await db
@@ -81,33 +81,39 @@ export const actions = {
 
     const session = await locals.getSession();
 
-    if(!session || !session?.user) error(401, 'nope');
+    if(!session || !session?.user) throw error(401, 'nope');
 
-    const data = await formDataValidObject(await request.formData(), type({
-      'bill-id': 'string',
-      'bill-name': 'string',
-      'household-id': 'string',
-      'due-date': '1<=number<=28'
-    }));
+    const data = await request.formData();
+    const billId = data.get('bill-id');
+    const userHouseholds = await getUserHouseholds(session.user.id);
+
+    if(!billId || typeof billId !== 'string') throw error(400, 'No bill ID provided');
 
     const userHouseholds = locals.userHouseholds;
 
-    if(userHouseholds.findIndex(uh => uh.households.id === data['household-id']) === -1) 
-      error(400, 'Not authorized');
+    if(!userHouseholds.some(f => f.households.id === base.householdId)) {
+      throw error(400, 'You are not authorized to modify this bill');
+    }
 
-    const [response] = await db.update(billsTable)
-      .set({
-        billName: data['bill-name'],
-        dueDate: data['due-date'],
-        householdId: data['household-id']
-      })
-      .where(
-        eq(billsTable.id, data['bill-id'])
-      )
-      .returning();
-    
-    if(response === undefined)
-      error(400);
+    const dueDate = Number(data.get('due-date') || 1);
+
+    if(isNaN(dueDate)) {
+      throw error(400, 'Bad request');
+    }
+
+    if(dueDate < 1 || dueDate > 28) {
+      throw error(400, 'Invalid due date');
+    }
+
+    const obj: BillUpdateArgs = {
+      dueDate,
+      householdId: data.get('household-id') as string,
+      billName: data.get('bill-name') as string,
+    };
+
+    const newBill = await updateBill(billId, obj);
+
+    if(!newBill) throw error(405, 'Update failed');
 
     return {
       status: 200,
@@ -119,7 +125,7 @@ export const actions = {
 
     const session = await locals.getSession();
 
-    if(!validateUserSession(session)) error(401);
+    if(!session || !session.user) throw error(401, 'Not logged in');
 
     const data = formDataValidObject(await request.formData(), type({
       'bill-id': 'string',
@@ -135,8 +141,8 @@ export const actions = {
         )
       )
       .returning();
-
-    if(deleted === undefined)  error(400, 'nope');
+    
+    if (resp.length !== 1) throw error(400, 'Bill not found');
 
     return {
       bill: deleted

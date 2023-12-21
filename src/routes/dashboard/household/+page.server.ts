@@ -11,7 +11,7 @@ import { and, eq, inArray, sql } from 'drizzle-orm';
 
 export const load = async ({ locals }) => {
   const session = await locals.getSession();
-  if(!validateUserSession(session)) redirect(303, '/login');
+  if(!validateUserSession(session)) throw redirect(303, '/login');
 
   return {
     streamed: {
@@ -30,11 +30,8 @@ export const load = async ({ locals }) => {
 export const actions = {
   updateInvite: async ({ request, locals }) => {
     const session = await locals.getSession();
-    if (!validateUserSession(session)) error(401);
-    const formData = formDataValidObject(
-      await request.formData(),
-      type({ 'invite-id': 'string', action: "'accept'|'delete'" }),
-    );
+    if(!validateUserSession(session)) throw error(401);
+    const formData = formDataValidObject(await request.formData(), type({ 'invite-id': 'string', action: "'accept'|'delete'"}));
     console.info(formData);
     if (formData.action === 'accept') {
       const response = await db.transaction(async (tx) => {
@@ -79,7 +76,7 @@ export const actions = {
         )
         .returning();
 
-      if(!response) error(400, 'Could not resolve invite');
+      if(!response) throw error(400, 'Could not resolve invite');
 
     }
     return {};
