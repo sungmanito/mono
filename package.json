@@ -31,7 +31,7 @@
 		"@typescript-eslint/parser": "^6.15.0",
 		"autoprefixer": "^10.4.16",
 		"dotenv": "^16.3.1",
-		"drizzle-kit": "^0.19.13",
+		"drizzle-kit": "0.20.10",
 		"eslint": "^8.56.0",
 		"eslint-plugin-svelte": "^2.35.1",
 		"histoire": "^0.17.6",
@@ -63,7 +63,7 @@
 		"@vercel/postgres": "^0.5.1",
 		"arktype": "1.0.27-alpha",
 		"class-variance-authority": "^0.7.0",
-		"drizzle-orm": "^0.28.6",
+		"drizzle-orm": "0.29.3-4bdea4c",
 		"lucide-svelte": "^0.288.0",
 		"postgres": "^3.4.3",
 		"ulidx": "^2.2.1"
