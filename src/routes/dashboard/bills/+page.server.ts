@@ -1,21 +1,14 @@
 import { db } from '$lib/server/db';
 import {
-  bills,
   bills as billsTable,
   households,
   usersToHouseholds,
 } from '$lib/server/db/schema';
-import { and, eq, inArray } from 'drizzle-orm';
-import { error, redirect } from '@sveltejs/kit';
-import { getUserHouseholds } from '$lib/server/actions/households.actions.js';
-import {
-  getBill,
-  updateBill,
-  type BillUpdateArgs,
-} from '$lib/server/actions/bills.actions.js';
-import { validateUserSession } from '$lib/util/session.js';
 import { formDataValidObject } from '$lib/util/formData.js';
+import { validateUserSession } from '$lib/util/session.js';
+import { error, redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
+import { and, eq, inArray } from 'drizzle-orm';
 
 export const load = async ({ locals }) => {
   const session = await locals.getSession();
@@ -42,8 +35,6 @@ export const load = async ({ locals }) => {
       ),
     )
     .orderBy(households.name, billsTable.dueDate);
-
-  const userHouseholds = getUserHouseholds(session.user.id);
 
   return {
     bills: bills,

@@ -2,11 +2,9 @@
   import { goto, invalidateAll } from '$app/navigation';
   import { page } from '$app/stores';
   import Header from '$lib/components/header/header.svelte';
-  import { MailIcon, XIcon } from 'lucide-svelte';
+  import { XIcon } from 'lucide-svelte';
   import type { User } from '@supabase/supabase-js';
-  import GoogleIcon from '$lib/components/googleIcon.svelte';
   import Identity from './_components/identities/identity.svelte';
-  import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
   import Button from '$lib/components/button/button.svelte';
   import Drawer from '$lib/components/drawer/drawer.svelte';
   import { enhance } from '$app/forms';
@@ -41,7 +39,7 @@
     method="post"
     use:enhance={() => {
       profileSaving = true;
-      return async ({ formElement, update, result }) => {
+      return async () => {
         profileSaving = false;
         closeEditDrawer();
         await invalidateAll();

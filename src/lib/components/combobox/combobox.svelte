@@ -74,7 +74,7 @@
     <div
       class="border-l border-zinc-800 hover:bg-primary-hover-token"
       bind:this={trigger}
-      on:focus={(e) => (open = true)}
+      on:focus={() => (open = true)}
       on:click={(e) => {
         e.stopPropagation();
         open = !open;

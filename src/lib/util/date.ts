@@ -41,7 +41,6 @@ const parser = new Intl.RelativeTimeFormat(undefined, {
 export function getFullTimeBetween(
   from: Date | number,
   to: Date | number = Date.now(),
-  toParts = false,
 ) {
   const [fromTime, toTime] = [from, to].map((v) =>
     v instanceof Date ? v.getTime() : v,

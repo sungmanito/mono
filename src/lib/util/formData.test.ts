@@ -1,9 +1,5 @@
 import { expect, describe, it } from 'vitest';
-import {
-  formDataToObject,
-  formDataToObject2,
-  formDataValidObject,
-} from './formData';
+import { formDataToObject, formDataValidObject } from './formData';
 import { type } from 'arktype';
 
 describe('formDataToObject', () => {

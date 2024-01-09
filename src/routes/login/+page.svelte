@@ -59,7 +59,7 @@
                   redirectTo: `${window.location.protocol}//${window.location.host}`,
                 },
               })
-              .then((r) => {
+              .then(() => {
                 goto('/dashboard');
               })
               .catch(console.error)}

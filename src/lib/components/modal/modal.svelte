@@ -1,6 +1,6 @@
 <script lang="ts">
   import { XIcon } from 'lucide-svelte';
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import { cx } from 'class-variance-authority';
   import { invalidateAll } from '$app/navigation';
 

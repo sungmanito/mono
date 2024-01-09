@@ -1,4 +1,5 @@
 <script lang="ts">
+  /* eslint-disable */
   import type { Hst } from '@histoire/plugin-svelte';
   import Header from './header.svelte';
   export let Hst: Hst;

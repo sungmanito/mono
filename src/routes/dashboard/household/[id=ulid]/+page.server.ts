@@ -5,8 +5,6 @@ import { validateUserSession } from '$lib/util/session.js';
 import { error, redirect } from '@sveltejs/kit';
 import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
 import { type } from 'arktype';
-import { isValid } from 'ulidx';
-import { validate } from '$lib/util/ark-utils.js';
 
 const formDataValidator = type({
   user: 'email | string',
@@ -53,7 +51,7 @@ export const load = async ({ params, locals }) => {
 };
 
 export const actions = {
-  findUser: async ({ request, locals, url }) => {
+  findUser: async ({ request, locals }) => {
     const session = await locals.getSession();
 
     if (!validateUserSession(session)) throw error(401, 'Not logged in');
