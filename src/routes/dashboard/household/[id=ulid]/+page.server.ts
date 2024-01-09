@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db/client.js';
 import { schema } from '$lib/server/db/index.js';
-import { formDataValidObject } from '$lib/util/formData.js';
+import { formDataValidObject, validateFormData } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, redirect } from '@sveltejs/kit';
 import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
@@ -15,7 +15,7 @@ const formDataValidator = type({
 export const load = async ({ params, locals }) => {
   const session = await locals.getSession();
 
-  if (!validateUserSession(session)) redirect(300, '/login');
+  if (!validateUserSession(session)) throw redirect(300, '/login');
 
   const household = await db.query.households.findFirst({
     where: ({ id }, { eq, and, inArray }) =>
@@ -29,7 +29,7 @@ export const load = async ({ params, locals }) => {
   });
 
   if (!household) {
-    redirect(303, 'Nope');
+    throw redirect(303, 'Nope');
   }
 
   return {
@@ -56,7 +56,7 @@ export const actions = {
   findUser: async ({ request, locals, url }) => {
     const session = await locals.getSession();
 
-    if (!validateUserSession(session)) error(401, 'Not logged in');
+    if (!validateUserSession(session)) throw error(401, 'Not logged in');
 
     try {
       const formData = formDataValidObject(
@@ -85,12 +85,13 @@ export const actions = {
       };
     } catch (e) {
       console.error(e);
-      error(400);
+      throw error(400);
     }
   },
   removeMember: async ({ request, locals, params }) => {
     const session = await locals.getSession();
-    if (!validateUserSession(session)) error(401);
+    if (!validateUserSession(session)) throw error(401);
+
     const formData = formDataValidObject(
       await request.formData(),
       type({
@@ -108,6 +109,7 @@ export const actions = {
       sessionUserRemovingSelf: session.user.id === formData.userId,
     };
 
+    if (!(sessionUserIwOwner || sessionUserRemovingSelf)) throw error(400);
     if (!(sessionUserIwOwner || sessionUserRemovingSelf)) error(400);
 
     await db
@@ -130,20 +132,11 @@ export const actions = {
      * 2. Find any users already in the system
      * 3. Invite any others by email
      */
-    if (!validateUserSession(session)) error(401);
-
-    const formData = formDataValidObject(
+    if (!validateUserSession(session)) throw error(401);
+    const formData = validateFormData(
       await request.formData(),
-      type({ emails: 'string', 'household-id': 'string' }),
+      type({ emails: 'email[]', 'household-id': 'string' }),
     );
-    if (!isValid(formData['household-id'])) error(400);
-    const emailsTmp = formData.emails.split(/\r?\n|,\s?/g);
-
-    const { data: emails, problems } = type({ emails: 'email[]' })({
-      emails: emailsTmp,
-    });
-
-    if (!emails) error(400);
 
     // Alright now the fun part... we have to send these emails out...
 
@@ -153,7 +146,7 @@ export const actions = {
         email: schema.users.email,
       })
       .from(schema.users)
-      .where(inArray(schema.users.email, emails.emails))
+      .where(inArray(schema.users.email, formData.emails))
       .then((r) => {
         return r.reduce(
           (all, cur) => {
@@ -167,7 +160,7 @@ export const actions = {
     const allInvites = await db.transaction(async (tx) => {
       // TODO: clean this up a bit.
       const invites: (typeof schema.invites.$inferSelect)[] = [];
-      for (const email of emails.emails) {
+      for (const email of formData.emails) {
         let id: string = '';
         if (alreadyInSystem[email]) id = alreadyInSystem[email];
 
@@ -218,7 +211,7 @@ export const actions = {
   },
   updateHousehold: async ({ request, locals }) => {
     const session = await locals.getSession();
-    if (!validateUserSession(session)) error(401);
+    if (!validateUserSession(session)) throw error(401);
     const formData = await request.formData();
     console.info(formData);
     return {};

@@ -136,12 +136,22 @@
         <form
           method="post"
           action="?/inviteUsers"
-          use:enhance={() => {
+          use:enhance={({ formData, cancel }) => {
+            const rawEmails = formData.get('emails');
+            formData.delete('emails');
+
+            if (typeof rawEmails !== 'string') {
+              return cancel();
+            }
+
+            const emails = rawEmails.split(/\r?\n/);
+
+            for (const email of emails) {
+              formData.append('emails', email);
+            }
+
             return async ({ result }) => {
               // Not 100% why this works but ok
-              form = {
-                users: result.data.users,
-              };
             };
           }}
         >

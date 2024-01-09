@@ -21,7 +21,7 @@ export const load = async ({ locals }) => {
   const session = await locals.getSession();
 
   if (!session || !session?.user) {
-    redirect(300, '/login');
+    throw redirect(300, '/login');
   }
 
   const bills = await db
@@ -93,7 +93,7 @@ export const actions = {
   updateBill: async ({ request, locals }) => {
     const session = await locals.getSession();
 
-    if (!session || !session?.user) error(401, 'nope');
+    if (!session || !session?.user) throw error(401, 'nope');
 
     const data = await formDataValidObject(
       await request.formData(),
@@ -134,6 +134,7 @@ export const actions = {
   deleteBill: async ({ request, locals }) => {
     const session = await locals.getSession();
 
+    if (!session || !session.user) throw error(401, 'Not logged in');
     if (!validateUserSession(session)) error(401);
 
     const data = formDataValidObject(
@@ -156,7 +157,7 @@ export const actions = {
       )
       .returning();
 
-    if (deleted === undefined) error(400, 'nope');
+    if (resp.length !== 1) throw error(400, 'Bill not found');
 
     return {
       bill: deleted,

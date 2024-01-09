@@ -9,7 +9,7 @@ import { error } from '@sveltejs/kit';
 export const load = async ({ locals }) => {
   const session = await locals.getSession();
 
-  if (!validateUserSession(session)) error(401);
+  if (!validateUserSession(session)) throw error(401);
 
   const households = await db
     .select({
