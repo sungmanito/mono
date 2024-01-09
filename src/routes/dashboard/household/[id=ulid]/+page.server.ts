@@ -16,7 +16,7 @@ export const load = async ({ params, locals }) => {
 
   const session = await locals.getSession();
 
-  if (!validateUserSession(session)) redirect(300, '/login');
+  if (!validateUserSession(session)) throw redirect(300, '/login');
 
   const household = await db.query.households.findFirst({
     where: ({ id }, { eq, and, inArray }) => and(eq(id, params.id), inArray(id, locals.userHouseholds.map(h => h.households.id))),
@@ -24,7 +24,7 @@ export const load = async ({ params, locals }) => {
   });
 
   if (!household) {
-    redirect(303, 'Nope');
+    throw redirect(303, 'Nope');
   }
 
   return {
@@ -50,7 +50,7 @@ export const actions = {
   findUser: async ({ request, locals, url }) => {
     const session = await locals.getSession();
 
-    if (!validateUserSession(session)) error(401, 'Not logged in');
+    if (!validateUserSession(session)) throw error(401, 'Not logged in');
 
     try {
       const formData = formDataValidObject(await request.formData(), formDataValidator);
@@ -72,12 +72,12 @@ export const actions = {
       }
     } catch (e) {
       console.error(e)
-      error(400);
+      throw error(400);
     }
   },
   removeMember: async ({ request, locals, params }) => {
     const session = await locals.getSession();
-    if(!validateUserSession(session)) error(401);
+    if(!validateUserSession(session)) throw error(401);
     const formData = formDataValidObject(await request.formData(), type({
       userId: 'string'
     }));
@@ -91,7 +91,7 @@ export const actions = {
       sessionUserRemovingSelf: session.user.id === formData.userId,
     }
 
-    if(!(sessionUserIwOwner || sessionUserRemovingSelf)) error(400);
+    if(!(sessionUserIwOwner || sessionUserRemovingSelf)) throw error(400);
 
     await db.delete(schema.usersToHouseholds)
       .where(
@@ -114,15 +114,17 @@ export const actions = {
      * 2. Find any users already in the system
      * 3. Invite any others by email
     */
-    if (!validateUserSession(session)) error(401);
+    if (!validateUserSession(session)) throw error(401);
 
     const formData = formDataValidObject(await request.formData(), type({ emails: 'string', 'household-id': 'string' }));
-    if(!isValid(formData['household-id'])) error(400);
+    if(!isValid(formData['household-id'])) throw error(400);
     const emailsTmp = formData.emails.split(/\r?\n|,\s?/g);
     
     const { data: emails, problems } = type({ emails: 'email[]' })({ emails: emailsTmp });
 
-    if (!emails) error(400);
+    console.info(emails, problems);
+
+    if (!emails) throw error(400);
 
     // Alright now the fun part... we have to send these emails out...
 
@@ -188,14 +190,14 @@ export const actions = {
   },
   updateHousehold: async ({ request, locals }) => {
     const session = await locals.getSession();
-    if (!validateUserSession(session)) error(401);
+    if (!validateUserSession(session)) throw error(401);
     const formData = await request.formData();
     console.info(formData);
     return {}
   },
   deleteInvite: async ({ request, locals }) => {
     const session = await locals.getSession();
-    if(!validateUserSession(session)) error(401);
+    if(!validateUserSession(session)) throw error(401);
     const {'invite-id': inviteId} = formDataValidObject(await request.formData(), type({ 'invite-id': 'string' }))
     console.info('FORMDATA', inviteId);
     const [row] = await db.delete(schema.invites)
@@ -210,7 +212,7 @@ export const actions = {
           )
         )
       ).returning();
-    if(!row) error(500);
+    if(!row) throw error(500);
     return {
       deleted: row,
     };
