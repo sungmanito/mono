@@ -76,7 +76,7 @@
     </header>
     <form action="?/addBill" method="post">
       <Stepper
-        on:complete={(e) => {
+        on:complete={() => {
           const fd = new FormData();
           fd.append('household-id', householdId);
           fd.append('bill-name', billName);
@@ -142,7 +142,7 @@
         </svelte:fragment>
         <svelte:fragment slot="content">
           <section class="p-4">
-            {#each data.groupings.past as { bills, household }}
+            {#each data.groupings.past as { bills }}
               <div>
                 {bills.billName}
               </div>
@@ -205,7 +205,7 @@
         </svelte:fragment>
         <svelte:fragment slot="content">
           <div class="grid grid-cols-3 gap-32">
-            {#each data.groupings.paid as { bills, household, payments }}
+            {#each data.groupings.paid as { bills, payments }}
               <div class="card variant-filled-primary">
                 <header class="card-header p-4">
                   <a href={`/dashboard/payments/${payments?.id}`}>

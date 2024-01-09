@@ -1,15 +1,15 @@
 import { db } from '$lib/server/db';
-import { error, redirect } from '@sveltejs/kit';
 import {
   bills,
   households,
   payments,
   usersToHouseholds,
 } from '$lib/server/db/schema';
-import { eq, and, sql } from 'drizzle-orm';
-import { alias } from 'drizzle-orm/pg-core';
-import { formDataToObject, formDataValidObject } from '$lib/util/formData.js';
+import { formDataValidObject } from '$lib/util/formData.js';
+import { redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
+import { and, eq, sql } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
 
 const household = alias(households, 'household');
 

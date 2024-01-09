@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Button from '$lib/components/button/button.svelte';
   import { CrownIcon, Trash2Icon } from 'lucide-svelte';
 </script>
 

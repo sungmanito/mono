@@ -5,7 +5,7 @@
   import Header from '$lib/components/header/header.svelte';
   import { getToastStore } from '@skeletonlabs/skeleton';
   import type { ActionResult } from '@sveltejs/kit';
-  import { PencilIcon, PlusIcon, TrashIcon, XIcon } from 'lucide-svelte';
+  import { PencilIcon, PlusIcon, TrashIcon } from 'lucide-svelte';
   import CreateBill from '$lib/components/bills/create.svelte';
   import EditBill from '$lib/components/bills/edit.svelte';
   import type { Bill } from '$lib/server/actions/bills.actions';
@@ -20,7 +20,6 @@
 
   const toastStore = getToastStore();
   let showAdd = false;
-  let addBillCount = 1;
   let editBill: Bill | null = null;
 
   async function submitForm(

@@ -4,13 +4,10 @@
   import { page } from '$app/stores';
   import {
     CrownIcon,
-    DeleteIcon,
-    PencilIcon,
     ReceiptIcon,
     Users2Icon,
   } from 'lucide-svelte';
   import { fly, slide } from 'svelte/transition';
-  import Modal from '$lib/components/modal/modal.svelte';
 
   export let household: PageData['households'][number];
   export let userMap: PageData['streamable']['userHouseholds'];

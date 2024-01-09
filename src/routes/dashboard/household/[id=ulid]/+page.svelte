@@ -150,7 +150,7 @@
               formData.append('emails', email);
             }
 
-            return async ({ result }) => {
+            return async () => {
               // Not 100% why this works but ok
             };
           }}

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/no-unused-vars */
+// eslint-disable-file 
 import type { Problems, Type } from 'arktype';
 
 type EntriesTouple = [string, FormDataEntryValue];
@@ -72,7 +74,6 @@ function stringToJSValue(str: string): NonFileFormEntries<FormDataObjectEntry> {
  * @throws {Problems}
  * @returns
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function formDataValidObject<T extends Type<any>>(
   fd: FormData,
   obj: T,

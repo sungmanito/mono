@@ -2,7 +2,6 @@
   import { AppRail, AppRailAnchor } from '@skeletonlabs/skeleton';
   import {
     CreditCardIcon,
-    HomeIcon,
     LayoutDashboardIcon,
     MenuIcon,
     ReceiptIcon,
