@@ -5,7 +5,13 @@
 </script>
 
 <AppBar shadow="shadow">
-  <svelte:fragment slot="lead">Sungmanito</svelte:fragment>
+
+  <svelte:fragment slot="lead">
+    <div class="flex gap-2">
+      <img src="/sungmanito-color.svg" alt="Sungmanito Logo of a wolf" class="h-[1.75em]">
+      Sungmanito
+    </div>
+  </svelte:fragment>
   <svelte:fragment slot="trail">
     <LightSwitch />
     {#if $page.data.user && $page.data.user.id !== undefined}
