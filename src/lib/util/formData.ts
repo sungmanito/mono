@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/no-unused-vars */
-// eslint-disable-file 
+// eslint-disable-file
 import type { Problems, Type } from 'arktype';
 
 type EntriesTouple = [string, FormDataEntryValue];

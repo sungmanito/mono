@@ -31,7 +31,7 @@ export const actions = {
     if (!validateUserSession(session)) throw error(401);
     const formData = formDataValidObject(
       await request.formData(),
-      type({ 'invite-id': 'string', action: '\'accept\'|\'delete\'' }),
+      type({ 'invite-id': 'string', action: "'accept'|'delete'" }),
     );
     console.info(formData);
     if (formData.action === 'accept') {

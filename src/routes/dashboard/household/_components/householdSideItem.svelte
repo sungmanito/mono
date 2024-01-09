@@ -2,11 +2,7 @@
   import type { PageData } from '../$types';
 
   import { page } from '$app/stores';
-  import {
-    CrownIcon,
-    ReceiptIcon,
-    Users2Icon,
-  } from 'lucide-svelte';
+  import { CrownIcon, ReceiptIcon, Users2Icon } from 'lucide-svelte';
   import { fly, slide } from 'svelte/transition';
 
   export let household: PageData['households'][number];

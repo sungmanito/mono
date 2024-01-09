@@ -2,7 +2,7 @@ import { db } from '$lib/server/db';
 import {
   bills as billsTable,
   households,
-  usersToHouseholds
+  usersToHouseholds,
 } from '$lib/server/db/schema';
 import { formDataValidObject } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
