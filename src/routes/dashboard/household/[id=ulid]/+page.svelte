@@ -53,15 +53,10 @@
       </h2>
       <p class="text-surface-700-200-token">ID: {household.id}</p>
 
-        <label class="label">
-          <span>Household Name</span>
-          <input
-            name="name"
-            type="text"
-            class="input"
-            value={household.name}
-          />
-        </label>
+      <label class="label">
+        <span>Household Name</span>
+        <input name="name" type="text" class="input" value={household.name} />
+      </label>
 
       <section class="flex gap-3">
         <Button variant="filled" on:click={() => closeDrawer()}>Close</Button>
@@ -141,12 +136,22 @@
         <form
           method="post"
           action="?/inviteUsers"
-          use:enhance={() => {
+          use:enhance={({ formData, cancel }) => {
+            const rawEmails = formData.get('emails');
+            formData.delete('emails');
+
+            if (typeof rawEmails !== 'string') {
+              return cancel();
+            }
+
+            const emails = rawEmails.split(/\r?\n/);
+
+            for (const email of emails) {
+              formData.append('emails', email);
+            }
+
             return async ({ result }) => {
               // Not 100% why this works but ok
-              form = {
-                users: result.data.users,
-              };
             };
           }}
         >

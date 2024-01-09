@@ -1,13 +1,13 @@
 <script lang="ts">
-  import type { UserIdentity } from "@supabase/supabase-js";
-    import Google from "./google.svelte";
-    import Email from "./email.svelte";
+  import type { UserIdentity } from '@supabase/supabase-js';
+  import Google from './google.svelte';
+  import Email from './email.svelte';
 
   export let identity: UserIdentity;
 </script>
 
 {#if identity.provider === 'google'}
-  <Google identity={identity} />
+  <Google {identity} />
 {:else if identity.provider === 'email'}
-  <Email identity={identity} />
+  <Email {identity} />
 {/if}

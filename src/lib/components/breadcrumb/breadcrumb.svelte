@@ -4,7 +4,7 @@
   export let crumbs: BreadcrumbEntry[] = [];
 </script>
 
-<ol {...$$props} class={cx('breadcrumb', $$props.class)} >
+<ol {...$$props} class={cx('breadcrumb', $$props.class)}>
   {#each crumbs as crumb, i}
     {#if i < crumbs.length - 1}
       <li class="crumb">

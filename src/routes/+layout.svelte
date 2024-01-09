@@ -4,7 +4,6 @@
   import '../app.css';
 
   initializeStores();
-
 </script>
 
 <Toast position="t" />

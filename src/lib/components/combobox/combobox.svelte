@@ -1,7 +1,12 @@
 <script lang="ts">
   import { ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
   import { ChevronDownIcon } from 'lucide-svelte';
-  import { computePosition, autoPlacement, offset, autoUpdate } from '@floating-ui/dom';
+  import {
+    computePosition,
+    autoPlacement,
+    offset,
+    autoUpdate,
+  } from '@floating-ui/dom';
   import { onMount, createEventDispatcher } from 'svelte';
 
   export let value: string | number;
@@ -14,49 +19,53 @@
   let open = false;
 
   onMount(() => {
-    if(!trigger || !trigger.parentElement) return;
+    if (!trigger || !trigger.parentElement) return;
 
-    const cleanup = autoUpdate(trigger.parentElement, popup, () => {
-      if(!trigger.parentElement) return void 0;
-      computePosition(trigger.parentElement, popup, {
-        middleware: [offset(10), autoPlacement({
-          allowedPlacements: ['top', 'bottom']
-        })],
-        placement: 'bottom'
-      }).then(r => {
-        Object.assign(popup.style, {
-          left: `${r.x}px`,
-          top: `${r.y}px`
+    const cleanup = autoUpdate(
+      trigger.parentElement,
+      popup,
+      () => {
+        if (!trigger.parentElement) return void 0;
+        computePosition(trigger.parentElement, popup, {
+          middleware: [
+            offset(10),
+            autoPlacement({
+              allowedPlacements: ['top', 'bottom'],
+            }),
+          ],
+          placement: 'bottom',
+        }).then((r) => {
+          Object.assign(popup.style, {
+            left: `${r.x}px`,
+            top: `${r.y}px`,
+          });
         });
-      });
-    }, { 
-      ancestorScroll: true,
-    });
+      },
+      {
+        ancestorScroll: true,
+      },
+    );
 
     return () => {
       cleanup();
-    }
-
+    };
   });
 
   function bodyOnClick(e: MouseEvent) {
     const target = e.target as HTMLElement;
-    if(open && (target.matches('.listbox-item') || popup.contains(target))) {
+    if (open && (target.matches('.listbox-item') || popup.contains(target))) {
       console.info(open);
       open = false;
     }
   }
 
   $: dispatcher('change', value);
-
 </script>
 
 <svelte:body on:click={bodyOnClick} />
 
 <div class="relative">
-
-  <button
-    class="btn btn-sm variant-filled justify-between items-center">
+  <button class="btn btn-sm variant-filled justify-between items-center">
     <div>
       {value ?? 'Trigger'}
     </div>
@@ -65,16 +74,16 @@
     <div
       class="border-l border-zinc-800 hover:bg-primary-hover-token"
       bind:this={trigger}
-      on:focus={e => open = true}
-      on:click={e => {
+      on:focus={(e) => (open = true)}
+      on:click={(e) => {
         e.stopPropagation();
         open = !open;
       }}
     >
-      <ChevronDownIcon class="transition-all" size={16}/>
+      <ChevronDownIcon class="transition-all" size={16} />
     </div>
   </button>
-  
+
   <div class="card absolute" class:hidden={!open} bind:this={popup}>
     <ListBox>
       <ListBoxItem bind:group={value} name="medium" value="books">
@@ -89,4 +98,3 @@
     </ListBox>
   </div>
 </div>
-

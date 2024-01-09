@@ -9,7 +9,7 @@ import { and, eq, inArray, sql } from 'drizzle-orm';
 
 export const load = async ({ locals }) => {
   const session = await locals.getSession();
-  if(!validateUserSession(session)) throw redirect(303, '/login');
+  if (!validateUserSession(session)) throw redirect(303, '/login');
 
   return {
     streamed: {
@@ -28,8 +28,11 @@ export const load = async ({ locals }) => {
 export const actions = {
   updateInvite: async ({ request, locals }) => {
     const session = await locals.getSession();
-    if(!validateUserSession(session)) throw error(401);
-    const formData = formDataValidObject(await request.formData(), type({ 'invite-id': 'string', action: "'accept'|'delete'"}));
+    if (!validateUserSession(session)) throw error(401);
+    const formData = formDataValidObject(
+      await request.formData(),
+      type({ 'invite-id': 'string', action: "'accept'|'delete'" }),
+    );
     console.info(formData);
     if (formData.action === 'accept') {
       const response = await db.transaction(async (tx) => {
@@ -74,8 +77,7 @@ export const actions = {
         )
         .returning();
 
-      if(!response) throw error(400, 'Could not resolve invite');
-
+      if (!response) throw error(400, 'Could not resolve invite');
     }
     return {};
   },
@@ -97,19 +99,25 @@ export const actions = {
         ? []
         : [data.members];
 
-    const [household] = await db.insert(schema.households)
+    const [household] = await db
+      .insert(schema.households)
       .values({
         name: data['household-name'],
         ownerId: session.user.id,
       })
       .returning();
 
-    if(!household) throw error(400);
-    
-    const responses = await inviteMembersByEmail(locals.supabase, members, household.id, {
-      fromEmail: session.user.email as string,
-      fromId: session.user.id
-    });
+    if (!household) throw error(400);
+
+    const responses = await inviteMembersByEmail(
+      locals.supabase,
+      members,
+      household.id,
+      {
+        fromEmail: session.user.email as string,
+        fromId: session.user.id,
+      },
+    );
 
     return {
       success: false,
@@ -149,10 +157,9 @@ export const actions = {
         .returning();
 
       return Boolean(item);
-
     });
 
-    if(!deleted) throw error(422);
+    if (!deleted) throw error(422);
 
     return {
       success: true,

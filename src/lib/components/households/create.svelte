@@ -26,7 +26,7 @@
     use:enhance={submit}
   >
     <Header color="secondary" tag="h2" class="mb-8">
-      New household 
+      New household
       <svelte:fragment slot="actions">
         <button
           type="button"
