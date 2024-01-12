@@ -1,5 +1,6 @@
 import type { AuthTokenResponse } from '@supabase/supabase-js';
 import type { Actions } from './$types';
+import { fail, redirect } from '@sveltejs/kit';
 
 export const actions = {
   saveLogin: async ({ request, locals }) => {
@@ -13,4 +14,25 @@ export const actions = {
       success: true,
     };
   },
+  'login-with-google': async ({ url, locals }) => {
+    const { data, error: err} = await locals.supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${url.protocol}//${url.host}/auth/callback`,
+        queryParams: {
+          next: '/dashboard'
+        }
+      }
+    });
+
+    if(err) {
+      console.error(err);
+      return fail(400, {
+        message: 'Supabase angy'
+      });
+    }
+
+    throw redirect(303, data.url);
+
+  }
 } satisfies Actions;

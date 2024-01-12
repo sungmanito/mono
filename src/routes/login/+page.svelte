@@ -2,7 +2,7 @@
   import { goto, invalidateAll } from '$app/navigation';
   import client from '$lib/client/supabase';
   import { getToastStore } from '@skeletonlabs/skeleton';
-  import { Auth } from '@supabase/auth-ui-svelte';
+  import type { EventHandler } from 'svelte/elements'
 
   const toastStore = getToastStore();
 
@@ -10,7 +10,7 @@
   let password = '';
 
   async function handleLoginWithPassword(
-    e: SubmitEvent & { currentTarget: HTMLFormElement },
+    e: Parameters<EventHandler<Event, HTMLFormElement>>[0]
   ) {
     e.preventDefault();
 
@@ -39,9 +39,6 @@
   }
 </script>
 
-<!-- WIP -->
-<Auth supabaseClient={client} providers={['google']} />
-
 <form on:submit={handleLoginWithPassword}>
   <div class="bg-zinc-800 h-screen flex items-center">
     <div
@@ -49,23 +46,13 @@
     >
       <h1 class="text-2xl font-semibold">Login</h1>
       <section>
-        <button
-          type="button"
-          on:click={() =>
-            client.auth
-              .signInWithOAuth({
-                provider: 'google',
-                options: {
-                  redirectTo: `${window.location.protocol}//${window.location.host}`,
-                },
-              })
-              .then(() => {
-                goto('/dashboard');
-              })
-              .catch(console.error)}
-        >
-          Google
-        </button>
+        <form action="?/login-with-google" method="post">
+          <button
+            class="btn btn-sm variant-outline-surface"
+            type="submit">
+            Login with Google
+          </button>
+        </form>
       </section>
       <label class="flex gap-3 flex-col">
         <div class="font-bold">Username</div>
