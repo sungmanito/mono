@@ -76,6 +76,7 @@
 
       <footer>
         <a href="/login/forgot">Forgot your password?</a>
+        <a href="/signup">Sign up</a>
       </footer>
     </div>
   </div>
