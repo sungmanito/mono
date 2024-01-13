@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { AppBar, LightSwitch } from '@skeletonlabs/skeleton';
-  import { LayoutDashboardIcon, User2Icon } from 'lucide-svelte';
+  import { LayoutDashboardIcon, User2Icon, LogOutIcon } from 'lucide-svelte';
 </script>
 
 <AppBar shadow="shadow">
@@ -18,8 +18,12 @@
   <svelte:fragment slot="trail">
     <LightSwitch />
     {#if $page.data.user && $page.data.user.id !== undefined}
-      <a class="btn btn-sm variant-filled flex gap-1" href="/logout">
+      <a href="/profile" class="btn-icon btn-icon-sm">
         <User2Icon size="1em" />
+        <div class="sr-only">User Profile</div>
+      </a>
+      <a class="btn btn-sm variant-filled flex gap-1" href="/logout">
+        <LogOutIcon size="1em" />
         Logout
       </a>
       <a class="btn btn-sm variant-ghost-primary flex gap-1" href="/dashboard">

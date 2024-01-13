@@ -35,7 +35,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   /**
    * This is from the Vercel Edge Config
    */
-  event.locals.config = await getAll<{ is_live: boolean }>();
+  event.locals.config = await getAll<App.VercelConfig>();
 
   // Passes this on to the locals so that load functions can use it later
   event.locals.supabase = supabase;

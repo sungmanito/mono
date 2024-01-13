@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto, invalidateAll } from '$app/navigation';
+  import supabase from '$lib/client/supabase';
   import client from '$lib/client/supabase';
   import { getToastStore } from '@skeletonlabs/skeleton';
   import type { EventHandler } from 'svelte/elements'
@@ -75,6 +76,10 @@
         />
       </label>
       <button type="submit">Submit</button>
+
+      <footer>
+        <a href="/login/forgot">Forgot your password?</a>
+      </footer>
     </div>
   </div>
 </form>

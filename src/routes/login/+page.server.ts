@@ -1,6 +1,25 @@
 import type { AuthTokenResponse } from '@supabase/supabase-js';
 import type { Actions } from './$types';
-import { fail, redirect } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
+
+export const load = async ({ url, locals }) => {
+  const code = url.searchParams.get('code');
+  if(code) {
+
+    const { data: session, error: err } = await locals.supabase.auth.exchangeCodeForSession(code);
+
+    if(err) throw error(400, {message: err.message });
+
+    if(session) {
+      throw redirect(303, '/profile?flow=update-password');
+    }
+
+    return {
+      session,
+    }
+  }
+  return {};
+}
 
 export const actions = {
   saveLogin: async ({ request, locals }) => {
