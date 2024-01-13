@@ -1,9 +1,8 @@
 <script lang="ts">
   import { goto, invalidateAll } from '$app/navigation';
-  import supabase from '$lib/client/supabase';
   import client from '$lib/client/supabase';
   import { getToastStore } from '@skeletonlabs/skeleton';
-  import type { EventHandler } from 'svelte/elements'
+  import type { EventHandler } from 'svelte/elements';
 
   const toastStore = getToastStore();
 
@@ -11,7 +10,7 @@
   let password = '';
 
   async function handleLoginWithPassword(
-    e: Parameters<EventHandler<Event, HTMLFormElement>>[0]
+    e: Parameters<EventHandler<Event, HTMLFormElement>>[0],
   ) {
     e.preventDefault();
 
@@ -48,9 +47,7 @@
       <h1 class="text-2xl font-semibold">Login</h1>
       <section>
         <form action="?/login-with-google" method="post">
-          <button
-            class="btn btn-sm variant-outline-surface"
-            type="submit">
+          <button class="btn btn-sm variant-outline-surface" type="submit">
             Login with Google
           </button>
         </form>

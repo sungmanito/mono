@@ -31,6 +31,7 @@ export const actions = {
     if (!validateUserSession(session)) throw error(401);
     const formData = formDataValidObject(
       await request.formData(),
+      // eslint-disable-next-line quotes
       type({ 'invite-id': 'string', action: "'accept'|'delete'" }),
     );
     console.info(formData);

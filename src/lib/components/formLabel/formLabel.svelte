@@ -5,7 +5,9 @@
 </script>
 
 <label class="flex flex-col gap-2">
-  <span class="font-bold">{label}{#if required}&nbsp;*{/if}</span>
+  <span class="font-bold"
+    >{label}{#if required}&nbsp;*{/if}</span
+  >
   <slot />
   {#if description}
     <span class="text-sm">{description}</span>

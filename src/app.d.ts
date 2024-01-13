@@ -4,7 +4,6 @@ import type { getUserHouseholds } from '$lib/server/actions/households.actions';
 import { SupabaseClient, type Session } from '@supabase/supabase-js';
 declare global {
   namespace App {
-
     interface VercelConfig {
       is_live: boolean;
       allow_registration: boolean;

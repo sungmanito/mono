@@ -51,8 +51,8 @@ export const handle: Handle = async ({ event, resolve }) => {
   const session = await event.locals.getSession();
 
   // Quick and easy way to protect the dashboard.
-  if(session === null && event.url.pathname.startsWith('/dashboard')) {
-    throw redirect(303, `/login?url=${event.url.pathname}`)
+  if (session === null && event.url.pathname.startsWith('/dashboard')) {
+    throw redirect(303, `/login?url=${event.url.pathname}`);
   }
 
   // We are gathering the logged in users' households a lot

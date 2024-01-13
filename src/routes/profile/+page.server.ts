@@ -17,7 +17,7 @@ export const actions = {
         'avatar-url': 'string',
         name: 'string',
         email: 'email',
-        'password?': 'string'
+        'password?': 'string',
       }),
     );
 

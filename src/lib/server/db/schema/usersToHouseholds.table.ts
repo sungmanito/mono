@@ -7,7 +7,9 @@ export const usersToHouseholds = pgTable(
   'users_to_households',
   {
     id: uuid('id').notNull().primaryKey().defaultRandom(),
-    userId: uuid('user_id').notNull().references( () => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     householdId: text('household_id')
       .notNull()
       .references(() => households.id, { onDelete: 'cascade' }),
