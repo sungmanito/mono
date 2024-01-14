@@ -64,7 +64,7 @@
 		"@vercel/postgres": "^0.5.1",
 		"arktype": "1.0.27-alpha",
 		"class-variance-authority": "^0.7.0",
-		"drizzle-orm": "^0.28.6",
+		"drizzle-orm": "^0.29.3",
 		"lucide-svelte": "^0.288.0",
 		"postgres": "^3.4.3",
 		"ulidx": "^2.2.1"

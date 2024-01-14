@@ -62,7 +62,7 @@
           placeholder="john@sungmanito.app"
         />
       </label>
-      <label for="" class="flex gap-3 flex-col">
+      <label class="flex gap-3 flex-col">
         <div class="font-bold">Password</div>
         <input
           bind:value={password}
