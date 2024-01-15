@@ -148,7 +148,7 @@
 
             // Hate having to do this, but it's needed to solve #24
             // Should probably add a way to force arrays in the formData helpers
-            if(emails.length === 1) {
+            if (emails.length === 1) {
               formData.append('emails', 'email@email.com');
             }
 

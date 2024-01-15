@@ -74,7 +74,6 @@ describe('formDataToObject', () => {
       names: ['bob', 'jerome', 'phteven'],
     });
   });
-
 });
 
 describe('formDataValidObject', () => {

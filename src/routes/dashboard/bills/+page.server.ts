@@ -1,8 +1,6 @@
 import { getUserBills } from '$lib/server/actions/bills.actions.js';
 import { db } from '$lib/server/db';
-import {
-  bills as billsTable
-} from '$lib/server/db/schema';
+import { bills as billsTable } from '$lib/server/db/schema';
 import { formDataValidObject } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, redirect } from '@sveltejs/kit';

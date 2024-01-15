@@ -62,23 +62,28 @@ export async function deleteBill(billId: Bill['id']) {
 }
 
 export async function getUserBills(userId: string) {
-  return db.select({
-    ...schema.bills,
-    householdName: schema.households.name,
-  })
-    // Selecting from bills
-    .from(schema.bills)
-    // Joining in on the households table to get the household name
-    .innerJoin(schema.households, eq(schema.households.id, schema.bills.householdId))
-    // Means we need to get the households this user is a member of.
-    .innerJoin(
-      schema.usersToHouseholds,
-      and(
-        eq(schema.usersToHouseholds.householdId, schema.households.id),
-        eq(schema.usersToHouseholds.userId, userId)
+  return (
+    db
+      .select({
+        ...schema.bills,
+        householdName: schema.households.name,
+      })
+      // Selecting from bills
+      .from(schema.bills)
+      // Joining in on the households table to get the household name
+      .innerJoin(
+        schema.households,
+        eq(schema.households.id, schema.bills.householdId),
       )
-    )
-    // Some ordering to more normalize the results.
-    .orderBy(schema.households.name, schema.bills.dueDate);
+      // Means we need to get the households this user is a member of.
+      .innerJoin(
+        schema.usersToHouseholds,
+        and(
+          eq(schema.usersToHouseholds.householdId, schema.households.id),
+          eq(schema.usersToHouseholds.userId, userId),
+        ),
+      )
+      // Some ordering to more normalize the results.
+      .orderBy(schema.households.name, schema.bills.dueDate)
+  );
 }
-
