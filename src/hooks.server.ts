@@ -1,7 +1,7 @@
 import { PUBLIC_SUPABASE_URL } from '$env/static/public';
 import { SUPABASE_SERVICE_ROLE } from '$env/static/private';
 import { createServerClient } from '@supabase/ssr';
-import type { Handle } from '@sveltejs/kit';
+import { redirect, type Handle } from '@sveltejs/kit';
 import { getAll } from '@vercel/edge-config';
 import { EDGE_CONFIG } from '$env/static/private';
 import { getUserHouseholds } from '$lib/server/actions/households.actions';
@@ -35,7 +35,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   /**
    * This is from the Vercel Edge Config
    */
-  event.locals.config = await getAll<{ is_live: boolean }>();
+  event.locals.config = await getAll<App.VercelConfig>();
 
   // Passes this on to the locals so that load functions can use it later
   event.locals.supabase = supabase;
@@ -50,9 +50,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   const session = await event.locals.getSession();
 
+  // Quick and easy way to protect the dashboard.
+  if (session === null && event.url.pathname.startsWith('/dashboard')) {
+    throw redirect(303, `/login?url=${event.url.pathname}`);
+  }
+
   // We are gathering the logged in users' households a lot
   // To hopefully save that, we store them in the locals.
   if (validateUserSession(session)) {
+    console.info('Gathering user households');
     event.locals.userHouseholds = await getUserHouseholds(session.user.id);
   } else {
     event.locals.userHouseholds = [];

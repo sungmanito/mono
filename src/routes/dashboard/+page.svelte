@@ -256,6 +256,5 @@
         </svelte:fragment>
       </AccordionItem>
     </Accordion>
-    <AccordionItem>Hi</AccordionItem>
   </div>
 </div>

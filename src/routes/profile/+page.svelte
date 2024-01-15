@@ -8,6 +8,7 @@
   import Button from '$lib/components/button/button.svelte';
   import Drawer from '$lib/components/drawer/drawer.svelte';
   import { enhance } from '$app/forms';
+  import FormLabel from '$lib/components/formLabel/formLabel.svelte';
 
   export let data;
 
@@ -99,6 +100,19 @@
             value={data.user?.email}
           />
         </label>
+      </div>
+      <div>
+        <FormLabel
+          label="Password"
+          description="Please use a secure password complete with numbers, upper and lower case characters, and at least one special symbol"
+        >
+          <input
+            class="input"
+            type="password"
+            placeholder="New Password"
+            name="password"
+          />
+        </FormLabel>
       </div>
     </div>
     <footer class="mt-8 flex justify-end gap-3">

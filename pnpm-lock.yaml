@@ -11,12 +11,6 @@ dependencies:
   '@js-temporal/polyfill':
     specifier: ^0.4.4
     version: 0.4.4
-  '@supabase/auth-helpers-sveltekit':
-    specifier: ^0.10.7
-    version: 0.10.7(@supabase/supabase-js@2.39.2)(@sveltejs/kit@1.30.3)
-  '@supabase/auth-ui-svelte':
-    specifier: ^0.2.8
-    version: 0.2.9(@supabase/supabase-js@2.39.2)
   '@supabase/ssr':
     specifier: ^0.0.10
     version: 0.0.10(@supabase/supabase-js@2.39.2)
@@ -39,8 +33,8 @@ dependencies:
     specifier: ^0.7.0
     version: 0.7.0
   drizzle-orm:
-    specifier: ^0.28.6
-    version: 0.28.6(@types/pg@8.10.9)(@vercel/postgres@0.5.1)(pg@8.11.3)(postgres@3.4.3)
+    specifier: ^0.29.3
+    version: 0.29.3(@types/pg@8.10.9)(@vercel/postgres@0.5.1)(pg@8.11.3)(postgres@3.4.3)
   lucide-svelte:
     specifier: ^0.288.0
     version: 0.288.0(svelte@4.2.8)
@@ -940,49 +934,6 @@ packages:
     dependencies:
       tailwindcss: 3.4.1
     dev: true
-
-  /@stitches/core@1.2.8:
-    resolution: {integrity: sha512-Gfkvwk9o9kE9r9XNBmJRfV8zONvXThnm1tcuojL04Uy5uRyqg93DC83lDebl0rocZCfKSjUv+fWYtMQmEDJldg==}
-    dev: false
-
-  /@supabase/auth-helpers-shared@0.6.3(@supabase/supabase-js@2.39.2):
-    resolution: {integrity: sha512-xYQRLFeFkL4ZfwC7p9VKcarshj3FB2QJMgJPydvOY7J5czJe6xSG5/wM1z63RmAzGbCkKg+dzpq61oeSyWiGBQ==}
-    peerDependencies:
-      '@supabase/supabase-js': ^2.19.0
-    dependencies:
-      '@supabase/supabase-js': 2.39.2
-      jose: 4.15.4
-    dev: false
-
-  /@supabase/auth-helpers-sveltekit@0.10.7(@supabase/supabase-js@2.39.2)(@sveltejs/kit@1.30.3):
-    resolution: {integrity: sha512-fXdpdpIbyxqBerGhIoxrGkPvHDIfZ/HC6USzgpN8J9EYPxBm0GVj5jGYzKKtdEPW6MNi/xNHcciPIlcfEPCowA==}
-    peerDependencies:
-      '@supabase/supabase-js': ^2.19.0
-      '@sveltejs/kit': ^1.15.4
-    dependencies:
-      '@supabase/auth-helpers-shared': 0.6.3(@supabase/supabase-js@2.39.2)
-      '@supabase/supabase-js': 2.39.2
-      '@sveltejs/kit': 1.30.3(svelte@4.2.8)(vite@4.5.1)
-    dev: false
-
-  /@supabase/auth-ui-shared@0.1.8(@supabase/supabase-js@2.39.2):
-    resolution: {integrity: sha512-ouQ0DjKcEFg+0gZigFIEgu01V3e6riGZPzgVD0MJsCBNsMsiDT74+GgCEIElMUpTGkwSja3xLwdFRFgMNFKcjg==}
-    peerDependencies:
-      '@supabase/supabase-js': ^2.21.0
-    dependencies:
-      '@supabase/supabase-js': 2.39.2
-    dev: false
-
-  /@supabase/auth-ui-svelte@0.2.9(@supabase/supabase-js@2.39.2):
-    resolution: {integrity: sha512-oc+SRS7ykc5FCssoqT0IiK5KF/obwnWko5ePaaMTDwUEQOavv+O8/poAh2lRTKRJCqJMqOOpMS/lUE6pHcma3g==}
-    peerDependencies:
-      '@supabase/supabase-js': ^2.21.0
-    dependencies:
-      '@stitches/core': 1.2.8
-      '@supabase/auth-ui-shared': 0.1.8(@supabase/supabase-js@2.39.2)
-      '@supabase/supabase-js': 2.39.2
-      svelte: 3.59.2
-    dev: false
 
   /@supabase/functions-js@2.1.5:
     resolution: {integrity: sha512-BNzC5XhCzzCaggJ8s53DP+WeHHGT/NfTsx2wUSSGKR2/ikLFQTBCDzMvGz/PxYMqRko/LwncQtKXGOYp1PkPaw==}
@@ -2154,8 +2105,8 @@ packages:
       - supports-color
     dev: true
 
-  /drizzle-orm@0.28.6(@types/pg@8.10.9)(@vercel/postgres@0.5.1)(pg@8.11.3)(postgres@3.4.3):
-    resolution: {integrity: sha512-yBe+F9htrlYER7uXgDJUQsTHFoIrI5yMm5A0bg0GiZ/kY5jNXTWoEy4KQtg35cE27sw1VbgzoMWHAgCckUUUww==}
+  /drizzle-orm@0.29.3(@types/pg@8.10.9)(@vercel/postgres@0.5.1)(pg@8.11.3)(postgres@3.4.3):
+    resolution: {integrity: sha512-uSE027csliGSGYD0pqtM+SAQATMREb3eSM/U8s6r+Y0RFwTKwftnwwSkqx3oS65UBgqDOM0gMTl5UGNpt6lW0A==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=3'
@@ -2165,15 +2116,18 @@ packages:
       '@planetscale/database': '>=1'
       '@types/better-sqlite3': '*'
       '@types/pg': '*'
+      '@types/react': '>=18'
       '@types/sql.js': '*'
       '@vercel/postgres': '*'
       better-sqlite3: '>=7'
       bun-types: '*'
+      expo-sqlite: '>=13.2.0'
       knex: '*'
       kysely: '*'
       mysql2: '>=2'
       pg: '>=8'
       postgres: '>=3'
+      react: '>=18'
       sql.js: '>=1'
       sqlite3: '>=5'
     peerDependenciesMeta:
@@ -2193,6 +2147,8 @@ packages:
         optional: true
       '@types/pg':
         optional: true
+      '@types/react':
+        optional: true
       '@types/sql.js':
         optional: true
       '@vercel/postgres':
@@ -2200,6 +2156,8 @@ packages:
       better-sqlite3:
         optional: true
       bun-types:
+        optional: true
+      expo-sqlite:
         optional: true
       knex:
         optional: true
@@ -2210,6 +2168,8 @@ packages:
       pg:
         optional: true
       postgres:
+        optional: true
+      react:
         optional: true
       sql.js:
         optional: true
@@ -3086,10 +3046,6 @@ packages:
     resolution: {integrity: sha512-gFqAIbuKyyso/3G2qhiO2OM6shY6EPP/R0+mkDbyspxKazh8BXDC5FiFsUjlczgdNz/vfra0da2y+aHrusLG/Q==}
     hasBin: true
     dev: true
-
-  /jose@4.15.4:
-    resolution: {integrity: sha512-W+oqK4H+r5sITxfxpSU+MMdr/YSWGvgZMQDIsNoBDGGy4i7GBPTtvFKibQzW06n3U3TqHjhvBJsirShsEJ6eeQ==}
-    dev: false
 
   /js-yaml@3.14.1:
     resolution: {integrity: sha512-okMH7OXXJ7YrN9Ok3/SXrnu4iX9yOk+25nqX4imS2npuvTYDmo/QEZoqwZkYaIDk3jVvBOTOIEgEhaLOynBS9g==}
@@ -4531,11 +4487,6 @@ packages:
       svelte: 4.2.8
       typescript: 5.3.3
     dev: true
-
-  /svelte@3.59.2:
-    resolution: {integrity: sha512-vzSyuGr3eEoAtT/A6bmajosJZIUWySzY2CzB3w2pgPvnkUjGqlDnsNnA0PMO+mMAhuyMul6C2uuZzY6ELSkzyA==}
-    engines: {node: '>= 8'}
-    dev: false
 
   /svelte@4.2.8:
     resolution: {integrity: sha512-hU6dh1MPl8gh6klQZwK/n73GiAHiR95IkFsesLPbMeEZi36ydaXL/ZAb4g9sayT0MXzpxyZjR28yderJHxcmYA==}

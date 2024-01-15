@@ -2,8 +2,9 @@ import { formDataValidObject } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
+import { allowedImageTypes } from '$lib/util/images';
 
-const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/gif']);
+// const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/gif']);
 
 export const actions = {
   updateProfile: async ({ locals, request, fetch }) => {
@@ -16,6 +17,7 @@ export const actions = {
         'avatar-url': 'string',
         name: 'string',
         email: 'email',
+        'password?': 'string',
       }),
     );
 
@@ -25,7 +27,6 @@ export const actions = {
     // Grab the content length as a number
     const size = Number(image.headers.get('content-length'));
 
-    console.info('Image size', size);
     // Thrw an error on size
     if (isNaN(size) || size > 30 * 1024)
       throw error(403, 'must be less than 30kb');
@@ -35,6 +36,7 @@ export const actions = {
 
     const r = await locals.supabase.auth.updateUser({
       email: data.email,
+      password: data.password ?? undefined,
       data: {
         name: data.name,
         avatar_url: data['avatar-url'],
