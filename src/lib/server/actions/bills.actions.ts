@@ -1,5 +1,5 @@
 import { db, schema } from '$lib/server/db';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { NotFound } from '../errors';
 
 export type Bill = typeof schema.bills.$inferSelect;
@@ -60,3 +60,25 @@ export async function getBill(billId: Bill['id']) {
 export async function deleteBill(billId: Bill['id']) {
   return db.delete(schema.bills).where(eq(schema.bills.id, billId)).returning();
 }
+
+export async function getUserBills(userId: string) {
+  return db.select({
+    ...schema.bills,
+    householdName: schema.households.name,
+  })
+    // Selecting from bills
+    .from(schema.bills)
+    // Joining in on the households table to get the household name
+    .innerJoin(schema.households, eq(schema.households.id, schema.bills.householdId))
+    // Means we need to get the households this user is a member of.
+    .innerJoin(
+      schema.usersToHouseholds,
+      and(
+        eq(schema.usersToHouseholds.householdId, schema.households.id),
+        eq(schema.usersToHouseholds.userId, userId)
+      )
+    )
+    // Some ordering to more normalize the results.
+    .orderBy(schema.households.name, schema.bills.dueDate);
+}
+

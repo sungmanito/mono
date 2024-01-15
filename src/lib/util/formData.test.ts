@@ -1,6 +1,6 @@
-import { expect, describe, it } from 'vitest';
-import { formDataToObject, formDataValidObject } from './formData';
 import { type } from 'arktype';
+import { describe, expect, it } from 'vitest';
+import { formDataToObject, formDataValidObject } from './formData';
 
 describe('formDataToObject', () => {
   it('Should parse empty formData object', () => {
@@ -74,6 +74,7 @@ describe('formDataToObject', () => {
       names: ['bob', 'jerome', 'phteven'],
     });
   });
+
 });
 
 describe('formDataValidObject', () => {

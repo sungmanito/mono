@@ -1,8 +1,7 @@
+import { getUserBills } from '$lib/server/actions/bills.actions.js';
 import { db } from '$lib/server/db';
 import {
-  bills as billsTable,
-  households,
-  usersToHouseholds,
+  bills as billsTable
 } from '$lib/server/db/schema';
 import { formDataValidObject } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
@@ -13,28 +12,11 @@ import { and, eq, inArray } from 'drizzle-orm';
 export const load = async ({ locals }) => {
   const session = await locals.getSession();
 
-  if (!session || !session?.user) {
+  if (!validateUserSession(session)) {
     throw redirect(300, '/login');
   }
 
-  const bills = await db
-    .select({
-      id: billsTable.id,
-      billName: billsTable.billName,
-      dueDate: billsTable.dueDate,
-      householdId: billsTable.householdId,
-      householdName: households.name,
-    })
-    .from(billsTable)
-    .innerJoin(households, eq(households.id, billsTable.householdId))
-    .innerJoin(
-      usersToHouseholds,
-      and(
-        eq(usersToHouseholds.householdId, households.id),
-        eq(usersToHouseholds.userId, session.user.id),
-      ),
-    )
-    .orderBy(households.name, billsTable.dueDate);
+  const bills = await getUserBills(session.user.id);
 
   return {
     bills: bills,

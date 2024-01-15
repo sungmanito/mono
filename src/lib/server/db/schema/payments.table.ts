@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import {
   date,
   pgTable,
@@ -17,6 +17,7 @@ export const payments = pgTable(
   {
     id: text('id')
       .primaryKey()
+      .default(sql`generate_ulid()`)
       .$defaultFn(() => ulid()),
     billId: text('bill_id')
       .notNull()
