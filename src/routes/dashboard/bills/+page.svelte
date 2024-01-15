@@ -15,7 +15,7 @@
   let editModal: HTMLDialogElement;
   let deleteModal: HTMLDialogElement;
 
-  let selectedBill: (typeof data.bills)[number] = data.bills[0];
+  let selectedBill: (typeof data.bills)[number] | null = null;
   let validation = '';
 
   const toastStore = getToastStore();
@@ -106,12 +106,12 @@
     action="?/deleteBill"
     on:submit={submitForm}
   >
-    <input type="hidden" name="bill-id" value={selectedBill.id} />
+    <input type="hidden" name="bill-id" value={selectedBill?.id} />
     <header class="h4 border-b pb-2">
-      Delete &quot;{selectedBill.billName}&quot;?
+      Delete &quot;{selectedBill?.billName}&quot;?
     </header>
     <section>
-      <p>Are you sure you want to delete {selectedBill.billName}?</p>
+      <p>Are you sure you want to delete {selectedBill?.billName}?</p>
       <p>Please type in &quot;delete&quot;</p>
       <input type="text" class="input px-3 py-1 mt-3" bind:value={validation} />
     </section>

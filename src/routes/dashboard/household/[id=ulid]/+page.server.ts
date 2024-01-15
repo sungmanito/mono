@@ -3,8 +3,8 @@ import { schema } from '$lib/server/db/index.js';
 import { formDataValidObject, validateFormData } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, redirect } from '@sveltejs/kit';
-import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
 import { type } from 'arktype';
+import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
 
 const formDataValidator = type({
   user: 'email | string',
@@ -131,9 +131,15 @@ export const actions = {
      * 3. Invite any others by email
      */
     if (!validateUserSession(session)) throw error(401);
+
     const formData = validateFormData(
       await request.formData(),
       type({ emails: 'email[]', 'household-id': 'string' }),
+    );
+
+    // Have to filter out the issues to help solve #24
+    formData.emails = formData.emails.filter(
+      (email) => email != 'email@email.com',
     );
 
     // Alright now the fun part... we have to send these emails out...
@@ -168,7 +174,7 @@ export const actions = {
             data: { user },
             error: inviteError,
           } = await locals.supabase.auth.admin.inviteUserByEmail(email, {
-            redirectTo: `${url.protocol}//${url.host}/register`,
+            redirectTo: `${url.protocol}//${url.host}/login`,
           });
           // We need the IDS in order to set things up later, so it's best to have them
           // or to fail
