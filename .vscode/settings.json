@@ -6,8 +6,9 @@
   "svelte.plugin.svelte.format.config.singleQuote": true,
   "lnf.aliases": {
     "$/": "${workspaceRoot}/",
-    "$lib/": "${workspaceRoot}/src/lib",
-    "$src/": "${workspaceRoot}/src/",
-    "$routes/": "${workspaceRoot}/src/routes"
+    "$apps/": "${workspaceRoot}/apps/",
+    "$website/components/": "${workspaceRoot}/apps/website/src/lib/components/",
+    "$website/routes/": "${workspaceRoot}/apps/website/src/routes/",
+    "$website/": "${workspaceRoot}/apps/website/",
   }
 }

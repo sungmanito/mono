@@ -18,6 +18,8 @@
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
+-- Need this for generating ULIDs on the database side
+
 CREATE FUNCTION generate_ulid()
 RETURNS TEXT
 AS $$
@@ -78,6 +80,8 @@ $$
 LANGUAGE plpgsql
 VOLATILE;
 
+-- Adds the default user to the household
+
 CREATE or REPLACE FUNCTION create_default_household_user()
 returns trigger
 as 
@@ -88,12 +92,12 @@ begin
 end;
 $$ language plpgsql security definer;
 
-
 CREATE TRIGGER on_household_created
   AFTER INSERT on public.households
   FOR EACH ROW
   EXECUTE FUNCTION create_default_household_user();
 
+-- Create a new user's default household
 
 CREATE or REPLACE FUNCTION create_default_household()
 returns trigger
