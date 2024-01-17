@@ -1,0 +1,12 @@
+{
+  "name": "@sungmanito/skeleton-plugin",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --dts"
+  },
+  "devDependencies": {
+    "@skeletonlabs/tw-plugin": "^0.2.4",
+    "tsup": "^8.0.1"
+  }
+}
