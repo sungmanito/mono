@@ -68,6 +68,7 @@
 		"drizzle-orm": "^0.29.3",
 		"lucide-svelte": "^0.288.0",
 		"postgres": "^3.4.3",
-		"ulidx": "^2.2.1"
+		"ulidx": "^2.2.1",
+    "@sungmanito/db": "workspace:*"
 	}
 }

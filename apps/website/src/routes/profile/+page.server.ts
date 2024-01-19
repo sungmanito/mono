@@ -4,10 +4,9 @@ import { error, redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
 import { allowedImageTypes } from '$lib/util/images';
 
-// const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/gif']);
-
 export const actions = {
   updateProfile: async ({ locals, request, fetch }) => {
+
     const session = await locals.getSession();
     if (!validateUserSession(session)) throw redirect(304, '/login');
 
