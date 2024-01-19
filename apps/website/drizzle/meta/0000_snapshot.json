@@ -153,10 +153,7 @@
       "compositePrimaryKeys": {
         "users_to_households_user_id_household_id": {
           "name": "users_to_households_user_id_household_id",
-          "columns": [
-            "user_id",
-            "household_id"
-          ]
+          "columns": ["user_id", "household_id"]
         }
       },
       "uniqueConstraints": {}

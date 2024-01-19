@@ -18,7 +18,7 @@ export const usersToHouseholds = pgTable(
     userIdIndex: index('household_user_id_index').on(userId),
   }),
 );
- 
+
 export const usersToHouseholdsRelations = relations(
   usersToHouseholds,
   ({ one }) => ({

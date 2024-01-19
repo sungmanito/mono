@@ -46,7 +46,12 @@
       </FormLabel>
 
       <FormLabel label="Displayed Name">
-        <input type="text" class="input" name="name" placeholder="e.g. 'John'" />
+        <input
+          type="text"
+          class="input"
+          name="name"
+          placeholder="e.g. 'John'"
+        />
       </FormLabel>
 
       <Button class="mt-4">Submit</Button>

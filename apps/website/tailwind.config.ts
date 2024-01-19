@@ -20,9 +20,7 @@ export default {
     forms,
     skeleton({
       themes: {
-        custom: [
-          SungmanitoTheme
-        ],
+        custom: [SungmanitoTheme],
         preset: [
           {
             name: 'skeleton',

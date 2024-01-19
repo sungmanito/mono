@@ -6,7 +6,6 @@ import { allowedImageTypes } from '$lib/util/images';
 
 export const actions = {
   updateProfile: async ({ locals, request, fetch }) => {
-
     const session = await locals.getSession();
     if (!validateUserSession(session)) throw redirect(304, '/login');
 

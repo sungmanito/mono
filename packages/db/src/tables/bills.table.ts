@@ -25,6 +25,6 @@ export const bills = pgTable(
 export const billToHousehold = relations(bills, ({ one }) => ({
   household: one(households, {
     fields: [bills.householdId],
-    references: [households.id]
-  })
+    references: [households.id],
+  }),
 }));

@@ -21,6 +21,7 @@ export const exportedSchema = {
   userToIdentities: schema.userToIdentities,
   householdsToBillsRelations: schema.householdsToBillsRelations,
   billsToHousehold: schema.billToHousehold,
+  billHouseholdRelations: schema.billHouseholdRelations,
 };
 
 export default schema;

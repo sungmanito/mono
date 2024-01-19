@@ -11,15 +11,12 @@ importers:
       prettier:
         specifier: ^3.2.2
         version: 3.2.2
+      prettier-plugin-svelte:
+        specifier: ^3.1.2
+        version: 3.1.2(prettier@3.2.2)(svelte@4.2.8)
       turbo:
         specifier: latest
         version: 1.11.3
-
-  apps/something:
-    dependencies:
-      '@sungmanito/db':
-        specifier: workspace:*
-        version: link:../../packages/db
 
   apps/website:
     dependencies:
@@ -126,12 +123,6 @@ importers:
       postcss:
         specifier: ^8.4.32
         version: 8.4.33
-      prettier:
-        specifier: ^3.1.1
-        version: 3.2.2
-      prettier-plugin-svelte:
-        specifier: ^3.1.2
-        version: 3.1.2(prettier@3.2.2)(svelte@4.2.8)
       sass:
         specifier: ^1.69.5
         version: 1.69.7

@@ -1,6 +1,6 @@
-name: "Pr Checks"
+name: 'Pr Checks'
 on:
-  pull_request: 
+  pull_request:
 
 jobs:
   formatter:
