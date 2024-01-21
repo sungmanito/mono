@@ -19,7 +19,8 @@ export async function getUserHouseholds(userId: string) {
 export async function addHousehold(household: HouseholdInsertArgs) {
   const [returnedHousehold] = await db
     .insert(schema.households)
-    .values(household);
+    .values(household)
+    .returning();
   return returnedHousehold;
 }
 

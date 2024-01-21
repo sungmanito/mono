@@ -1,4 +1,5 @@
-import { db, schema } from '$lib/server/db';
+import { db } from '$lib/server/db';
+import { exportedSchema as schema} from '@sungmanito/db';
 import { and, eq } from 'drizzle-orm';
 import { NotFound } from '../errors';
 

@@ -1,11 +1,11 @@
-import type { exportedSchema } from '@sungmanito/db';
+import { exportedSchema as schema } from '@sungmanito/db';
 import { db } from '$lib/server/db';
 import { getUserHouseholds } from './households.actions';
 import { and, eq, inArray } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
 
-export type Payment = typeof exportedSchema.payments.$inferSelect;
-export type PaymentInsertArgs = Omit<typeof exportedSchema.payments.$inferInsert, 'id'>;
+export type Payment = typeof schema.payments.$inferSelect;
+export type PaymentInsertArgs = Omit<typeof schema.payments.$inferInsert, 'id'>;
 export type PaymentUpdateArgs = Partial<
   PaymentInsertArgs & Pick<Payment, 'id'>
 >;

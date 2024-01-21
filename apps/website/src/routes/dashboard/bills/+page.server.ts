@@ -1,6 +1,7 @@
 import { getUserBills } from '$lib/server/actions/bills.actions.js';
 import { db } from '$lib/server/db';
-import { bills as billsTable } from '$lib/server/db/schema';
+import { exportedSchema } from '@sungmanito/db';
+// import { bills as billsTable } from '$lib/server/db/schema';
 import { formDataValidObject } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, redirect } from '@sveltejs/kit';
@@ -45,7 +46,7 @@ export const actions = {
       throw error(400, 'Cannot add bill to household you are not a member of');
 
     const [bill] = await db
-      .insert(billsTable)
+      .insert(exportedSchema.bills)
       .values({
         dueDate: formData['due-date'],
         billName: formData.name,
@@ -66,7 +67,7 @@ export const actions = {
 
     if (!session || !session?.user) throw error(401, 'nope');
 
-    const data = await formDataValidObject(
+    const data = formDataValidObject(
       await request.formData(),
       type({
         'bill-id': 'string',
@@ -86,13 +87,13 @@ export const actions = {
       error(400, 'Not authorized');
 
     const [response] = await db
-      .update(billsTable)
+      .update(exportedSchema.bills)
       .set({
         billName: data['bill-name'],
         dueDate: data['due-date'],
         householdId: data['household-id'],
       })
-      .where(eq(billsTable.id, data['bill-id']))
+      .where(eq(exportedSchema.bills.id, data['bill-id']))
       .returning();
 
     if (response === undefined) error(400);
@@ -116,19 +117,19 @@ export const actions = {
     );
 
     const [deleted] = await db
-      .delete(billsTable)
+      .delete(exportedSchema.bills)
       .where(
         and(
-          eq(billsTable.id, data['bill-id']),
+          eq(exportedSchema.bills.id, data['bill-id']),
           inArray(
-            billsTable.householdId,
+            exportedSchema.bills.householdId,
             locals.userHouseholds.map((h) => h.households.id),
           ),
         ),
       )
       .returning();
 
-    if (resp.length !== 1) throw error(400, 'Bill not found');
+    if (!deleted) throw error(400, 'Bill not found');
 
     return {
       bill: deleted,

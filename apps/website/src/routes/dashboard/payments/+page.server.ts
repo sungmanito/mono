@@ -1,6 +1,6 @@
 import { getUserHouseholds } from '$lib/server/actions/households.actions.js';
 import { db } from '$lib/server/db/client.js';
-import { schema } from '$lib/server/db/index.js';
+import { exportedSchema as schema} from '@sungmanito/db';
 import { error, redirect } from '@sveltejs/kit';
 import { and, eq, inArray } from 'drizzle-orm';
 import { formDataToObject } from '$lib/util/formData.js';
@@ -11,7 +11,7 @@ export const load = async ({ locals }) => {
   const today = new Date();
   const session = await locals.getSession();
 
-  if (!session || !session.user) {
+  if (!validateUserSession(session)) {
     throw redirect(300, '/login');
   }
 

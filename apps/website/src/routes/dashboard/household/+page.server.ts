@@ -1,7 +1,6 @@
 import { inviteMembersByEmail } from '$lib/server/actions/invites.action.js';
-import { db, schema } from '$lib/server/db';
-import { households } from '$lib/server/db/schema/households.table.js';
-import { exportedSchema } from '@sungmanito/db';
+import { db } from '$lib/server/db';
+import { exportedSchema as schema } from '@sungmanito/db';
 import { formDataValidObject } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, redirect } from '@sveltejs/kit';
@@ -188,11 +187,11 @@ export const actions = {
       throw error(401, 'Not authorized');
 
     const [returned] = await db
-      .update(households)
+      .update(schema.households)
       .set({
         name: data.name,
       })
-      .where(eq(households.id, data['household-id']))
+      .where(eq(schema.households.id, data['household-id']))
       .returning();
 
     return {
