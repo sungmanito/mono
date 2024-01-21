@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db/client.js';
-import { schema } from '$lib/server/db/index.js';
+import { exportedSchema as schema } from '@sungmanito/db';
 import { formDataValidObject, validateFormData } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, redirect } from '@sveltejs/kit';
