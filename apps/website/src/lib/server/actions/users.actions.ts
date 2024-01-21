@@ -1,7 +1,8 @@
 // User's info is managed by supabase, so we can only do read operations on the
 // "auth" schema.
-import { db, schema } from '$lib/server/db';
+import { db } from '$lib/server/db';
 import { eq, sql } from 'drizzle-orm';
+import schema from '@sungmanito/db';
 
 export async function userExists(email: string) {
   const [user] = await db

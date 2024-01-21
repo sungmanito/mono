@@ -1,6 +1,7 @@
 import { db } from '$lib/server/db/client.js';
-import { bills as billsTable } from '$lib/server/db/schema/bills.table.js';
-import { payments } from '$lib/server/db/schema/payments.table.js';
+import { exportedSchema } from '@sungmanito/db';
+// import { bills as billsTable } from '$lib/server/db/schema/bills.table.js';
+// import { payments } from '$lib/server/db/schema/payments.table.js';
 import type { RequestHandler } from './$types';
 import { and, eq } from 'drizzle-orm';
 import type { PaymentUpdateArgs } from '$lib/server/actions/payments.actions';
@@ -15,12 +16,12 @@ export const GET: RequestHandler = async () => {
 
   const bills = await db
     .select()
-    .from(billsTable)
+    .from(exportedSchema.bills)
     .leftJoin(
-      payments,
+      exportedSchema.payments,
       and(
-        eq(payments.billId, billsTable.id),
-        eq(payments.forMonth, today.getMonth() + 1),
+        eq(exportedSchema.payments.billId, exportedSchema.bills.id),
+        eq(exportedSchema.payments.forMonth, today.getMonth() + 1),
       ),
     );
 
@@ -40,10 +41,13 @@ export const GET: RequestHandler = async () => {
   console.info(mapped);
 
   const response = await db
-    .insert(payments)
+    .insert(exportedSchema.payments)
     .values(mapped)
     .onConflictDoNothing({
-      target: [payments.billId, payments.forMonth],
+      target: [
+        exportedSchema.payments.billId,
+        exportedSchema.payments.forMonth,
+      ],
     })
     .returning()
     .execute();

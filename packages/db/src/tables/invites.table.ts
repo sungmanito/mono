@@ -1,6 +1,5 @@
 import { pgTable, text, uuid, timestamp, index } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
-import { ulid } from 'ulidx';
 
 // I either need this, or i need to add information to the users_to_households table
 export const invites = pgTable(
@@ -8,7 +7,7 @@ export const invites = pgTable(
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => ulid()),
+      .default(sql`generate_ulid()`),
     toEmail: text('to_email').notNull(),
     toId: uuid('to_id').notNull(),
     fromEmail: text('from_email').notNull(),
@@ -17,7 +16,7 @@ export const invites = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
     expiresAt: timestamp('expires_at')
       .notNull()
-      .$default(() => sql<string>`now() + interval '30 days'`),
+      .default(sql<string>`now() + interval '30 days'`),
   },
   ({ toId, fromId }) => ({
     toIdIdx: index('to_id_idx').on(toId),

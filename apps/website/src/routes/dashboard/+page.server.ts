@@ -1,17 +1,12 @@
 import { db } from '$lib/server/db';
-import {
-  bills,
-  households,
-  payments,
-  usersToHouseholds,
-} from '$lib/server/db/schema';
+import { exportedSchema } from '@sungmanito/db';
 import { formDataValidObject } from '$lib/util/formData.js';
 import { redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
 import { and, eq, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 
-const household = alias(households, 'household');
+const household = alias(exportedSchema.households, 'household');
 
 export const load = async ({ locals }) => {
   const session = await locals.getSession();
@@ -24,20 +19,23 @@ export const load = async ({ locals }) => {
 
   const fullQuery = await db
     .select()
-    .from(bills)
-    .innerJoin(usersToHouseholds, eq(usersToHouseholds.userId, session.user.id))
+    .from(exportedSchema.bills)
+    .innerJoin(
+      exportedSchema.usersToHouseholds,
+      eq(exportedSchema.usersToHouseholds.userId, session.user.id),
+    )
     .innerJoin(
       household,
       and(
-        eq(bills.householdId, household.id),
-        eq(usersToHouseholds.householdId, household.id),
+        eq(exportedSchema.bills.householdId, household.id),
+        eq(exportedSchema.usersToHouseholds.householdId, household.id),
       ),
     )
     .leftJoin(
-      payments,
+      exportedSchema.payments,
       and(
-        eq(payments.forMonth, today.getMonth() + 1),
-        eq(payments.billId, bills.id),
+        eq(exportedSchema.payments.forMonth, today.getMonth() + 1),
+        eq(exportedSchema.payments.billId, exportedSchema.bills.id),
       ),
     );
 
@@ -84,22 +82,26 @@ export const load = async ({ locals }) => {
 
   const userHouseholds = await db
     .select({
-      id: households.id,
-      name: households.name,
-      createdAt: households.createdAt,
-      householdCount: sql<number>`count(${households.id})`.mapWith((value) =>
-        Number(value),
-      ),
+      id: exportedSchema.households.id,
+      name: exportedSchema.households.name,
+      createdAt: exportedSchema.households.createdAt,
+      householdCount:
+        sql<number>`count(${exportedSchema.households.id})`.mapWith((value) =>
+          Number(value),
+        ),
     })
-    .from(households)
+    .from(exportedSchema.households)
     .innerJoin(
-      usersToHouseholds,
+      exportedSchema.usersToHouseholds,
       and(
-        eq(usersToHouseholds.userId, session.user.id),
-        eq(households.id, usersToHouseholds.householdId),
+        eq(exportedSchema.usersToHouseholds.userId, session.user.id),
+        eq(
+          exportedSchema.households.id,
+          exportedSchema.usersToHouseholds.householdId,
+        ),
       ),
     )
-    .groupBy(households.id);
+    .groupBy(exportedSchema.households.id);
 
   return {
     bills: fullQuery,
@@ -124,7 +126,7 @@ export const actions = {
 
     if (session && session.user) {
       const [bill] = await db
-        .insert(bills)
+        .insert(exportedSchema.bills)
         .values({
           billName: formData['bill-name'],
           householdId: formData['household-id'],
@@ -134,7 +136,7 @@ export const actions = {
 
       // If the bill is further forward in the month than the current date, we must assume that the user wants to track this bill for this month too
       if (bill.dueDate > today.getDate()) {
-        await db.insert(payments).values({
+        await db.insert(exportedSchema.payments).values({
           billId: bill.id,
           forMonthD: new Date(
             today.getFullYear(),

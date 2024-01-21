@@ -1,4 +1,5 @@
-import { db, schema } from '$lib/server/db';
+import { db } from '$lib/server/db';
+import { exportedSchema as schema } from '@sungmanito/db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 
 export type Household = typeof schema.households.$inferSelect;
@@ -18,7 +19,8 @@ export async function getUserHouseholds(userId: string) {
 export async function addHousehold(household: HouseholdInsertArgs) {
   const [returnedHousehold] = await db
     .insert(schema.households)
-    .values(household);
+    .values(household)
+    .returning();
   return returnedHousehold;
 }
 

@@ -1,4 +1,4 @@
-import * as schema from '$lib/server/db/schema';
+import { exportedSchema as schema } from '@sungmanito/db';
 import { db } from '$lib/server/db';
 import { getUserHouseholds } from './households.actions';
 import { and, eq, inArray } from 'drizzle-orm';

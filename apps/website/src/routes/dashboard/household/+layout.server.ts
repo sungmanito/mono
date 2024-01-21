@@ -1,6 +1,7 @@
 import { householdsToUsersMap } from '$lib/server/actions/households.actions';
 import { sql, eq, inArray } from 'drizzle-orm';
-import { db, schema } from '$lib/server/db';
+import { db } from '$lib/server/db';
+import { exportedSchema as schema } from '@sungmanito/db';
 import { validateUserSession } from '$lib/util/session.js';
 import { error } from '@sveltejs/kit';
 

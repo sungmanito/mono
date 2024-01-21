@@ -1,4 +1,4 @@
-import { join } from 'node:path';
+import { join } from 'path';
 import type { Config } from 'tailwindcss';
 import { skeleton } from '@skeletonlabs/tw-plugin';
 import forms from '@tailwindcss/forms';
@@ -20,9 +20,7 @@ export default {
     forms,
     skeleton({
       themes: {
-        custom: [
-          SungmanitoTheme
-        ],
+        custom: [SungmanitoTheme],
         preset: [
           {
             name: 'skeleton',

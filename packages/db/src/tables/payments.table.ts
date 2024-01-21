@@ -9,7 +9,6 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { bills } from './bills.table';
-import { ulid } from 'ulidx';
 import { households } from './households.table';
 
 export const payments = pgTable(
@@ -17,8 +16,7 @@ export const payments = pgTable(
   {
     id: text('id')
       .primaryKey()
-      .default(sql`generate_ulid()`)
-      .$defaultFn(() => ulid()),
+      .default(sql`generate_ulid()`),
     billId: text('bill_id')
       .notNull()
       .references(() => bills.id, { onDelete: 'cascade' }),

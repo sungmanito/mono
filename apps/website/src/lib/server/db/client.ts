@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { DB_URL } from '$env/static/private';
 import Pg from 'pg';
-import * as schema from './schema';
+import { exportedSchema } from '@sungmanito/db';
 
 const client = new Pg.Client({
   connectionString: DB_URL,
@@ -9,4 +9,4 @@ const client = new Pg.Client({
 
 await client.connect();
 
-export const db = drizzle(client, { schema, logger: true });
+export const db = drizzle(client, { schema: exportedSchema, logger: true });
