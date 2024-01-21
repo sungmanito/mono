@@ -2,9 +2,19 @@ import { fail } from '@sveltejs/kit';
 import { allowedImageTypes } from '$lib/util/images';
 import { type } from 'arktype';
 import { validateFormData } from '$lib/util/formData.js';
+import { dev } from '$app/environment';
+
+export const load = async ({ locals: { config }}) => {
+  return {
+    enabled: dev || !!config.allow_registration,
+  }
+}
 
 export const actions = {
-  signup: async ({ request, locals: { supabase }, fetch, url }) => {
+  signup: async ({ request, locals: { supabase, config }, fetch, url }) => {
+    if(!config.allow_registration) return fail(400, {
+      message: 'Signup disabled'
+    });
     const data = validateFormData(
       await request.formData(),
       type({

@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import type { Config } from 'tailwindcss';
 import { skeleton } from '@skeletonlabs/tw-plugin';
 import forms from '@tailwindcss/forms';
+import { SungmanitoTheme } from '@sungmanito/skeleton-plugin';
 
 export default {
   darkMode: 'class',
@@ -19,6 +20,9 @@ export default {
     forms,
     skeleton({
       themes: {
+        custom: [
+          SungmanitoTheme
+        ],
         preset: [
           {
             name: 'skeleton',

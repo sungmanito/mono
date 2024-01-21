@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/actions",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}
