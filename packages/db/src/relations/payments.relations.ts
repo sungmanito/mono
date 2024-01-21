@@ -12,6 +12,6 @@ export const paymentRelations = relations(payments, ({ one, many }) => ({
   }),
   household: one(households, {
     fields: [payments.householdId],
-    references: [households.id]
-  })
+    references: [households.id],
+  }),
 }));

@@ -7,5 +7,5 @@ export const householdRelations = relations(households, ({ many, one }) => ({
   owner: one(users, {
     fields: [households.ownerId],
     references: [users.id],
-  })
+  }),
 }));

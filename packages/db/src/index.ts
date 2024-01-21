@@ -9,7 +9,6 @@ import {
   usersToHouseholdsRelations,
 } from './relations';
 
-
 export const exportedSchema = {
   // Schema
   authSchema: schema.authSchema,

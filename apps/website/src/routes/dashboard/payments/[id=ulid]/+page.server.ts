@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db/client.js';
-import { schema } from '$lib/server/db/index.js';
+import { exportedSchema as schema } from '@sungmanito/db';
 import { validateUserSession } from '$lib/util/session.js';
 import { error } from '@sveltejs/kit';
 import { and, eq, inArray, sql } from 'drizzle-orm';

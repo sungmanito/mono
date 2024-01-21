@@ -44,7 +44,10 @@ export const GET: RequestHandler = async () => {
     .insert(exportedSchema.payments)
     .values(mapped)
     .onConflictDoNothing({
-      target: [exportedSchema.payments.billId, exportedSchema.payments.forMonth],
+      target: [
+        exportedSchema.payments.billId,
+        exportedSchema.payments.forMonth,
+      ],
     })
     .returning()
     .execute();

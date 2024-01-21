@@ -1,7 +1,5 @@
 import { db } from '$lib/server/db';
-import {
-  exportedSchema
-} from '@sungmanito/db';
+import { exportedSchema } from '@sungmanito/db';
 import { formDataValidObject } from '$lib/util/formData.js';
 import { redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
@@ -22,7 +20,10 @@ export const load = async ({ locals }) => {
   const fullQuery = await db
     .select()
     .from(exportedSchema.bills)
-    .innerJoin(exportedSchema.usersToHouseholds, eq(exportedSchema.usersToHouseholds.userId, session.user.id))
+    .innerJoin(
+      exportedSchema.usersToHouseholds,
+      eq(exportedSchema.usersToHouseholds.userId, session.user.id),
+    )
     .innerJoin(
       household,
       and(
@@ -84,16 +85,20 @@ export const load = async ({ locals }) => {
       id: exportedSchema.households.id,
       name: exportedSchema.households.name,
       createdAt: exportedSchema.households.createdAt,
-      householdCount: sql<number>`count(${exportedSchema.households.id})`.mapWith((value) =>
-        Number(value),
-      ),
+      householdCount:
+        sql<number>`count(${exportedSchema.households.id})`.mapWith((value) =>
+          Number(value),
+        ),
     })
     .from(exportedSchema.households)
     .innerJoin(
       exportedSchema.usersToHouseholds,
       and(
         eq(exportedSchema.usersToHouseholds.userId, session.user.id),
-        eq(exportedSchema.households.id, exportedSchema.usersToHouseholds.householdId),
+        eq(
+          exportedSchema.households.id,
+          exportedSchema.usersToHouseholds.householdId,
+        ),
       ),
     )
     .groupBy(exportedSchema.households.id);

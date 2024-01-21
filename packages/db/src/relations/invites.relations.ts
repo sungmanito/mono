@@ -4,7 +4,7 @@ import { invites, users, households } from '../tables';
 export const invitesRelations = relations(invites, ({ one }) => ({
   invitee: one(users, {
     fields: [invites.toId],
-    references: [users.id]
+    references: [users.id],
   }),
   inviter: one(users, {
     fields: [invites.fromId],
@@ -12,6 +12,6 @@ export const invitesRelations = relations(invites, ({ one }) => ({
   }),
   household: one(households, {
     fields: [invites.householdId],
-    references: [households.id]
-  })
+    references: [households.id],
+  }),
 }));

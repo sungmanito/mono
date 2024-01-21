@@ -1,3 +1,3 @@
 ## Notes
 
-There should be exactly ***one*** file per table.
+There should be exactly **_one_** file per table.

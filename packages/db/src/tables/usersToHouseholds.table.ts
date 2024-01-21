@@ -39,4 +39,4 @@ export const householdUsers = relations(households, ({ many }) => ({
 
 export const usersHH = relations(users, ({ many }) => ({
   households: many(usersToHouseholds),
-}))
+}));
