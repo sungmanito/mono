@@ -21,10 +21,3 @@ export const bills = pgTable(
     householdIndex: index('household_idx').on(householdId),
   }),
 );
-
-export const billToHousehold = relations(bills, ({ one }) => ({
-  household: one(households, {
-    fields: [bills.householdId],
-    references: [households.id],
-  }),
-}));

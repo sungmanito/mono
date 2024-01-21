@@ -1,4 +1,4 @@
-import { relations, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import {
   date,
   pgTable,
@@ -37,14 +37,3 @@ export const payments = pgTable(
     billIdMonth: uniqueIndex('billId_month').on(billId, forMonth),
   }),
 );
-
-export const paymentToBill = relations(payments, ({ one }) => ({
-  bill: one(bills, {
-    fields: [payments.billId],
-    references: [bills.id],
-  }),
-}));
-
-export const billsToPayments = relations(bills, ({ many }) => ({
-  payments: many(payments),
-}));
