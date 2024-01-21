@@ -1,4 +1,5 @@
-import { db, schema } from '$lib/server/db';
+import { db } from '$lib/server/db';
+import { exportedSchema as schema } from '@sungmanito/db';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 
 export type Household = typeof schema.households.$inferSelect;

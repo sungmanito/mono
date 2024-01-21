@@ -1,10 +1,11 @@
 import { db } from '$lib/server/db';
 import {
+  exportedSchema
   bills,
   households,
   payments,
   usersToHouseholds,
-} from '$lib/server/db/schema';
+} from '@sungmanito/db';
 import { formDataValidObject } from '$lib/util/formData.js';
 import { redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
@@ -25,19 +26,19 @@ export const load = async ({ locals }) => {
   const fullQuery = await db
     .select()
     .from(bills)
-    .innerJoin(usersToHouseholds, eq(usersToHouseholds.userId, session.user.id))
+    .innerJoin(exportedSchema.usersToHouseholds, eq(exportedSchema.usersToHouseholds.userId, session.user.id))
     .innerJoin(
       household,
       and(
-        eq(bills.householdId, household.id),
+        eq(exportedSchema.bills.householdId, household.id),
         eq(usersToHouseholds.householdId, household.id),
       ),
     )
     .leftJoin(
-      payments,
+      exportedSchema.payments,
       and(
-        eq(payments.forMonth, today.getMonth() + 1),
-        eq(payments.billId, bills.id),
+        eq(exportedSchema.payments.forMonth, today.getMonth() + 1),
+        eq(exportedSchema.payments.billId, exportedSchema.bills.id),
       ),
     );
 

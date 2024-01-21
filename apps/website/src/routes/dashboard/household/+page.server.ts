@@ -1,6 +1,7 @@
 import { inviteMembersByEmail } from '$lib/server/actions/invites.action.js';
 import { db, schema } from '$lib/server/db';
 import { households } from '$lib/server/db/schema/households.table.js';
+import { exportedSchema } from '@sungmanito/db';
 import { formDataValidObject } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, redirect } from '@sveltejs/kit';

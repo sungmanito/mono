@@ -1,7 +1,8 @@
 import { validate } from '$lib/util/ark-utils';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { type } from 'arktype';
-import { db, schema } from '../db';
+import { db } from '../db';
+import { exportedSchema as schema } from '@sungmanito/db';
 import { inArray } from 'drizzle-orm';
 
 export const emailValidator = type('email');

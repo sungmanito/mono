@@ -1,4 +1,14 @@
 import * as schema from './tables';
+import {
+  billsRelations,
+  userRelations,
+  householdRelations,
+  paymentRelations,
+  identitiesRelations,
+  invitesRelations,
+  usersToHouseholdsRelations,
+} from './relations';
+
 
 export const exportedSchema = {
   // Schema
@@ -11,17 +21,13 @@ export const exportedSchema = {
   usersToHouseholds: schema.usersToHouseholds,
   invites: schema.invites,
   // Relationships
-  paymentsToBill: schema.paymentToBill,
-  billsToPayments: schema.billsToPayments,
-  userHouseholds: schema.usersToHouseholds,
-  usersToHouseholdsRelations: schema.usersToHouseholdsRelations,
-  usersHouseholds: schema.usersHouseholds,
-  householdUsers: schema.householdUsers,
-  identityUser: schema.identityToUser,
-  userToIdentities: schema.userToIdentities,
-  householdsToBillsRelations: schema.householdsToBillsRelations,
-  billsToHousehold: schema.billToHousehold,
-  billHouseholdRelations: schema.billHouseholdRelations,
+  billsRelations,
+  userRelations,
+  householdRelations,
+  paymentRelations,
+  identitiesRelations,
+  invitesRelations,
+  usersToHouseholdsRelations,
 };
 
 export default schema;
