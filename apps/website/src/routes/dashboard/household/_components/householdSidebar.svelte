@@ -18,16 +18,11 @@
   on:close={() => (showModal = false)}
   submit={({ formData }) => {
     const members = formData.get('members') || '';
-    console.info('WTF', members);
     if (typeof members === 'string') {
-      console.info('Members', members);
       formData.delete('members');
-      console.info('pre', formData.get('members'));
       for (const member of members.split(/\r?\n|,\s?|\s+/).filter((f) => f)) {
-        console.info('hookers and blow');
         formData.append('members', member.trim());
       }
-      console.info(formData.get('members'));
     }
     return async ({ formElement, update }) => {
       await update();

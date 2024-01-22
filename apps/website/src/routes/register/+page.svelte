@@ -6,7 +6,6 @@
   export let data;
 
   const searchParams = new URLSearchParams();
-  console.info($page.url.hash.split('&'));
 
   const info = client.auth
     .setSession({
