@@ -55,9 +55,8 @@
       if (e.dataTransfer && e.dataTransfer.items) {
         for (let i of Array.from(e.dataTransfer.items)) {
           const f = i.getAsFile();
-          if (f) {
+          if (f && f.type === 'text/csv') {
             const content = await f.text();
-            console.info(f);
             const values = content
               .split(/\r?\n/g)
               .map((r) => r.split(','))
