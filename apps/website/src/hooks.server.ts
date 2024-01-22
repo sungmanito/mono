@@ -1,16 +1,12 @@
-import { sequence } from '@sveltejs/kit/hooks';
-import * as Sentry from '@sentry/sveltekit';
+import { EDGE_CONFIG, SUPABASE_SERVICE_ROLE } from '$env/static/private';
 import { PUBLIC_SUPABASE_URL } from '$env/static/public';
-import { SUPABASE_SERVICE_ROLE } from '$env/static/private';
+import { getUserHouseholds } from '$lib/server/actions/households.actions';
+import { validateUserSession } from '$lib/util/session';
+import * as Sentry from '@sentry/sveltekit';
 import { createServerClient } from '@supabase/ssr';
 import { redirect, type Handle } from '@sveltejs/kit';
+import { sequence } from '@sveltejs/kit/hooks';
 import { getAll } from '@vercel/edge-config';
-import { EDGE_CONFIG } from '$env/static/private';
-import {
-  addHousehold,
-  getUserHouseholds,
-} from '$lib/server/actions/households.actions';
-import { validateUserSession } from '$lib/util/session';
 
 Sentry.init({
   dsn: 'https://9db800c9bbef384d6a68668ae0f68235@o4506608178102272.ingest.sentry.io/4506608184131584',

@@ -8,9 +8,8 @@ import { exportedSchema } from '@sungmanito/db';
 import { formDataValidObject, validateFormData } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, fail, redirect } from '@sveltejs/kit';
-import { type, scope } from 'arktype';
+import { scope, type } from 'arktype';
 import { and, eq, inArray } from 'drizzle-orm';
-import { validate } from '$lib/util/ark-utils.js';
 
 export const load = async ({ locals }) => {
   const session = await locals.getSession();

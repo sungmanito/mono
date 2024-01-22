@@ -1,13 +1,12 @@
 <script lang="ts">
-  import { cx } from 'class-variance-authority';
-  import Drawer from '$lib/components/drawer/drawer.svelte';
-  import { XCircleIcon, XIcon } from 'lucide-svelte';
-  import Header from '../header/header.svelte';
-  import FormLabel from '../formLabel/formLabel.svelte';
-  import type { Household } from '$lib/server/actions/households.actions';
-  import Button from '../button/button.svelte';
   import { enhance } from '$app/forms';
+  import Drawer from '$lib/components/drawer/drawer.svelte';
+  import type { Household } from '$lib/server/actions/households.actions';
   import type { SubmitFunction } from '@sveltejs/kit';
+  import { XCircleIcon, XIcon } from 'lucide-svelte';
+  import Button from '../button/button.svelte';
+  import FormLabel from '../formLabel/formLabel.svelte';
+  import Header from '../header/header.svelte';
 
   export let open = false;
   export let households: Pick<Household, 'id' | 'name'>[] = [];
@@ -18,13 +17,15 @@
     name: string;
     dueDate: number;
     household: string;
-  }
+  };
 
-  let bills: BillTmp[] = [{
-    name: '',
-    dueDate: 1,
-    household: ''
-  }];
+  let bills: BillTmp[] = [
+    {
+      name: '',
+      dueDate: 1,
+      household: '',
+    },
+  ];
 
   export let submit: SubmitFunction = () => {
     return async ({ update, formElement }) => {
@@ -57,7 +58,10 @@
           if (f) {
             const content = await f.text();
             console.info(f);
-            const values = content.split(/\r?\n/g).map((r) => r.split(',')).filter(c => c.every(cc => cc !== ''));
+            const values = content
+              .split(/\r?\n/g)
+              .map((r) => r.split(','))
+              .filter((c) => c.every((cc) => cc !== ''));
 
             const b = values.map((r) => {
               let [name, dueDate] = r;
@@ -88,7 +92,7 @@
     <section
       class="grid grid-cols-[repeat(3,1fr)_minmax(20px,min-content)] gap-3"
     >
-      {#each bills as bill, i }
+      {#each bills as bill, i}
         <div class="col-start-1">
           <FormLabel label="Name">
             <input
@@ -132,14 +136,15 @@
         <div class="flex flex-col justify-end items-center">
           <div class="flex gap-2">
             {#if i === bills.length - 1}
-              <Button type="button" on:click={() => {
-                bills = bills.concat({
-                  name: '',
-                  household: '',
-                  dueDate: 1
-                });
-              }}
-                >New Bill</Button
+              <Button
+                type="button"
+                on:click={() => {
+                  bills = bills.concat({
+                    name: '',
+                    household: '',
+                    dueDate: 1,
+                  });
+                }}>New Bill</Button
               >
             {/if}
             {#if bills.length > 1}
@@ -147,7 +152,7 @@
                 type="button"
                 class="btn-icon"
                 on:click={() => {
-                  bills = bills.filter((_,idx) => idx !== i);
+                  bills = bills.filter((_, idx) => idx !== i);
                 }}
               >
                 <XCircleIcon size="1em" />
