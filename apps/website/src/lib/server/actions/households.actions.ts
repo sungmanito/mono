@@ -17,11 +17,30 @@ export async function getUserHouseholds(userId: string) {
 }
 
 export async function addHousehold(household: HouseholdInsertArgs) {
-  const [returnedHousehold] = await db
-    .insert(schema.households)
-    .values(household)
-    .returning();
-  return returnedHousehold;
+  return await db.transaction(async (tx) => {
+    const [newHome] = await tx
+      .insert(schema.households)
+      .values(household)
+      .returning();
+    if (!newHome) {
+      tx.rollback();
+      return null;
+    }
+
+    const [newUserToHousehold] = await tx
+      .insert(schema.usersToHouseholds)
+      .values({
+        householdId: newHome.id,
+        userId: household.ownerId,
+      })
+      .returning();
+
+    if (newUserToHousehold) {
+      return newHome;
+    }
+
+    return null;
+  });
 }
 
 // export async function updateHousehold(householdId: string, data: Partial<Omit<Household, 'id'>>) {

@@ -46,10 +46,12 @@
     if (response.ok) {
       if (submitFn) {
         await submitFn(response);
-      } else {
-        invalidateAll();
-        dispatchEvent('close');
-      }
+      } 
+
+      invalidateAll();
+      e.currentTarget.reset();
+      dispatchEvent('close');
+      
     }
   }
 </script>

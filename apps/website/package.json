@@ -14,10 +14,6 @@
     "lint": "eslint .",
     "test:integration": "playwright test",
     "test:unit": "vitest",
-    "turbo": "turbo",
-    "db:push": "drizzle-kit push:pg",
-    "db:generate": "drizzle-kit generate:pg",
-    "db:studio": "drizzle-kit studio",
     "story:dev": "histoire dev"
   },
   "devDependencies": {
@@ -48,7 +44,6 @@
     "svelte-check": "^3.6.2",
     "tailwindcss": "^3.3.7",
     "tslib": "^2.6.2",
-    "turbo": "^1.10.16",
     "typescript": "^5.2.2",
     "vite": "^4.5.0",
     "vitest": "^0.34.6"

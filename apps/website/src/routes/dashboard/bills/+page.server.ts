@@ -1,12 +1,16 @@
-import { getUserBills } from '$lib/server/actions/bills.actions.js';
+import {
+  getUserBills,
+  type BillInsertArgs,
+} from '$lib/server/actions/bills.actions.js';
 import { db } from '$lib/server/db';
 import { exportedSchema } from '@sungmanito/db';
 // import { bills as billsTable } from '$lib/server/db/schema';
-import { formDataValidObject } from '$lib/util/formData.js';
+import { formDataValidObject, validateFormData } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
-import { error, redirect } from '@sveltejs/kit';
-import { type } from 'arktype';
+import { error, fail, redirect } from '@sveltejs/kit';
+import { type, scope } from 'arktype';
 import { and, eq, inArray } from 'drizzle-orm';
+import { validate } from '$lib/util/ark-utils.js';
 
 export const load = async ({ locals }) => {
   const session = await locals.getSession();
@@ -28,38 +32,67 @@ export const actions = {
     const session = await locals.getSession();
     if (!validateUserSession(session)) throw error(401);
 
-    const formData = formDataValidObject(
+    const validator = scope({
+      DueDate: '1<=number<=28',
+      formData: {
+        name: 'string[]',
+        'household-id': 'string[]',
+        'due-date': 'DueDate[]',
+      },
+    }).compile();
+
+    const formData = validateFormData(
       await request.formData(),
-      type({
-        name: 'string',
-        'household-id': 'string',
-        'due-date': '1<=number<=28',
-      }),
+      validator.formData,
+    );
+
+    // convert the households to a set to thin out repeated entries.
+    // convert back to array to utilize the .every method
+    const submittedHouseholds = Array.from(
+      new Set<string>(formData['household-id']),
+    );
+
+    console.info(
+      'TESTING',
+      submittedHouseholds.every(
+        (id) =>
+          locals.userHouseholds.findIndex((h) => h.households.id === id) !== -1,
+      ),
     );
 
     // If the user is not a member of the household, yeet an error
     if (
-      locals.userHouseholds.findIndex(
-        (f) => f.households.id === formData['household-id'],
-      ) === -1
+      !submittedHouseholds.every(
+        (id) =>
+          locals.userHouseholds.findIndex((h) => h.households.id === id) !== -1,
+      )
     )
-      throw error(400, 'Cannot add bill to household you are not a member of');
+      return fail(401, {
+        message: 'Cannot add bill to household you are not a member of',
+      });
 
-    const [bill] = await db
+    console.info('made it');
+
+    const insertBills: BillInsertArgs[] = Array.from(
+      { length: formData['household-id'].length },
+      (_, i) => ({
+        billName: formData.name[i],
+        dueDate: formData['due-date'][i],
+        householdId: formData['household-id'][i],
+      }),
+    );
+
+    const newBills = await db
       .insert(exportedSchema.bills)
-      .values({
-        dueDate: formData['due-date'],
-        billName: formData.name,
-        householdId: formData['household-id'],
-      })
+      .values(insertBills)
       .returning();
 
-    if (!bill) {
-      throw error(403, 'Bill could not be created');
+    if (newBills.length === 0) {
+      throw error(403, 'Bill(s) could not be created');
     }
 
     return {
-      bill,
+      bills: newBills,
     };
   },
   updateBill: async ({ request, locals }) => {

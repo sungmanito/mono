@@ -1,14 +1,31 @@
 <script lang="ts">
+  import { cx } from 'class-variance-authority';
   import Drawer from '$lib/components/drawer/drawer.svelte';
-  import { XIcon } from 'lucide-svelte';
+  import { XCircleIcon, XIcon } from 'lucide-svelte';
   import Header from '../header/header.svelte';
   import FormLabel from '../formLabel/formLabel.svelte';
   import type { Household } from '$lib/server/actions/households.actions';
   import Button from '../button/button.svelte';
   import { enhance } from '$app/forms';
   import type { SubmitFunction } from '@sveltejs/kit';
+
   export let open = false;
   export let households: Pick<Household, 'id' | 'name'>[] = [];
+
+  let hasDrag = false;
+
+  type BillTmp = {
+    name: string;
+    dueDate: number;
+    household: string;
+  }
+
+  let bills: BillTmp[] = [{
+    name: '',
+    dueDate: 1,
+    household: ''
+  }];
+
   export let submit: SubmitFunction = () => {
     return async ({ update, formElement }) => {
       formElement.reset();
@@ -17,62 +34,132 @@
   };
 </script>
 
-<Drawer {open} on:close let:close={closeMe}>
+<Drawer
+  {open}
+  on:close={() => (open = false)}
+  on:dragenter={() => {
+    hasDrag = true;
+  }}
+  on:dragleave={() => (hasDrag = false)}
+  let:close={closeMe}
+>
   <form
     action="/dashboard/bills?/addBill"
     method="post"
     class="p-4"
+    class:border={hasDrag}
+    class:border-dashed={hasDrag}
+    on:drop={async (e) => {
+      e.preventDefault();
+      if (e.dataTransfer && e.dataTransfer.items) {
+        for (let i of Array.from(e.dataTransfer.items)) {
+          const f = i.getAsFile();
+          if (f) {
+            const content = await f.text();
+            console.info(f);
+            const values = content.split(/\r?\n/g).map((r) => r.split(',')).filter(c => c.every(cc => cc !== ''));
+
+            const b = values.map((r) => {
+              let [name, dueDate] = r;
+              let dueDateN = Number(dueDate);
+              if (isNaN(dueDateN)) dueDateN = 1;
+
+              return {
+                name,
+                dueDate: dueDateN,
+                household: '',
+              };
+            });
+            bills = bills.concat(b);
+          }
+        }
+      }
+    }}
     use:enhance={submit}
   >
     <Header color="secondary" tag="h2">
       Create new bill
       <svelte:fragment slot="actions">
-        <button on:click={() => closeMe()}>
+        <button type="button" on:click={() => closeMe()}>
           <XIcon size="1em" />
         </button>
       </svelte:fragment>
     </Header>
-    <section class="grid grid-cols-3 gap-3">
-      <div>
-        <FormLabel label="Name">
-          <input
-            class="input"
-            name="name"
-            placeholder="Name of the bill"
-            required
-          />
-        </FormLabel>
-      </div>
-      <div>
-        <FormLabel label="Household">
-          <select
-            class="select"
-            name="household-id"
-            required
-            placeholder="Please select a household"
-          >
-            <option value="-1" disabled>Please select a household</option>
-            {#each households as household (household.id)}
-              <option value={household.id}>{household.name}</option>
-            {/each}
-          </select>
-        </FormLabel>
-      </div>
-      <div>
-        <FormLabel label="Due date">
-          <input
-            class="input"
-            name="due-date"
-            type="number"
-            min="1"
-            max="28"
-            required
-            placeholder="Due date between 1 and 28"
-          />
-        </FormLabel>
-      </div>
-      <div class="col-span-3 flex justify-end gap-3">
-        <Button variant="filled" on:click={() => closeMe()}>Close</Button>
+    <section
+      class="grid grid-cols-[repeat(3,1fr)_minmax(20px,min-content)] gap-3"
+    >
+      {#each bills as bill, i }
+        <div class="col-start-1">
+          <FormLabel label="Name">
+            <input
+              class="input"
+              name="name[]"
+              placeholder="Name of the bill"
+              required
+              value={bill.name}
+            />
+          </FormLabel>
+        </div>
+        <div>
+          <FormLabel label="Household">
+            <select
+              class="select"
+              name="household-id[]"
+              required
+              placeholder="Please select a household"
+            >
+              <option value="-1" disabled>Please select a household</option>
+              {#each households as household (household.id)}
+                <option value={household.id}>{household.name}</option>
+              {/each}
+            </select>
+          </FormLabel>
+        </div>
+        <div>
+          <FormLabel label="Due date">
+            <input
+              class="input"
+              name="due-date[]"
+              type="number"
+              min="1"
+              max="28"
+              required
+              placeholder="Due date between 1 and 28"
+              value={bill.dueDate}
+            />
+          </FormLabel>
+        </div>
+        <div class="flex flex-col justify-end items-center">
+          <div class="flex gap-2">
+            {#if i === bills.length - 1}
+              <Button type="button" on:click={() => {
+                bills = bills.concat({
+                  name: '',
+                  household: '',
+                  dueDate: 1
+                });
+              }}
+                >New Bill</Button
+              >
+            {/if}
+            {#if bills.length > 1}
+              <button
+                type="button"
+                class="btn-icon"
+                on:click={() => {
+                  bills = bills.filter((_,idx) => idx !== i);
+                }}
+              >
+                <XCircleIcon size="1em" />
+              </button>
+            {/if}
+          </div>
+        </div>
+      {/each}
+      <div class="col-span-4 flex justify-end gap-3">
+        <Button variant="filled" type="button" on:click={() => closeMe()}
+          >Close</Button
+        >
         <Button type="submit">Add</Button>
       </div>
     </section>

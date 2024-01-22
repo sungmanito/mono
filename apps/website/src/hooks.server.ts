@@ -6,7 +6,10 @@ import { createServerClient } from '@supabase/ssr';
 import { redirect, type Handle } from '@sveltejs/kit';
 import { getAll } from '@vercel/edge-config';
 import { EDGE_CONFIG } from '$env/static/private';
-import { getUserHouseholds } from '$lib/server/actions/households.actions';
+import {
+  addHousehold,
+  getUserHouseholds,
+} from '$lib/server/actions/households.actions';
 import { validateUserSession } from '$lib/util/session';
 
 Sentry.init({

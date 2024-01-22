@@ -5,6 +5,7 @@
   import { CheckIcon } from 'lucide-svelte';
   import { enhance } from '$app/forms';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
+  import Button from '$lib/components/button/button.svelte';
 
   export let data;
 
@@ -68,8 +69,9 @@
       />
     </label>
   </section>
-  <svelte:fragment slot="footer">
-    <button type="submit" class="btn variant-filled-primary"> Save </button>
+  <svelte:fragment slot="footer" let:close={closeModal}>
+    <Button variant="filled" on:click={() => closeModal()}>Cancel</Button>
+    <button type="submit" class="btn variant-filled-primary">Save</button>
   </svelte:fragment>
 </Modal>
 

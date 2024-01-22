@@ -1,11 +1,19 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import { focusTrap } from '@skeletonlabs/skeleton';
+  import { cx } from 'class-variance-authority';
   export let open = false;
   const dispatch = createEventDispatcher();
   function dispatchCloseEvent() {
     dispatch('close');
   }
+
+  export let { class: propClass } = $$props;
+
+  let classNames = cx(
+    'drawer bg-surface-100-800-token shadow-xl rounded-r-xl h-full w-5/6',
+    propClass,
+  );
 </script>
 
 <svelte:window
@@ -24,7 +32,12 @@
 >
   <div
     role="dialog"
-    class="drawer bg-surface-100-800-token shadow-xl rounded-r-xl h-full w-5/6"
+    class={classNames}
+    on:drag
+    on:dragenter
+    on:dragend
+    on:dragleave
+    on:drop
   >
     <slot close={() => dispatchCloseEvent()} />
   </div>

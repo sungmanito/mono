@@ -3,13 +3,15 @@
   "main": "./src/index.ts",
   "version": "0.1.0",
   "scripts": {
-    "db:push": ""
+    "db:push": "drizzle-kit push:pg",
+    "db:generate": "drizzle-kit generate:pg",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "drizzle-kit": "^0.20.10",
     "drizzle-orm": "^0.29.3"
   },
   "devDependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "drizzle-kit": "^0.20.13"
   }
 }
