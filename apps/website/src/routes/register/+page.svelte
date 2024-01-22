@@ -1,7 +1,6 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
 
-  import { page } from '$app/stores';
   import client from '$lib/client/supabase';
   export let data;
 
