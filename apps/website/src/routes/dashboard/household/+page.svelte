@@ -39,7 +39,6 @@
   submit={({ formData }) => {
     const members = formData.get('members') || '';
     if (members && typeof members === 'string') {
-      console.info('what', members);
       formData.delete('members');
       for (const member of members.split(/\r?\n|,|\s+/)) {
         formData.append('members', member.trim());

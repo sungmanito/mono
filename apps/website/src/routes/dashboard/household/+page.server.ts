@@ -6,6 +6,7 @@ import { validateUserSession } from '$lib/util/session.js';
 import { error, redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
 import { and, eq, sql } from 'drizzle-orm';
+import { addHousehold } from '$lib/server/actions/households.actions.js';
 
 export const load = async ({ locals }) => {
   const session = await locals.getSession();
@@ -100,15 +101,12 @@ export const actions = {
         ? []
         : [data.members];
 
-    const [household] = await db
-      .insert(schema.households)
-      .values({
-        name: data['household-name'],
-        ownerId: session.user.id,
-      })
-      .returning();
+    const household = await addHousehold({
+      name: data['household-name'],
+      ownerId: session.user.id,
+    });
 
-    if (!household) throw error(400);
+    if (household === null) throw error(400);
 
     const responses = await inviteMembersByEmail(
       locals.supabase,

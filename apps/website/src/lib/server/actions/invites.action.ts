@@ -1,9 +1,9 @@
 import { validate } from '$lib/util/ark-utils';
+import { exportedSchema as schema } from '@sungmanito/db';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { type } from 'arktype';
-import { db } from '../db';
-import { exportedSchema as schema } from '@sungmanito/db';
 import { inArray } from 'drizzle-orm';
+import { db } from '../db';
 
 export const emailValidator = type('email');
 
@@ -48,6 +48,8 @@ export async function inviteMembersByEmail(
   // 1. Validate emails
   const validEmails = validate(emails, emailsValidator);
 
+  if (validEmails.length === 0) return [];
+
   // 2. check for users in the users table already
   const members = await db
     .select()
@@ -64,6 +66,8 @@ export async function inviteMembersByEmail(
       Pick<typeof schema.users.$inferSelect, 'email' | 'id'>
     >,
   );
+
+  console.info('membersMap', membersMap);
 
   // 3. Filter out the emails that are already on the platform.
   const invitations = validEmails.filter((email) => !membersMap[email]);
@@ -97,10 +101,10 @@ export async function inviteMembersByEmail(
   const dbInvites = await db
     .insert(schema.invites)
     .values(
-      Object.entries(membersMap).map(([toId, value]) => {
+      Object.entries(membersMap).map(([toEmail, value]) => {
         return {
-          toId,
-          toEmail: value.email,
+          toId: value.id,
+          toEmail,
           fromEmail: from.fromEmail,
           fromId: from.fromId,
           householdId: householdId,

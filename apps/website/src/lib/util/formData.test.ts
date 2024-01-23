@@ -70,8 +70,31 @@ describe('formDataToObject', () => {
     fd.append('names', 'bob');
     fd.append('names', 'jerome');
     fd.append('names', 'phteven');
+
     expect(formDataToObject(fd)).toStrictEqual({
       names: ['bob', 'jerome', 'phteven'],
+    });
+
+    const fd2 = new FormData();
+    fd2.append('names[]', 'bob');
+    fd2.append('names[]', 'jerome');
+    fd2.append('names[]', 'phteven');
+
+    const b = formDataToObject(fd2, undefined, true);
+    expect(b).toStrictEqual({
+      names: ['bob', 'jerome', 'phteven'],
+    });
+
+    // Singular item in a forced array
+    const fd3 = new FormData();
+    fd3.append('names[]', 'bob');
+    expect(formDataToObject(fd3)).toStrictEqual({
+      names: ['bob'],
+    });
+
+    // Check that forcing the key names doesn't bite us in butt
+    expect(formDataToObject(fd3, undefined, false)).toStrictEqual({
+      'names[]': ['bob'],
     });
   });
 });

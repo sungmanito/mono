@@ -1,7 +1,6 @@
 import { index, integer, pgTable, text } from 'drizzle-orm/pg-core';
 import { households } from './households.table';
 import { sql } from 'drizzle-orm';
-import { relations } from 'drizzle-orm';
 
 export const bills = pgTable(
   'bills',
@@ -21,10 +20,3 @@ export const bills = pgTable(
     householdIndex: index('household_idx').on(householdId),
   }),
 );
-
-export const billToHousehold = relations(bills, ({ one }) => ({
-  household: one(households, {
-    fields: [bills.householdId],
-    references: [households.id],
-  }),
-}));
