@@ -6,10 +6,6 @@
 
   const searchParams = new URLSearchParams();
 
-  $: if (!data.enabled) {
-    goto('/');
-  }
-
   const info = client.auth
     .setSession({
       access_token: searchParams.get('access_token') || '',
