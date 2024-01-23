@@ -18,8 +18,8 @@ const config = {
       directives: {
         'worker-src': ['self', 'blob:'],
         'child-src': ['self', 'blob:'],
-      }
-    }
+      },
+    },
   },
 };
 
