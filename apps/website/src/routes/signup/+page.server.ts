@@ -1,10 +1,13 @@
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { allowedImageTypes } from '$lib/util/images';
 import { type } from 'arktype';
 import { validateFormData } from '$lib/util/formData.js';
 import { dev } from '$app/environment';
 
 export const load = async ({ locals: { config } }) => {
+  if (!dev || !config.allow_registration) {
+    throw redirect(307, '/');
+  }
   return {
     enabled: dev || !!config.allow_registration,
   };

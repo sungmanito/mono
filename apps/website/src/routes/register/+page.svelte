@@ -1,10 +1,14 @@
 <script lang="ts">
-  import { invalidateAll } from '$app/navigation';
+  import { goto, invalidateAll } from '$app/navigation';
 
   import client from '$lib/client/supabase';
   export let data;
 
   const searchParams = new URLSearchParams();
+
+  $: if (!data.enabled) {
+    goto('/');
+  }
 
   const info = client.auth
     .setSession({

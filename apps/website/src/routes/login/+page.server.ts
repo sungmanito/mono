@@ -1,6 +1,7 @@
 import type { AuthTokenResponse } from '@supabase/supabase-js';
 import type { Actions } from './$types';
 import { error, fail, redirect } from '@sveltejs/kit';
+import { dev } from '$app/environment';
 
 export const load = async ({ url, locals }) => {
   const code = url.searchParams.get('code');
@@ -16,9 +17,12 @@ export const load = async ({ url, locals }) => {
 
     return {
       session,
+      enabled: locals.config.allow_registration,
     };
   }
-  return {};
+  return {
+    enabled: locals.config.allow_registration || dev,
+  };
 };
 
 export const actions = {
@@ -34,6 +38,8 @@ export const actions = {
     };
   },
   'login-with-google': async ({ url, locals }) => {
+    console.info(locals.config.allow_registration, dev);
+    if (!locals.config.allow_registration && !dev) return fail(401);
     const { data, error: err } = await locals.supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {

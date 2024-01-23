@@ -4,6 +4,7 @@
   import { getToastStore } from '@skeletonlabs/skeleton';
   import type { EventHandler } from 'svelte/elements';
 
+  export let data;
   const toastStore = getToastStore();
 
   let email = '';
@@ -46,7 +47,14 @@
     >
       <h1 class="text-2xl font-semibold">Login</h1>
       <section>
-        <form action="?/login-with-google" method="post">
+        <form
+          action="?/login-with-google"
+          method="post"
+          on:submit={(e) => {
+            console.info(data.enabled);
+            if (!data.enabled) e.preventDefault();
+          }}
+        >
           <button class="btn btn-sm variant-outline-surface" type="submit">
             Login with Google
           </button>
