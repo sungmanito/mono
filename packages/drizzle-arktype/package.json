@@ -1,0 +1,18 @@
+{
+  "name": "@sungmanito/drizzle-arktype",
+  "version": "0.1.0",
+  "description": "ArkType validators for Drizzle ORM",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "arktype": "1.0.27-alpha",
+    "drizzle-orm": "0.29.3"
+  }
+}

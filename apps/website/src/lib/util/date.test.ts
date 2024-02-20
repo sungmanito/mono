@@ -6,6 +6,5 @@ describe('Date utils', () => {
   yesterday.setDate(yesterday.getDate() - 1);
   it('Does the thing', () => {
     const resp = getFullTimeBetween(yesterday);
-    console.info(resp);
   });
 });
