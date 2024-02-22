@@ -8,6 +8,8 @@ export * from './bills.table';
 export * from './payments.table';
 export * from './usersToHouseholds.table';
 export * from './invites.table';
+export * from './objects.table';
+export * from './buckets.table';
 
 export const testingTable = pgTable('pgTable', {
   id: uuid('id').notNull().primaryKey().defaultRandom(),

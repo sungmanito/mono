@@ -12,4 +12,19 @@
   {#if description}
     <span class="text-sm">{description}</span>
   {/if}
+  {#if $$slots.error}
+    <span class="error-text">
+      <slot name="error" />
+    </span>
+  {/if}
 </label>
+
+<style>
+  label .error-text {
+    display: none;
+    color: theme('colors.red.300');
+  }
+  label:has(:invalid) .error-text {
+    display: block;
+  }
+</style>

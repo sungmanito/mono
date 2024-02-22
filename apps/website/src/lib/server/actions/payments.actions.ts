@@ -3,6 +3,7 @@ import { db } from '$lib/server/db';
 import { getUserHouseholds } from './households.actions';
 import { and, eq, inArray } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export type Payment = typeof schema.payments.$inferSelect;
 export type PaymentInsertArgs = Omit<typeof schema.payments.$inferInsert, 'id'>;
@@ -47,7 +48,7 @@ export async function getPayments() {
     );
 }
 
-export async function updatePayments(
+export async function updatePayment(
   paymentId: string,
   args: PaymentUpdateArgs,
 ) {
@@ -73,12 +74,21 @@ export async function createPayment(data: PaymentInsertArgs) {
     .then(([f]) => f);
 }
 
+export async function addImageProofToPayment(
+  paymentId: Payment['id'],
+  image: File,
+  supabase: SupabaseClient['storage'],
+) {
+  console.info(paymentId, image, supabase);
+  return false;
+}
+
 export async function addProofToPayment(
   paymentId: Payment['id'],
   proof: Payment['proof'],
   updatedBy: string,
 ) {
-  if (proof === '' || updatedBy === '') error(400);
+  if (proof === '' || updatedBy === '') throw error(400);
 
   return db
     .update(schema.payments)

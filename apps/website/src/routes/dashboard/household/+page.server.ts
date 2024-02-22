@@ -91,7 +91,7 @@ export const actions = {
       await request.formData(),
       type({
         'household-name': 'string',
-        'members?': 'email[] | email',
+        'members?': 'email[]',
       }),
     );
 

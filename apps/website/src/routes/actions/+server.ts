@@ -1,7 +1,5 @@
 import { db } from '$lib/server/db/client.js';
 import { exportedSchema } from '@sungmanito/db';
-// import { bills as billsTable } from '$lib/server/db/schema/bills.table.js';
-// import { payments } from '$lib/server/db/schema/payments.table.js';
 import type { RequestHandler } from './$types';
 import { and, eq } from 'drizzle-orm';
 import type { PaymentUpdateArgs } from '$lib/server/actions/payments.actions';
@@ -37,8 +35,6 @@ export const GET: RequestHandler = async () => {
       householdId: v.bills.householdId,
     } as PaymentUpdateArgs;
   });
-
-  console.info(mapped);
 
   const response = await db
     .insert(exportedSchema.payments)

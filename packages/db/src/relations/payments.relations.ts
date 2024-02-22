@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { payments, users, bills, households } from '../tables';
+import { objects } from '../tables/objects.table';
 
 export const paymentRelations = relations(payments, ({ one, many }) => ({
   bill: one(bills, {
@@ -13,5 +14,9 @@ export const paymentRelations = relations(payments, ({ one, many }) => ({
   household: one(households, {
     fields: [payments.householdId],
     references: [households.id],
+  }),
+  proof: one(objects, {
+    fields: [payments.proofImage],
+    references: [objects.id],
   }),
 }));
