@@ -15,7 +15,7 @@ export const paymentRelations = relations(payments, ({ one, many }) => ({
     fields: [payments.householdId],
     references: [households.id],
   }),
-  proof: one(objects, {
+  proofRef: one(objects, {
     fields: [payments.proofImage],
     references: [objects.id],
   }),

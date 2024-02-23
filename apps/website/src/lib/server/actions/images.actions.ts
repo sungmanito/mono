@@ -37,6 +37,26 @@ export async function uploadImage(
   return data;
 }
 
+export function getImagePathById(objectId: string) {
+  return db.query.objects.findFirst({
+    where: ({ id }, { eq }) => eq(id, objectId),
+  });
+}
+
+export async function removeImageById(objectId: string, supabase: SupabaseClient) {
+  const object = await getImagePathById(objectId);
+  if(!object) throw new Error(`Could not find object with id "${objectId}"`);
+  const bucket = supabase.storage.from(object.bucketId);
+
+  const { data, error } = await bucket.remove([object.name]);
+
+  if(error) {
+    console.error(error);
+    throw new Error(`Could not remove image "${object.name}"`)
+  }
+
+}
+
 /**
  *
  * @param bucketName the bucket to the file is in

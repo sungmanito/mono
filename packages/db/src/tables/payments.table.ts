@@ -33,7 +33,7 @@ export const payments = pgTable(
     forMonth: smallint('for_month').notNull().default(1),
     forMonthD: date('for_month_d', { mode: 'date' }).notNull(),
     notes: text('notes'),
-    proofImage: uuid('proof_image_id').references(() => objects.id),
+    proofImage: uuid('proof_image_id').references(() => objects.id, { onDelete: 'set null', onUpdate: 'cascade' }),
     householdId: text('household_id')
       .notNull()
       .references(() => households.id, { onDelete: 'no action' }),
