@@ -1,6 +1,6 @@
 import { PAYMENT_BUCKET_NAME } from '$env/static/private';
 import { getUserHouseholds } from '$lib/server/actions/households.actions.js';
-import { getImageId, uploadImage } from '$lib/server/actions/images.actions.js';
+import { getImageId, removeImageById, uploadImage } from '$lib/server/actions/images.actions.js';
 import {
   getPayment,
   type PaymentUpdateArgs
@@ -68,9 +68,10 @@ export const actions = {
     // if we have a proof file we're going to need to upload it to the stash
     if (formData['proof-file']) {
       const file = formData['proof-file'];
-      console.info(file.size);
       if (file.size > 1024 * 1024) throw error(400, 'File too large');
+
       const fileExt = file.name.split('.')[1]?.toLowerCase();
+
       if (!fileExt) throw error(400, 'Invalid file extension');
       
       const fileName = `${formData['household-id']}/${formData['payment-id']}.${fileExt}`;
@@ -118,24 +119,31 @@ export const actions = {
       paymentId: 'string',
     }));
 
-    let payment: Awaited<ReturnType<typeof getPayment>>;
+    console.info(formData);
+
+    let currentPayment: Awaited<ReturnType<typeof getPayment>>;
     try {
 
-      payment = await getPayment(formData['paymentId'], session);
+      currentPayment = await getPayment(formData['paymentId'], session);
     } catch(e) {
       console.error(e);
       return fail(400);
     }
-    // 
 
-    console.info(p);
+    // There might be some parallelization that we could do here.
 
-    return fail(400);
+    // console.info(await locals.supabase.storage.from('payment-proof').remove(['01HMQ47JV6Q5CVPXH64SY7AZS2/01HNXANNWZSAMFNB10T202Y6GG.png']));
+    if(currentPayment.proofImage !== null) {
+      // we need to delete this image.
+      await removeImageById(currentPayment.proofImage, locals.supabase);
+    }
+
 
     const [payment] = await db
       .update(schema.payments)
       .set({
         proof: '',
+        proofImage: '',
         updatedBy: session.user.id,
         paidAt: null,
       })
@@ -152,7 +160,7 @@ export const actions = {
 
     return {
       success: true,
-      payment: payment,
+      payment: payment
     };
   },
 };

@@ -58,10 +58,6 @@
                 {#if payment.payments.paidAt !== null}
                   <a
                     href={`/dashboard/payments/${payment.payments.id}`}
-                    on:click={(e) => {
-                      e.preventDefault();
-                      history.pushState(null, '', e.currentTarget.href);
-                    }}
                   >
                     {payment.bills.billName}
                   </a>
