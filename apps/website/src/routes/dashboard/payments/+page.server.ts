@@ -119,8 +119,6 @@ export const actions = {
       paymentId: 'string',
     }));
 
-    console.info(formData);
-
     let currentPayment: Awaited<ReturnType<typeof getPayment>>;
     try {
 
@@ -132,7 +130,6 @@ export const actions = {
 
     // There might be some parallelization that we could do here.
 
-    // console.info(await locals.supabase.storage.from('payment-proof').remove(['01HMQ47JV6Q5CVPXH64SY7AZS2/01HNXANNWZSAMFNB10T202Y6GG.png']));
     if(currentPayment.proofImage !== null) {
       // we need to delete this image.
       await removeImageById(currentPayment.proofImage, locals.supabase);
