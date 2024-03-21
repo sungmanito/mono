@@ -7,7 +7,7 @@ import { allowedImageTypes } from '$lib/util/images';
 export const actions = {
   updateProfile: async ({ locals, request, fetch }) => {
     const session = await locals.getSession();
-    if (!validateUserSession(session)) throw redirect(304, '/login');
+    if (!validateUserSession(session)) redirect(304, '/login');
 
     const data = formDataValidObject(
       await request.formData(),
@@ -26,11 +26,10 @@ export const actions = {
     const size = Number(image.headers.get('content-length'));
 
     // Thrw an error on size
-    if (isNaN(size) || size > 30 * 1024)
-      throw error(403, 'must be less than 30kb');
+    if (isNaN(size) || size > 30 * 1024) error(403, 'must be less than 30kb');
     // throw an error if we don't have an image
     if (!allowedImageTypes.has(image.headers.get('content-type') as string))
-      throw error(403, 'Image is not a JPEG, PNG, or GIF');
+      error(403, 'Image is not a JPEG, PNG, or GIF');
 
     const r = await locals.supabase.auth.updateUser({
       email: data.email,
@@ -41,7 +40,7 @@ export const actions = {
       },
     });
 
-    if (r.error) throw error(422);
+    if (r.error) error(422);
 
     return {
       user: r.data.user,

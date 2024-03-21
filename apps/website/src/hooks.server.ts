@@ -60,7 +60,7 @@ export const handle: Handle = sequence(
 
     // Quick and easy way to protect the dashboard.
     if (session === null && event.url.pathname.startsWith('/dashboard')) {
-      throw redirect(303, `/login?url=${event.url.pathname}`);
+      redirect(303, `/login?url=${event.url.pathname}`);
     }
 
     // We are gathering the logged in users' households a lot

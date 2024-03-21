@@ -11,7 +11,7 @@ export const actions = {
 
 export const load = async ({ locals }) => {
   if (!locals.config.allow_registration || !dev) {
-    throw redirect(307, '/');
+    redirect(307, '/');
   }
   return {
     enabled: locals.config.allow_registration || dev,

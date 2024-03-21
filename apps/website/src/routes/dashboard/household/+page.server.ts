@@ -10,7 +10,7 @@ import { addHousehold } from '$lib/server/actions/households.actions.js';
 
 export const load = async ({ locals }) => {
   const session = await locals.getSession();
-  if (!validateUserSession(session)) throw redirect(303, '/login');
+  if (!validateUserSession(session)) redirect(303, '/login');
 
   return {
     streamed: {
@@ -29,7 +29,7 @@ export const load = async ({ locals }) => {
 export const actions = {
   updateInvite: async ({ request, locals }) => {
     const session = await locals.getSession();
-    if (!validateUserSession(session)) throw error(401);
+    if (!validateUserSession(session)) error(401);
     const formData = formDataValidObject(
       await request.formData(),
       // eslint-disable-next-line quotes
@@ -79,13 +79,13 @@ export const actions = {
         )
         .returning();
 
-      if (!response) throw error(400, 'Could not resolve invite');
+      if (!response) error(400, 'Could not resolve invite');
     }
     return {};
   },
   addHousehold: async ({ request, locals }) => {
     const session = await locals.getSession();
-    if (!validateUserSession(session)) throw error(400);
+    if (!validateUserSession(session)) error(400);
 
     const data = formDataValidObject(
       await request.formData(),
@@ -106,7 +106,7 @@ export const actions = {
       ownerId: session.user.id,
     });
 
-    if (household === null) throw error(400);
+    if (household === null) error(400);
 
     const responses = await inviteMembersByEmail(
       locals.supabase,
@@ -126,7 +126,7 @@ export const actions = {
   deleteHousehold: async ({ request, locals }) => {
     const session = await locals.getSession();
 
-    if (!validateUserSession(session)) throw error(401);
+    if (!validateUserSession(session)) error(401);
 
     const data = formDataValidObject(
       await request.formData(),
@@ -158,7 +158,7 @@ export const actions = {
       return Boolean(item);
     });
 
-    if (!deleted) throw error(422);
+    if (!deleted) error(422);
 
     return {
       success: true,
@@ -167,7 +167,7 @@ export const actions = {
   updateHousehold: async ({ locals, request }) => {
     const session = await locals.getSession();
 
-    if (!validateUserSession(session)) throw error(401, 'nope');
+    if (!validateUserSession(session)) error(401, 'nope');
 
     const data = formDataValidObject(
       await request.formData(),
@@ -182,7 +182,7 @@ export const actions = {
         (h) => h.households.id === data['household-id'],
       ) === -1
     )
-      throw error(401, 'Not authorized');
+      error(401, 'Not authorized');
 
     const [returned] = await db
       .update(schema.households)
