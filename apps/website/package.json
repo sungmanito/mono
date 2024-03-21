@@ -35,7 +35,6 @@
     "eslint": "^8.56.0",
     "eslint-plugin-svelte": "^2.35.1",
     "histoire": "^0.17.6",
-    "pg": "^8.11.3",
     "postcss": "^8.4.32",
     "prettier-plugin-svelte": "^3.1.2",
     "sass": "^1.69.5",
@@ -63,6 +62,7 @@
     "class-variance-authority": "^0.7.0",
     "drizzle-orm": "^0.29.3",
     "lucide-svelte": "^0.288.0",
+    "pg": "^8.11.3",
     "postgres": "^3.4.3",
     "ulidx": "^2.2.1"
   }
