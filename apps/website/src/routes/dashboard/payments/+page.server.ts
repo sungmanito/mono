@@ -1,12 +1,16 @@
 import { PAYMENT_BUCKET_NAME } from '$env/static/private';
 import { getUserHouseholds } from '$lib/server/actions/households.actions.js';
-import { getImageId, removeImageById, uploadImage } from '$lib/server/actions/images.actions.js';
+import {
+  getImageId,
+  removeImageById,
+  uploadImage,
+} from '$lib/server/actions/images.actions.js';
 import {
   getPayment,
-  type PaymentUpdateArgs
+  type PaymentUpdateArgs,
 } from '$lib/server/actions/payments.actions.js';
 import { db } from '$lib/server/db/client.js';
-import { formDataToObject, validateFormData } from '$lib/util/formData.js';
+import { validateFormData } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { exportedSchema as schema } from '@sungmanito/db';
 import { error, fail, redirect } from '@sveltejs/kit';
@@ -73,21 +77,25 @@ export const actions = {
       const fileExt = file.name.split('.')[1]?.toLowerCase();
 
       if (!fileExt) throw error(400, 'Invalid file extension');
-      
+
       const fileName = `${formData['household-id']}/${formData['payment-id']}.${fileExt}`;
       let result: Awaited<ReturnType<typeof uploadImage>>;
       try {
-        result = await uploadImage(locals.supabase, PAYMENT_BUCKET_NAME, file, fileName);
-      } catch(e) {
+        result = await uploadImage(
+          locals.supabase,
+          PAYMENT_BUCKET_NAME,
+          file,
+          fileName,
+        );
+      } catch (e) {
         console.error(e);
         return fail(400);
       }
 
-      if(result) {
+      if (result) {
         const id = await getImageId(PAYMENT_BUCKET_NAME, fileName);
         updateArgs.proofImage = id;
       }
-
     }
 
     const [row] = await db
@@ -115,26 +123,27 @@ export const actions = {
 
     const userHouseholds = locals.userHouseholds;
 
-    const formData = validateFormData(await request.formData(), type({
-      paymentId: 'string',
-    }));
+    const formData = validateFormData(
+      await request.formData(),
+      type({
+        paymentId: 'string',
+      }),
+    );
 
     let currentPayment: Awaited<ReturnType<typeof getPayment>>;
     try {
-
       currentPayment = await getPayment(formData['paymentId'], session);
-    } catch(e) {
+    } catch (e) {
       console.error(e);
       return fail(400);
     }
 
     // There might be some parallelization that we could do here.
 
-    if(currentPayment.proofImage !== null) {
+    if (currentPayment.proofImage !== null) {
       // we need to delete this image.
       await removeImageById(currentPayment.proofImage, locals.supabase);
     }
-
 
     const [payment] = await db
       .update(schema.payments)
@@ -157,7 +166,7 @@ export const actions = {
 
     return {
       success: true,
-      payment: payment
+      payment: payment,
     };
   },
 };

@@ -22,21 +22,27 @@ export const load = async ({ locals, params }) => {
     extras(_, { sql }) {
       return {
         paymentImageUrl: sql<string>`''`.as('payment_image_url'),
-      }
+      };
     },
     where(fields, { and, eq, inArray }) {
       return and(
         eq(fields.id, params.id),
-        inArray(fields.householdId, userHouseholds.map(uh => uh.households.id)),
+        inArray(
+          fields.householdId,
+          userHouseholds.map((uh) => uh.households.id),
+        ),
       );
     },
   });
 
-  if(payment?.proofImage && payment.proofRef) {
-    const { data: { publicUrl } } = locals.supabase.storage.from(payment.proofRef.bucketId).getPublicUrl(payment?.proofRef?.name);
+  if (payment?.proofImage && payment.proofRef) {
+    const {
+      data: { publicUrl },
+    } = locals.supabase.storage
+      .from(payment.proofRef.bucketId)
+      .getPublicUrl(payment?.proofRef?.name);
     payment.paymentImageUrl = publicUrl;
   }
-
 
   // Throw a 404 error if we do not have a payment option.
   if (!payment) throw error(404);

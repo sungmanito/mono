@@ -4,7 +4,7 @@
   import Button from '$lib/components/button/button.svelte';
   import Header from '$lib/components/header/header.svelte';
   import CreateHousehold, {
-    makeSubmitterFunction
+    makeSubmitterFunction,
   } from '$lib/components/households/create.svelte';
   import { CheckIcon, XIcon } from 'lucide-svelte';
   import HouseholdSidebar from './_components/householdSidebar.svelte';
@@ -12,18 +12,6 @@
 
   let households = data.households;
   $: households = data.households;
-
-  function toggleHouseholds() {
-    const el = document.getElementById('create-household');
-    if (!(el instanceof HTMLDialogElement)) {
-      return false;
-    }
-    if (el.hasAttribute('open')) {
-      el.close();
-    } else {
-      el.showModal();
-    }
-  }
 
   let addHousehold = false;
 </script>

@@ -26,7 +26,7 @@
     enctype="multipart/form-data"
     use:enhance={({ formData }) => {
       if (file !== null) formData.set('proof-file', file);
-      return async ({ update, formElement }) => {
+      return async ({ formElement }) => {
         // await update();
         formElement.reset();
         await invalidate('household:payments');

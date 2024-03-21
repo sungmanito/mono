@@ -22,6 +22,5 @@ describe('Event Utils', () => {
       expect(isHtmlTarget(new Text())).toBeFalsy();
       expect(isHtmlTarget(undefined)).toBeFalsy();
     });
-
   });
 });

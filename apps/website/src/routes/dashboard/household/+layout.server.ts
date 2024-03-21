@@ -10,7 +10,6 @@ import { error } from '@sveltejs/kit';
 export const load = async ({ locals, depends }) => {
   const session = await locals.getSession();
 
-
   if (!validateUserSession(session)) throw error(401);
 
   // Marking a dependency on user households

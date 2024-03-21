@@ -61,9 +61,9 @@ export async function updatePayment(
 
 /**
  * @description Will either return the payment or throw an error
- * @param paymentId 
- * @param session 
- * @returns 
+ * @param paymentId
+ * @param session
+ * @returns
  */
 export async function getPayment(paymentId: Payment['id'], session: Session) {
   return db
@@ -76,17 +76,16 @@ export async function getPayment(paymentId: Payment['id'], session: Session) {
           schema.payments.householdId,
           db
             .select({
-              data: schema.usersToHouseholds.householdId
+              data: schema.usersToHouseholds.householdId,
             })
             .from(schema.usersToHouseholds)
-            .where(
-              eq(schema.usersToHouseholds.userId, session.user.id)
-            )
-        )
-      )
-    ).then(r => {
-      if(r.length !== 1) {
-        throw new Error('Invalid ID '+paymentId);
+            .where(eq(schema.usersToHouseholds.userId, session.user.id)),
+        ),
+      ),
+    )
+    .then((r) => {
+      if (r.length !== 1) {
+        throw new Error('Invalid ID ' + paymentId);
       }
       return r[0];
     });

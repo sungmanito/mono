@@ -56,9 +56,7 @@
               {/if}
               <div>
                 {#if payment.payments.paidAt !== null}
-                  <a
-                    href={`/dashboard/payments/${payment.payments.id}`}
-                  >
+                  <a href={`/dashboard/payments/${payment.payments.id}`}>
                     {payment.bills.billName}
                   </a>
                 {:else}

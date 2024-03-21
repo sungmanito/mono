@@ -47,6 +47,7 @@
       <slot name="drag-over">You can drop items here</slot>
     </div>
   {/if}
+  <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
   {#each arr as _}
     <input type="file" {name} class="hidden" {accept} />
   {/each}

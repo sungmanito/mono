@@ -1,7 +1,9 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import Button from '$lib/components/button/button.svelte';
-  import CreateHousehold, { makeSubmitterFunction } from '$lib/components/households/create.svelte';
+  import CreateHousehold, {
+    makeSubmitterFunction,
+  } from '$lib/components/households/create.svelte';
   import { PlusIcon } from 'lucide-svelte';
   import type { PageData } from '../$types';
   import HouseholdSideItem from './householdSideItem.svelte';
@@ -15,7 +17,7 @@
 <CreateHousehold
   open={showModal}
   on:close={() => (showModal = false)}
-  submit={makeSubmitterFunction(() => showModal = false)}
+  submit={makeSubmitterFunction(() => (showModal = false))}
 />
 
 <section class="bg-surface-50-900-token p-4 overflow-auto min-w-max">

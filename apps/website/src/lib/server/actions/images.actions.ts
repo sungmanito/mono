@@ -25,16 +25,17 @@ export async function uploadImage(
 
   const { data: signedInfo, error: err } =
     await bucket.createSignedUploadUrl(fileName);
+
   if (err) throw error(400, err);
 
   const { data, error: uploadErr } = await bucket.uploadToSignedUrl(
-    signedInfo.signedUrl,
+    fileName,
     signedInfo.token,
     image,
   );
-  if (uploadErr) throw error(400, uploadErr);
 
-  return data;
+  if (data) return data;
+  throw error(400, uploadErr);
 }
 
 export function getImagePathById(objectId: string) {
@@ -43,18 +44,23 @@ export function getImagePathById(objectId: string) {
   });
 }
 
-export async function removeImageById(objectId: string, supabase: SupabaseClient) {
+export async function removeImageById(
+  objectId: string,
+  supabase: SupabaseClient,
+) {
   const object = await getImagePathById(objectId);
-  if(!object) throw new Error(`Could not find object with id "${objectId}"`);
+  if (!object) throw new Error(`Could not find object with id "${objectId}"`);
+  console.info('bucket id', object.bucketId);
   const bucket = supabase.storage.from(object.bucketId);
 
   const { data, error } = await bucket.remove([object.name]);
 
-  if(error) {
-    console.error(error);
-    throw new Error(`Could not remove image "${object.name}"`)
+  if (error || data.length !== 1) {
+    console.error(error, data);
+    throw new Error(`Could not remove image "${object.name}"`);
   }
 
+  return data[0];
 }
 
 /**
