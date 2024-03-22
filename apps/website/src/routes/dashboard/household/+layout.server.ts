@@ -7,10 +7,13 @@ import { error } from '@sveltejs/kit';
 
 // These can be deleted, i wasn't aware of the `parent()` function you could load in
 
-export const load = async ({ locals }) => {
+export const load = async ({ locals, depends }) => {
   const session = await locals.getSession();
 
   if (!validateUserSession(session)) throw error(401);
+
+  // Marking a dependency on user households
+  depends('user:households');
 
   const households = await db
     .select({

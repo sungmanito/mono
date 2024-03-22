@@ -11,7 +11,7 @@
   export let { class: propClass } = $$props;
 
   let classNames = cx(
-    'drawer bg-surface-100-800-token shadow-xl rounded-r-xl h-full w-5/6',
+    'drawer bg-surface-100-800-token shadow-xl rounded-r-xl h-full w-5/6 overflow-auto',
     propClass,
   );
 </script>

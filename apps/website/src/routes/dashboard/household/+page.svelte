@@ -3,26 +3,15 @@
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import Button from '$lib/components/button/button.svelte';
   import Header from '$lib/components/header/header.svelte';
+  import CreateHousehold, {
+    makeSubmitterFunction,
+  } from '$lib/components/households/create.svelte';
   import { CheckIcon, XIcon } from 'lucide-svelte';
   import HouseholdSidebar from './_components/householdSidebar.svelte';
-  import CreateHousehold from '$lib/components/households/create.svelte';
-  import { invalidateAll } from '$app/navigation';
   export let data;
 
   let households = data.households;
   $: households = data.households;
-
-  function toggleHouseholds() {
-    const el = document.getElementById('create-household');
-    if (!(el instanceof HTMLDialogElement)) {
-      return false;
-    }
-    if (el.hasAttribute('open')) {
-      el.close();
-    } else {
-      el.showModal();
-    }
-  }
 
   let addHousehold = false;
 </script>
@@ -36,20 +25,9 @@
 <CreateHousehold
   open={addHousehold}
   on:close={() => (addHousehold = false)}
-  submit={({ formData }) => {
-    const members = formData.get('members') || '';
-    if (members && typeof members === 'string') {
-      formData.delete('members');
-      for (const member of members.split(/\r?\n|,|\s+/)) {
-        formData.append('members', member.trim());
-      }
-    }
-    return async ({ formElement, update }) => {
-      await update();
-      await invalidateAll();
-      formElement.reset();
-    };
-  }}
+  submit={makeSubmitterFunction(() => {
+    addHousehold = false;
+  })}
 />
 
 <div class="container mx-auto mt-4 px-6">
@@ -66,6 +44,7 @@
       },
     ]}
   />
+
   <Header class="mb-4">
     Households
     <svelte:fragment slot="actions">
@@ -119,34 +98,3 @@
     {/await}
   </section>
 </div>
-
-<dialog id="create-household" class="rounded-lg p-2 max-w-[30vw]">
-  <header class="flex flex-end">
-    <button
-      on:click={(e) => {
-        e.currentTarget.closest('dialog')?.close();
-      }}
-    >
-      <XIcon size="0.8rem" />
-    </button>
-  </header>
-  <form action="?/addHousehold" method="post" use:enhance>
-    <label>
-      <input
-        name="household-name"
-        type="text"
-        class="p-2 border rounded"
-        placeholder="New Household name"
-      />
-    </label>
-    <footer class="p-4 flex justify-end">
-      <Button on:click={toggleHouseholds} class="bob">Add</Button>
-    </footer>
-  </form>
-</dialog>
-
-<style>
-  dialog::backdrop {
-    background-color: rgb(from theme('colors.zinc.800') / 40);
-  }
-</style>

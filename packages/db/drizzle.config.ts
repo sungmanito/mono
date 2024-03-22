@@ -5,6 +5,7 @@ export default {
   schema: './src/tables/index.ts',
   out: './drizzle',
   driver: 'pg',
+  schemaFilter: ['public'],
   dbCredentials: {
     connectionString: process.env.DB_URL!,
   },

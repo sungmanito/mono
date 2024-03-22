@@ -1,7 +1,7 @@
 {
   "[typescript]": {
     "typescript.preferences.quoteStyle": "single",
-    "editor.defaultFormatter": "vscode.typescript-language-features"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "svelte.plugin.svelte.format.config.singleQuote": true,
   "lnf.aliases": {
@@ -9,6 +9,7 @@
     "$apps/": "${workspaceRoot}/apps/",
     "$website/components/": "${workspaceRoot}/apps/website/src/lib/components/",
     "$website/routes/": "${workspaceRoot}/apps/website/src/routes/",
-    "$website/": "${workspaceRoot}/apps/website/"
+    "$website/": "${workspaceRoot}/apps/website/",
+    "$packages/": "${workspaceRoot}/packages/"
   }
 }

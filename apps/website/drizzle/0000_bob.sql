@@ -42,7 +42,7 @@ BEGIN
   timestamp = SET_BYTE(timestamp, 5, unix_time::BIT(8)::INTEGER);
 
   -- 10 entropy bytes
-  ulid = timestamp || gen_random_bytes(10);
+  ulid = timestamp || extensions.gen_random_bytes(10);
 
   -- Encode the timestamp
   output = output || CHR(GET_BYTE(encoding, (GET_BYTE(ulid, 0) & 224) >> 5));
@@ -104,7 +104,7 @@ returns trigger
 as 
 $$
 begin
-  INSERT INTO public.households(id, user_id, household_id) VALUES(generate_ulid(), 'Default', NEW.id);
+  INSERT INTO public.households(id, owner_id, name) VALUES(public.generate_ulid(), NEW.id, 'Default');
   return null;
 end;
 $$ language plpgsql security definer;
@@ -114,3 +114,12 @@ CREATE TRIGGER on_household_created
   AFTER INSERT on auth.users
   FOR EACH ROW
   EXECUTE FUNCTION create_default_household();
+
+CREATE policy "" on storage.objects
+for select
+to authenticated using (
+  bucket_id = 'payment-proof' and
+  (storage.foldername(name))[1] IN (
+    SELECT household_id::text FROM public.users_to_households WHERE user_id = auth.uid()
+  )
+)

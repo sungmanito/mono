@@ -1,0 +1,29 @@
+name: 'Db changes'
+on:
+  push:
+    branches: main
+    paths:
+      - ./packages/db/src/**/*.ts
+
+jobs:
+  db:
+    name: Drizzle Migrate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        name: Install PNPM
+        with:
+          version: 8
+      - uses: actions/cache@v3
+        name: Setup PNPM Cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{hashFiles('**/pnpm-lock.yaml')}}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - run: pnpm i --frozen-lockfile
+      - run: cd packages/db && pnpm db:push
