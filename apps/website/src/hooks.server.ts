@@ -20,63 +20,64 @@ process.env.EDGE_CONFIG = EDGE_CONFIG;
 export const handle: Handle = sequence(
   Sentry.sentryHandle(),
   async ({ event, resolve }) => {
-  /**
-   * Creates a supabase server client using some ENV variables.
-   * This is an admin-level client, so be careful when calling any deletes.
-   */
-  const supabase = createServerClient(
-    PUBLIC_SUPABASE_URL,
-    SUPABASE_SERVICE_ROLE,
-    {
-      cookies: {
-        get: (key) => event.cookies.get(key),
-        set: (key, value, options) => {
-          event.cookies.set(key, value, options);
-        },
-        remove: (key, options) => {
-          event.cookies.delete(key, options);
+    /**
+     * Creates a supabase server client using some ENV variables.
+     * This is an admin-level client, so be careful when calling any deletes.
+     */
+    const supabase = createServerClient(
+      PUBLIC_SUPABASE_URL,
+      SUPABASE_SERVICE_ROLE,
+      {
+        cookies: {
+          get: (key) => event.cookies.get(key),
+          set: (key, value, options) => {
+            event.cookies.set(key, value, options);
+          },
+          remove: (key, options) => {
+            event.cookies.delete(key, options);
+          },
         },
       },
-    },
-  );
+    );
 
-  /**
-   * This is from the Vercel Edge Config
-   */
-  event.locals.config = await getAll<App.VercelConfig>();
+    /**
+     * This is from the Vercel Edge Config
+     */
+    event.locals.config = await getAll<App.VercelConfig>();
 
-  // Passes this on to the locals so that load functions can use it later
-  event.locals.supabase = supabase;
+    // Passes this on to the locals so that load functions can use it later
+    event.locals.supabase = supabase;
 
-  // Wrapper function to make getting the user session easier
-  event.locals.getSession = async () => {
-    const {
-      data: { session },
-    } = await event.locals.supabase.auth.getSession();
-    return session;
-  };
+    // Wrapper function to make getting the user session easier
+    event.locals.getSession = async () => {
+      const {
+        data: { session },
+      } = await event.locals.supabase.auth.getSession();
+      return session;
+    };
 
-  const session = await event.locals.getSession();
+    const session = await event.locals.getSession();
 
-  // Quick and easy way to protect the dashboard.
-  if (session === null && event.url.pathname.startsWith('/dashboard')) {
-    redirect(303, `/login?url=${event.url.pathname}`);
-  }
+    // Quick and easy way to protect the dashboard.
+    if (session === null && event.url.pathname.startsWith('/dashboard')) {
+      redirect(303, `/login?url=${event.url.pathname}`);
+    }
 
-  // We are gathering the logged in users' households a lot
-  // To hopefully save that, we store them in the locals.
-  if (validateUserSession(session)) {
-    console.info('Gathering user households');
-    event.locals.userHouseholds = await getUserHouseholds(session.user.id);
-  } else {
-    event.locals.userHouseholds = [];
-  }
+    // We are gathering the logged in users' households a lot
+    // To hopefully save that, we store them in the locals.
+    if (validateUserSession(session)) {
+      console.info('Gathering user households');
+      event.locals.userHouseholds = await getUserHouseholds(session.user.id);
+    } else {
+      event.locals.userHouseholds = [];
+    }
 
-  return resolve(event, {
-    filterSerializedResponseHeaders(name) {
-      return name === 'content-range';
-    },
-  });
-});
+    return resolve(event, {
+      filterSerializedResponseHeaders(name) {
+        return name === 'content-range';
+      },
+    });
+  },
+);
 
 export const handleError = Sentry.handleErrorWithSentry();
