@@ -1,4 +1,5 @@
 import adapter from '@sveltejs/adapter-vercel';
+// import adapter from 'svelte-adapter-deno';
 // import adapter from "@sveltejs/adapter-auto";
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 

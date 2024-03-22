@@ -1,6 +1,9 @@
 import { EDGE_CONFIG, SUPABASE_SERVICE_ROLE } from '$env/static/private';
 import { PUBLIC_SUPABASE_URL } from '$env/static/public';
-import { getUserHouseholds } from '$lib/server/actions/households.actions';
+import { db } from '$lib/server/db';
+import { eq, and} from 'drizzle-orm';
+import schema from '@sungmanito/db';
+// import { getUserHouseholds } from '$lib/server/actions/households.actions';
 import { validateUserSession } from '$lib/util/session';
 import { createServerClient } from '@supabase/ssr';
 import { redirect, type Handle } from '@sveltejs/kit';
@@ -60,7 +63,7 @@ export const handle: Handle = sequence(
     // To hopefully save that, we store them in the locals.
     if (validateUserSession(session)) {
       console.info('Gathering user households');
-      event.locals.userHouseholds = await getUserHouseholds(session.user.id);
+      event.locals.userHouseholds = [];
     } else {
       event.locals.userHouseholds = [];
     }
