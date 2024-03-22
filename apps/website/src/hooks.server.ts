@@ -6,12 +6,20 @@ import { createServerClient } from '@supabase/ssr';
 import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { getAll } from '@vercel/edge-config';
+import * as Sentry from '@sentry/sveltekit';
+
+Sentry.init({
+  dsn: 'https://9db800c9bbef384d6a68668ae0f68235@o4506608178102272.ingest.sentry.io/4506608184131584',
+  tracesSampleRate: 1,
+});
 
 // Little bit of tricksy shenanigans since we don't use .env around these parts,
 // but the vercel
 process.env.EDGE_CONFIG = EDGE_CONFIG;
 
-export const handle: Handle = sequence(async ({ event, resolve }) => {
+export const handle: Handle = sequence(
+  Sentry.sentryHandle(),
+  async ({ event, resolve }) => {
   /**
    * Creates a supabase server client using some ENV variables.
    * This is an admin-level client, so be careful when calling any deletes.
@@ -71,4 +79,4 @@ export const handle: Handle = sequence(async ({ event, resolve }) => {
   });
 });
 
-// export const handleError = Sentry.handleErrorWithSentry();
+export const handleError = Sentry.handleErrorWithSentry();
