@@ -1,11 +1,12 @@
 <script lang="ts">
+  import { page } from '$app/stores';
   import Button from '$lib/components/button/button.svelte';
+  import CreateHousehold, {
+    makeSubmitterFunction,
+  } from '$lib/components/households/create.svelte';
   import { PlusIcon } from 'lucide-svelte';
   import type { PageData } from '../$types';
   import HouseholdSideItem from './householdSideItem.svelte';
-  import { page } from '$app/stores';
-  import Create from '$lib/components/households/create.svelte';
-  import { invalidateAll } from '$app/navigation';
 
   export let households: PageData['households'];
   export let userMap: PageData['streamable']['userHouseholds'];
@@ -13,23 +14,10 @@
   let showModal = false;
 </script>
 
-<Create
+<CreateHousehold
   open={showModal}
   on:close={() => (showModal = false)}
-  submit={({ formData }) => {
-    const members = formData.get('members') || '';
-    if (typeof members === 'string') {
-      formData.delete('members');
-      for (const member of members.split(/\r?\n|,\s?|\s+/).filter((f) => f)) {
-        formData.append('members', member.trim());
-      }
-    }
-    return async ({ formElement, update }) => {
-      await update();
-      formElement.reset();
-      await invalidateAll();
-    };
-  }}
+  submit={makeSubmitterFunction(() => (showModal = false))}
 />
 
 <section class="bg-surface-50-900-token p-4 overflow-auto min-w-max">

@@ -37,7 +37,7 @@
 
 <Drawer
   {open}
-  on:close={() => (open = false)}
+  on:close
   on:dragenter={() => {
     hasDrag = true;
   }}

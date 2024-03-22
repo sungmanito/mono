@@ -1,12 +1,12 @@
+import { addHousehold } from '$lib/server/actions/households.actions.js';
 import { inviteMembersByEmail } from '$lib/server/actions/invites.action.js';
 import { db } from '$lib/server/db';
-import { exportedSchema as schema } from '@sungmanito/db';
 import { formDataValidObject } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
+import { exportedSchema as schema } from '@sungmanito/db';
 import { error, redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
 import { and, eq, sql } from 'drizzle-orm';
-import { addHousehold } from '$lib/server/actions/households.actions.js';
 
 export const load = async ({ locals }) => {
   const session = await locals.getSession();
@@ -91,7 +91,7 @@ export const actions = {
       await request.formData(),
       type({
         'household-name': 'string',
-        'members?': 'email[] | email',
+        'members?': 'email[]',
       }),
     );
 

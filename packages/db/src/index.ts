@@ -7,6 +7,8 @@ import {
   identitiesRelations,
   invitesRelations,
   usersToHouseholdsRelations,
+  objectRelations,
+  bucketRelations,
 } from './relations';
 
 export const exportedSchema = {
@@ -19,6 +21,8 @@ export const exportedSchema = {
   payments: schema.payments,
   usersToHouseholds: schema.usersToHouseholds,
   invites: schema.invites,
+  objects: schema.objects,
+  buckets: schema.buckets,
   // Relationships
   billsRelations,
   userRelations,
@@ -27,6 +31,8 @@ export const exportedSchema = {
   identitiesRelations,
   invitesRelations,
   usersToHouseholdsRelations,
+  objectRelations,
+  bucketRelations,
 };
 
 export default schema;
