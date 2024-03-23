@@ -9,10 +9,10 @@ export const load = async ({ url, locals }) => {
     const { data: session, error: err } =
       await locals.supabase.auth.exchangeCodeForSession(code);
 
-    if (err) throw error(400, { message: err.message });
+    if (err) error(400, { message: err.message });
 
     if (session) {
-      throw redirect(303, '/profile?flow=update-password');
+      redirect(303, '/profile?flow=update-password');
     }
 
     return {
@@ -57,6 +57,6 @@ export const actions = {
       });
     }
 
-    throw redirect(303, data.url);
+    redirect(303, data.url);
   },
 } satisfies Actions;

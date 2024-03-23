@@ -227,17 +227,3 @@
     </section>
   </div>
 </div>
-
-<style>
-  .slide-in {
-    animation: slide-in 200ms 1;
-  }
-  @keyframes slide-in {
-    0% {
-      transform: translateX(50%);
-    }
-    100% {
-      transform: translateX(0);
-    }
-  }
-</style>

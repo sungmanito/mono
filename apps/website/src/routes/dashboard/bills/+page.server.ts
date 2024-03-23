@@ -15,7 +15,7 @@ export const load = async ({ locals }) => {
   const session = await locals.getSession();
 
   if (!validateUserSession(session)) {
-    throw redirect(300, '/login');
+    redirect(300, '/login');
   }
 
   const bills = await getUserBills(session.user.id);
@@ -29,7 +29,7 @@ export const load = async ({ locals }) => {
 export const actions = {
   addBill: async ({ locals, request }) => {
     const session = await locals.getSession();
-    if (!validateUserSession(session)) throw error(401);
+    if (!validateUserSession(session)) error(401);
 
     const validator = scope({
       DueDate: '1<=number<=28',
@@ -87,7 +87,7 @@ export const actions = {
       .returning();
 
     if (newBills.length === 0) {
-      throw error(403, 'Bill(s) could not be created');
+      error(403, 'Bill(s) could not be created');
     }
 
     return {
@@ -97,7 +97,7 @@ export const actions = {
   updateBill: async ({ request, locals }) => {
     const session = await locals.getSession();
 
-    if (!session || !session?.user) throw error(401, 'nope');
+    if (!session || !session?.user) error(401, 'nope');
 
     const data = formDataValidObject(
       await request.formData(),
@@ -138,7 +138,7 @@ export const actions = {
   deleteBill: async ({ request, locals }) => {
     const session = await locals.getSession();
 
-    if (!session || !session.user) throw error(401, 'Not logged in');
+    if (!session || !session.user) error(401, 'Not logged in');
     if (!validateUserSession(session)) error(401);
 
     const data = formDataValidObject(
@@ -161,7 +161,7 @@ export const actions = {
       )
       .returning();
 
-    if (!deleted) throw error(400, 'Bill not found');
+    if (!deleted) error(400, 'Bill not found');
 
     return {
       bill: deleted,

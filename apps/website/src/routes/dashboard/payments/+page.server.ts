@@ -23,7 +23,7 @@ export const load = async ({ locals, depends }) => {
   depends('household:payments');
 
   if (!validateUserSession(session)) {
-    throw redirect(300, '/login');
+    redirect(300, '/login');
   }
 
   const households = await getUserHouseholds(session.user.id);
@@ -119,7 +119,7 @@ export const actions = {
   unpayBill: async ({ locals, request }) => {
     const session = await locals.getSession();
 
-    if (!validateUserSession(session)) throw error(401);
+    if (!validateUserSession(session)) error(401);
 
     const userHouseholds = locals.userHouseholds;
 

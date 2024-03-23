@@ -12,7 +12,7 @@ export const load = async ({ locals }) => {
   const session = await locals.getSession();
 
   if (!session || !session.user) {
-    throw redirect(303, '/login');
+    redirect(303, '/login');
   }
 
   const today = new Date();

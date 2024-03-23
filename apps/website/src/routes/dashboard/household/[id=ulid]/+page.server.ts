@@ -13,7 +13,7 @@ const formDataValidator = type({
 export const load = async ({ params, locals }) => {
   const session = await locals.getSession();
 
-  if (!validateUserSession(session)) throw redirect(300, '/login');
+  if (!validateUserSession(session)) redirect(300, '/login');
 
   const household = await db.query.households.findFirst({
     where: ({ id }, { eq, and, inArray }) =>
@@ -27,7 +27,7 @@ export const load = async ({ params, locals }) => {
   });
 
   if (!household) {
-    throw redirect(303, 'Nope');
+    redirect(303, 'Nope');
   }
 
   return {
@@ -54,7 +54,7 @@ export const actions = {
   findUser: async ({ request, locals }) => {
     const session = await locals.getSession();
 
-    if (!validateUserSession(session)) throw error(401, 'Not logged in');
+    if (!validateUserSession(session)) error(401, 'Not logged in');
 
     try {
       const formData = formDataValidObject(
@@ -83,12 +83,12 @@ export const actions = {
       };
     } catch (e) {
       console.error(e);
-      throw error(400);
+      error(400);
     }
   },
   removeMember: async ({ request, locals, params }) => {
     const session = await locals.getSession();
-    if (!validateUserSession(session)) throw error(401);
+    if (!validateUserSession(session)) error(401);
 
     const formData = formDataValidObject(
       await request.formData(),
@@ -107,7 +107,7 @@ export const actions = {
       sessionUserRemovingSelf: session.user.id === formData.userId,
     };
 
-    if (!(sessionUserIwOwner || sessionUserRemovingSelf)) throw error(400);
+    if (!(sessionUserIwOwner || sessionUserRemovingSelf)) error(400);
     if (!(sessionUserIwOwner || sessionUserRemovingSelf)) error(400);
 
     await db
@@ -130,7 +130,7 @@ export const actions = {
      * 2. Find any users already in the system
      * 3. Invite any others by email
      */
-    if (!validateUserSession(session)) throw error(401);
+    if (!validateUserSession(session)) error(401);
 
     const formData = validateFormData(
       await request.formData(),
@@ -215,7 +215,7 @@ export const actions = {
   },
   updateHousehold: async ({ request, locals }) => {
     const session = await locals.getSession();
-    if (!validateUserSession(session)) throw error(401);
+    if (!validateUserSession(session)) error(401);
     const formData = await request.formData();
     console.info(formData);
     return {};

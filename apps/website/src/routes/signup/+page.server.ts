@@ -6,7 +6,7 @@ import { dev } from '$app/environment';
 
 export const load = async ({ locals: { config } }) => {
   if (!dev || !config.allow_registration) {
-    throw redirect(307, '/');
+    redirect(307, '/');
   }
   return {
     enabled: dev || !!config.allow_registration,

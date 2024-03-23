@@ -3,7 +3,7 @@ import { DB_URL } from '$env/static/private';
 import Pg from 'pg';
 import { exportedSchema } from '@sungmanito/db';
 
-const client = new Pg.Client({
+const client = new Pg.Pool({
   connectionString: DB_URL,
 });
 
