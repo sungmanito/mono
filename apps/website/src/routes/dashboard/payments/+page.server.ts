@@ -148,8 +148,8 @@ export const actions = {
     const [payment] = await db
       .update(schema.payments)
       .set({
-        proof: '',
-        proofImage: '',
+        proof: null,
+        proofImage: null,
         updatedBy: session.user.id,
         paidAt: null,
       })
