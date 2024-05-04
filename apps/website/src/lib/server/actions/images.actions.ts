@@ -19,14 +19,14 @@ export async function uploadImage(
   fileName: string = image.name,
 ) {
   if (!allowedImageTypes.has(image.type))
-    throw error(400, `Invalid image type: ${image.type}`);
+    error(400, `Invalid image type: ${image.type}`);
 
   const bucket = supabase.storage.from(path);
 
   const { data: signedInfo, error: err } =
     await bucket.createSignedUploadUrl(fileName);
 
-  if (err) throw error(400, err);
+  if (err) error(400, err);
 
   const { data, error: uploadErr } = await bucket.uploadToSignedUrl(
     fileName,
@@ -35,7 +35,7 @@ export async function uploadImage(
   );
 
   if (data) return data;
-  throw error(400, uploadErr);
+  error(400, uploadErr);
 }
 
 export function getImagePathById(objectId: string) {

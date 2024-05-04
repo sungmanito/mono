@@ -113,7 +113,7 @@ export async function addProofToPayment(
   proof: Payment['proof'],
   updatedBy: string,
 ) {
-  if (proof === '' || updatedBy === '') throw error(400);
+  if (proof === '' || updatedBy === '') error(400);
 
   return db
     .update(schema.payments)

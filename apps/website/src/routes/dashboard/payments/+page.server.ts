@@ -52,7 +52,7 @@ export const load = async ({ locals, depends }) => {
 export const actions = {
   updatePayment: async ({ locals, request }) => {
     const session = await locals.getSession();
-    if (!validateUserSession(session)) throw error(401);
+    if (!validateUserSession(session)) error(401);
 
     const updateArgs: PaymentUpdateArgs = {
       paidAt: new Date(),
@@ -72,11 +72,11 @@ export const actions = {
     // if we have a proof file we're going to need to upload it to the stash
     if (formData['proof-file']) {
       const file = formData['proof-file'];
-      if (file.size > 1024 * 1024) throw error(400, 'File too large');
+      if (file.size > 1024 * 1024) error(400, 'File too large');
 
       const fileExt = file.name.split('.')[1]?.toLowerCase();
 
-      if (!fileExt) throw error(400, 'Invalid file extension');
+      if (!fileExt) error(400, 'Invalid file extension');
 
       const fileName = `${formData['household-id']}/${formData['payment-id']}.${fileExt}`;
       let result: Awaited<ReturnType<typeof uploadImage>>;

@@ -10,7 +10,7 @@ jobs:
       - uses: pnpm/action-setup@v2
         name: Install PNPM
         with:
-          version: 8
+          version: 9.0.5
       - uses: actions/cache@v3
         name: Setup PNPM cache
         with:
@@ -31,7 +31,7 @@ jobs:
       - uses: pnpm/action-setup@v2
         name: Install PNPM
         with:
-          version: 8
+          version: 9.0.5
       - uses: actions/cache@v3
         name: Setup PNPM cache
         with:
