@@ -49,8 +49,9 @@ export async function removeImageById(
   supabase: SupabaseClient,
 ) {
   const object = await getImagePathById(objectId);
+
   if (!object) throw new Error(`Could not find object with id "${objectId}"`);
-  console.info('bucket id', object.bucketId);
+
   const bucket = supabase.storage.from(object.bucketId);
 
   const { data, error } = await bucket.remove([object.name]);
