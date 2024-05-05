@@ -85,7 +85,7 @@ export const actions = {
   },
   addHousehold: async ({ request, locals }) => {
     const session = await locals.getSession();
-    if (!validateUserSession(session)) error(400);
+    if (!validateUserSession(session)) throw error(400);
 
     const data = formDataValidObject(
       await request.formData(),
@@ -106,7 +106,7 @@ export const actions = {
       ownerId: session.user.id,
     });
 
-    if (household === null) error(400);
+    if (household === null) throw error(400);
 
     const responses = await inviteMembersByEmail(
       locals.supabase,
