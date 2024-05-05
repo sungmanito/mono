@@ -22,30 +22,15 @@ export async function addHousehold(household: HouseholdInsertArgs) {
       .insert(schema.households)
       .values(household)
       .returning();
+
     if (!newHome) {
       tx.rollback();
       return null;
     }
 
-    const [newUserToHousehold] = await tx
-      .insert(schema.usersToHouseholds)
-      .values({
-        householdId: newHome.id,
-        userId: household.ownerId,
-      })
-      .returning();
-
-    if (newUserToHousehold) {
-      return newHome;
-    }
-
-    return null;
+    return newHome;
   });
 }
-
-// export async function updateHousehold(householdId: string, data: Partial<Omit<Household, 'id'>>) {
-//   return {};
-// }
 
 export async function deleteHousehold(householdId: string) {
   const household = await db.query.households.findFirst({
