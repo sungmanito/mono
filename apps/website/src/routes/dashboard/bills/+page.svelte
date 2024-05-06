@@ -46,6 +46,7 @@
     ) {
       await invalidateAll();
       (e.target as HTMLFormElement).closest('dialog')?.close();
+      validation = '';
       editModal.close();
     } else if (response.type === 'error') {
       toastStore.trigger({

@@ -15,7 +15,7 @@ import { validateUserSession } from '$lib/util/session.js';
 import { exportedSchema as schema } from '@sungmanito/db';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { instanceOf, type } from 'arktype';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, getTableColumns, inArray } from 'drizzle-orm';
 
 export const load = async ({ locals, depends }) => {
   const today = new Date();
@@ -29,7 +29,10 @@ export const load = async ({ locals, depends }) => {
   const households = await getUserHouseholds(session.user.id);
 
   const payments = await db
-    .select()
+    .select({
+      ...getTableColumns(schema.payments),
+      billName: schema.bills.billName,
+    })
     .from(schema.payments)
     .innerJoin(
       schema.bills,
@@ -115,6 +118,13 @@ export const actions = {
     if (row) return row;
 
     return fail(400);
+  },
+  payBill: async ({ locals, request }) => {
+    const session = await locals.getSession();
+    if (!validateUserSession(session)) throw error(401);
+    const fd = await request.formData();
+    console.info(fd);
+    return {};
   },
   unpayBill: async ({ locals, request }) => {
     const session = await locals.getSession();
