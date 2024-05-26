@@ -1,8 +1,9 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import { invalidateAll } from '$app/navigation';
+  import { invalidate, preloadData } from '$app/navigation';
   import CreateBill from '$lib/components/bills/create.svelte';
   import Button from '$lib/components/button/button.svelte';
+  import Drawer from '$lib/components/drawer/drawer.svelte';
   import Header from '$lib/components/header/header.svelte';
   import {
     Accordion,
@@ -11,6 +12,8 @@
     Stepper,
   } from '@skeletonlabs/skeleton';
   import { HomeIcon, PlusIcon, XIcon } from 'lucide-svelte';
+  import type { PageData as CreatePaymentData } from './payments/create/[id=ulid]/$types';
+  import CreatePayment from './payments/create/[id=ulid]/+page.svelte';
   export let data;
 
   let billName = '';
@@ -20,6 +23,14 @@
   let modalEl: HTMLDialogElement;
 
   let showCreateBillModal = false;
+  let createPaymentData: CreatePaymentData | null = null;
+
+  async function showPaymentDrawer(paymentId: string) {
+    const data = await preloadData(`/dashboard/payments/create/${paymentId}`);
+    if (data.type === 'loaded' && data.status === 200) {
+      createPaymentData = data.data as CreatePaymentData;
+    }
+  }
 </script>
 
 <svelte:head>
@@ -35,12 +46,24 @@
       formElement.reset();
       await update();
       showCreateBillModal = false;
-      await invalidateAll();
+      await invalidate('household:bills');
     };
   }}
 />
 
-<!-- <CreatePayment payment={payment.payments} /> -->
+{#if createPaymentData !== null}
+  <Drawer
+    open={createPaymentData !== null}
+    on:close={() => (createPaymentData = null)}
+    let:close={closeDrawer}
+  >
+    <CreatePayment
+      data={createPaymentData}
+      component={true}
+      onclose={closeDrawer}
+    />
+  </Drawer>
+{/if}
 
 <div class="container mx-auto p-3">
   <Header class="mt-4 mb-4">
@@ -145,9 +168,17 @@
         </svelte:fragment>
         <svelte:fragment slot="content">
           <section class="p-4">
-            {#each data.groupings.past as { bills }}
-              <div>
-                {bills.billName}
+            {#each data.groupings.past as { bills, payments }}
+              {bills.billName}
+              <div class="flex gap-3 items-center">
+                <button
+                  class="btn btn-sm variant-filled"
+                  type="button"
+                  on:click={() =>
+                    payments !== null ? showPaymentDrawer(payments.id) : void 0}
+                >
+                  Pay bill
+                </button>
               </div>
             {/each}
           </section>
@@ -160,7 +191,7 @@
         <svelte:fragment slot="content">
           <form action="/dashboard/payments?/payBill" method="post" use:enhance>
             <div class="flex flex-col gap-4">
-              {#each data.groupings.upcoming as { bills, household }}
+              {#each data.groupings.upcoming as { bills, household, payments }}
                 <div class="card variant-outline-primary">
                   <Header tag="h4" class="card-header">
                     {bills.billName} due on {bills.dueDate}
@@ -172,8 +203,11 @@
                     <button
                       class="btn btn-sm variant-filled"
                       name="pay-bill-id"
-                      value={bills.id}
-                      type="submit">Pay bill</button
+                      on:click={() =>
+                        payments !== null
+                          ? showPaymentDrawer(payments.id)
+                          : void 0}
+                      type="button">Pay bill</button
                     >
                   </footer>
                 </div>
@@ -193,8 +227,18 @@
         </svelte:fragment>
         <svelte:fragment slot="content">
           <div class="flex flex-col gap-2">
-            {#each data.groupings.comingSoon as { bills }}
-              {bills.billName}
+            {#each data.groupings.comingSoon as { bills, payments }}
+              <div class="flex gap-3 items-center">
+                {bills.billName}
+                <button
+                  class="btn btn-sm variant-filled"
+                  type="button"
+                  on:click={() =>
+                    payments !== null ? showPaymentDrawer(payments.id) : void 0}
+                >
+                  Pay bill
+                </button>
+              </div>
             {:else}
               <p>No bills coming soon</p>
             {/each}

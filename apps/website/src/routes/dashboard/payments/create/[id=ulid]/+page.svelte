@@ -30,7 +30,6 @@
     else formData.delete('proof-file');
 
     return async ({ formElement }) => {
-      // await update();
       if (component) onclose();
       formElement.reset();
       await invalidate('household:payments');
