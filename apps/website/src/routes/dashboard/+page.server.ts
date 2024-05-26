@@ -8,12 +8,15 @@ import { alias } from 'drizzle-orm/pg-core';
 
 const household = alias(exportedSchema.households, 'household');
 
-export const load = async ({ locals }) => {
+export const load = async ({ locals, depends }) => {
   const session = await locals.getSession();
 
   if (!session || !session.user) {
     redirect(303, '/login');
   }
+
+  depends('household:payments');
+  depends('household:bills');
 
   const today = new Date();
 
@@ -50,7 +53,11 @@ export const load = async ({ locals }) => {
         return all;
       }
 
-      if (todaysDate > cur.bills.dueDate && cur.payments === null) {
+      if (
+        todaysDate > cur.bills.dueDate &&
+        (cur.payments === null ||
+          (cur.payments !== null && cur.payments.paidAt === null))
+      ) {
         all.past.push(cur);
         return all;
       }

@@ -4,6 +4,7 @@ import { redirect } from '@sveltejs/kit';
 
 export const load = async ({ locals, params }) => {
   const session = await locals.getSession();
+
   if (!validateUserSession(session)) {
     redirect(300, '/login');
   }

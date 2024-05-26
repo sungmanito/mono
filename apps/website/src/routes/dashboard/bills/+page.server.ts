@@ -70,8 +70,6 @@ export const actions = {
         message: 'Cannot add bill to household you are not a member of',
       });
 
-    console.info('made it');
-
     const insertBills: BillInsertArgs[] = Array.from(
       { length: formData['household-id'].length },
       (_, i) => ({
