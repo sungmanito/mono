@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { enhance } from '$app/forms';
   import { invalidateAll } from '$app/navigation';
   import CreateBill from '$lib/components/bills/create.svelte';
   import Button from '$lib/components/button/button.svelte';
@@ -9,7 +10,7 @@
     Step,
     Stepper,
   } from '@skeletonlabs/skeleton';
-  import { PlusIcon, HomeIcon, XIcon } from 'lucide-svelte';
+  import { HomeIcon, PlusIcon, XIcon } from 'lucide-svelte';
   export let data;
 
   let billName = '';
@@ -38,6 +39,8 @@
     };
   }}
 />
+
+<!-- <CreatePayment payment={payment.payments} /> -->
 
 <div class="container mx-auto p-3">
   <Header class="mt-4 mb-4">
@@ -155,28 +158,30 @@
           <Header tag="h3" color="secondary">Upcoming</Header>
         </svelte:fragment>
         <svelte:fragment slot="content">
-          <div class="flex flex-col gap-4">
-            {#each data.groupings.upcoming as { bills, household }}
-              <div class="card variant-outline-primary">
-                <Header tag="h4" class="card-header">
-                  {bills.billName} due on {bills.dueDate}
-                </Header>
-                <section class="p-4">
-                  {household.name}
-                </section>
-                <footer class="card-footer">
-                  <button
-                    class="btn btn-sm variant-filled"
-                    on:click={() =>
-                      console.info('somehow mark a payment to this bill')}
-                    >Pay bill</button
-                  >
-                </footer>
-              </div>
-            {:else}
-              No Upcoming bills
-            {/each}
-          </div>
+          <form action="/dashboard/payments?/payBill" method="post" use:enhance>
+            <div class="flex flex-col gap-4">
+              {#each data.groupings.upcoming as { bills, household }}
+                <div class="card variant-outline-primary">
+                  <Header tag="h4" class="card-header">
+                    {bills.billName} due on {bills.dueDate}
+                  </Header>
+                  <section class="p-4">
+                    {household.name}
+                  </section>
+                  <footer class="card-footer">
+                    <button
+                      class="btn btn-sm variant-filled"
+                      name="pay-bill-id"
+                      value={bills.id}
+                      type="submit">Pay bill</button
+                    >
+                  </footer>
+                </div>
+              {:else}
+                No Upcoming bills
+              {/each}
+            </div>
+          </form>
         </svelte:fragment>
       </AccordionItem>
       <AccordionItem
@@ -233,9 +238,11 @@
         <svelte:fragment slot="content">
           <table class="table table-interactive">
             <thead>
-              <th>Bill Name</th>
-              <th>Due Date</th>
-              <th>Household</th>
+              <tr>
+                <th>Bill Name</th>
+                <th>Due Date</th>
+                <th>Household</th>
+              </tr>
             </thead>
             <tbody>
               {#each data.groupings.rest as { bills, household }}

@@ -1,6 +1,11 @@
 {
   "[typescript]": {
     "typescript.preferences.quoteStyle": "single",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[svelte]": {
+    "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "svelte.plugin.svelte.format.config.singleQuote": true,

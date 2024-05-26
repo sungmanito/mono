@@ -40,6 +40,7 @@ export const load = async ({ locals }) => {
     );
 
   const todaysDate = today.getDate();
+
   const groupings = fullQuery.reduce(
     (all, cur) => {
       const diff = today.getDate() - cur.bills.dueDate;
@@ -76,7 +77,7 @@ export const load = async ({ locals }) => {
       rest: [],
     } as Record<
       'upcoming' | 'comingSoon' | 'paid' | 'past' | 'rest',
-      (typeof fullQuery)[0][]
+      (typeof fullQuery)[number][]
     >,
   );
 

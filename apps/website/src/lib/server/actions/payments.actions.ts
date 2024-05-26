@@ -1,9 +1,9 @@
-import { exportedSchema as schema } from '@sungmanito/db';
 import { db } from '$lib/server/db';
-import { getUserHouseholds } from './households.actions';
-import { and, eq, inArray } from 'drizzle-orm';
-import { error } from '@sveltejs/kit';
+import { exportedSchema as schema } from '@sungmanito/db';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
+import { error } from '@sveltejs/kit';
+import { and, eq, getTableColumns, inArray } from 'drizzle-orm';
+import { getUserHouseholds } from './households.actions';
 
 export type Payment = typeof schema.payments.$inferSelect;
 export type PaymentInsertArgs = Omit<typeof schema.payments.$inferInsert, 'id'>;
@@ -67,8 +67,12 @@ export async function updatePayment(
  */
 export async function getPayment(paymentId: Payment['id'], session: Session) {
   return db
-    .select()
+    .select({
+      ...getTableColumns(schema.payments),
+      billName: schema.bills.billName,
+    })
     .from(schema.payments)
+    .innerJoin(schema.bills, eq(schema.bills.id, schema.payments.billId))
     .where(
       and(
         eq(schema.payments.id, paymentId),
