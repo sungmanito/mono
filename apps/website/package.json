@@ -19,7 +19,8 @@
   "devDependencies": {
     "@histoire/plugin-svelte": "^0.17.6",
     "@playwright/test": "^1.40.1",
-    "@skeletonlabs/skeleton": "^2.6.0",
+    "@skeletonlabs/skeleton": "3.0.0-next.0",
+    "@skeletonlabs/skeleton-svelte": "1.0.0-next.1",
     "@skeletonlabs/tw-plugin": "^0.2.4",
     "@sungmanito/skeleton-plugin": "workspace:*",
     "@sveltejs/adapter-auto": "^3.0.0",

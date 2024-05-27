@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AppRail, AppRailAnchor } from '@skeletonlabs/skeleton';
+  import { AppRail, AppRailAnchor } from '@skeletonlabs/skeleton-svelte';
   import {
     CreditCardIcon,
     LayoutDashboardIcon,

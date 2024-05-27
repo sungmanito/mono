@@ -70,8 +70,11 @@ importers:
         specifier: ^1.40.1
         version: 1.40.1
       '@skeletonlabs/skeleton':
-        specifier: ^2.6.0
-        version: 2.7.0(svelte@5.0.0-next.123)
+        specifier: 3.0.0-next.0
+        version: 3.0.0-next.0(postcss@8.4.33)(tailwindcss@3.4.1)
+      '@skeletonlabs/skeleton-svelte':
+        specifier: 1.0.0-next.1
+        version: 1.0.0-next.1(svelte@5.0.0-next.123)
       '@skeletonlabs/tw-plugin':
         specifier: ^0.2.4
         version: 0.2.4(tailwindcss@3.4.1)
@@ -1035,10 +1038,15 @@ packages:
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
 
-  '@skeletonlabs/skeleton@2.7.0':
-    resolution: {integrity: sha512-XD6aCvEQYp2LtEKM9OelK2HoJZFraM3fvpQpXsnNY82t/QeaZ9WkORCsrVz91puq786FTOktt8beZEe045YLWA==}
+  '@skeletonlabs/skeleton-svelte@1.0.0-next.1':
+    resolution: {integrity: sha512-z4+ZdZmkyAgIR6hkGe9N09rxyuw2UbiEgPP48ix/taJkNVBB/vybG5rcT+TjuFhDBl7YLx6rVUAkKx66KghXDg==}
     peerDependencies:
-      svelte: ^3.56.0 || ^4.0.0
+      svelte: ^5.0.0-next.136
+
+  '@skeletonlabs/skeleton@3.0.0-next.0':
+    resolution: {integrity: sha512-KMlDtJzJ4d4JQoJUgiFVBw4tgEqEX05YzK9zoJMrEea0xaIQJeBLTsvTMRmoZ/OQH4hX4xPzWY+Lywm+zfsBSQ==}
+    peerDependencies:
+      tailwindcss: '>=3.0.0'
 
   '@skeletonlabs/tw-plugin@0.2.4':
     resolution: {integrity: sha512-DmOFMV6jhhvnub/TANB62nJJqxfMBby5Kxwe/Mn3DTxHuJLZj8B47Ta2K5sl/or2B8MaMfny8ocvPAzd6lrMtQ==}
@@ -4415,10 +4423,17 @@ snapshots:
 
   '@sinclair/typebox@0.27.8': {}
 
-  '@skeletonlabs/skeleton@2.7.0(svelte@5.0.0-next.123)':
+  '@skeletonlabs/skeleton-svelte@1.0.0-next.1(svelte@5.0.0-next.123)':
     dependencies:
-      esm-env: 1.0.0
       svelte: 5.0.0-next.123
+
+  '@skeletonlabs/skeleton@3.0.0-next.0(postcss@8.4.33)(tailwindcss@3.4.1)':
+    dependencies:
+      postcss-js: 4.0.1(postcss@8.4.33)
+      postcss-selector-parser: 6.0.15
+      tailwindcss: 3.4.1
+    transitivePeerDependencies:
+      - postcss
 
   '@skeletonlabs/tw-plugin@0.2.4(tailwindcss@3.4.1)':
     dependencies:
