@@ -13,7 +13,9 @@
   } from '@skeletonlabs/skeleton';
   import { HomeIcon, PlusIcon, XIcon } from 'lucide-svelte';
   import type { PageData as CreatePaymentData } from './payments/create/[id=ulid]/$types';
+  import type { PageData as CreateHouseholdData } from './household/create/$types';
   import CreatePayment from './payments/create/[id=ulid]/+page.svelte';
+  import CreateHousehold from './household/create/+page.svelte';
   export let data;
 
   let billName = '';
@@ -25,10 +27,20 @@
   let showCreateBillModal = false;
   let createPaymentData: CreatePaymentData | null = null;
 
+  let createHouseholdData: CreateHouseholdData | null = null;
+
   async function showPaymentDrawer(paymentId: string) {
     const data = await preloadData(`/dashboard/payments/create/${paymentId}`);
     if (data.type === 'loaded' && data.status === 200) {
       createPaymentData = data.data as CreatePaymentData;
+    }
+  }
+
+  async function showCreateHouseholdDrawer() {
+    const data = await preloadData('/dashboard/household/create');
+
+    if (data.type === 'loaded' && data.status === 200) {
+      createHouseholdData = data.data as CreateHouseholdData;
     }
   }
 </script>
@@ -50,6 +62,16 @@
     };
   }}
 />
+
+{#if createHouseholdData !== null}
+  <Drawer
+    open={showCreateBillModal !== null}
+    on:close={() => (createHouseholdData = null)}
+    let:close={closeDrawer}
+  >
+    <CreateHousehold onclose={closeDrawer} component={true} />
+  </Drawer>
+{/if}
 
 {#if createPaymentData !== null}
   <Drawer
@@ -78,7 +100,11 @@
         <PlusIcon size="1.1em" />
         New Bill
       </Button>
-      <button class="btn variant-ghost-primary btn-sm flex gap-2">
+      <button
+        class="btn variant-ghost-primary btn-sm flex gap-2"
+        type="button"
+        on:click={() => showCreateHouseholdDrawer()}
+      >
         <HomeIcon size="1.1em" />
         New Household
       </button>

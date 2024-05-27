@@ -1,24 +1,35 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import { goto, invalidateAll } from '$app/navigation';
+  import { goto, preloadData, pushState } from '$app/navigation';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import { CrownIcon, XIcon } from 'lucide-svelte';
 
   import Button from '$lib/components/button/button.svelte';
   import Drawer from '$lib/components/drawer/drawer.svelte';
-  import HouseholdSidebar from '../_components/householdSidebar.svelte';
   import DeleteHousehold from '$lib/components/households/delete.svelte';
+  import HouseholdSidebar from '../_components/householdSidebar.svelte';
+  import type { PageData as EditHouseholdData } from './edit/$types';
+  import EditHousehold from './edit/+page.svelte';
 
   export let data;
 
   let household = data.household;
+
+  let editHouseholdData: EditHouseholdData | null = null;
 
   $: household = data.household;
   if (household === undefined) {
     goto('/dashboard/household');
   }
 
-  let showDrawer = false;
+  async function showEdit(householdId: string) {
+    const data = await preloadData(`/dashboard/household/${householdId}/edit`);
+    if (data.type === 'loaded' && data.status === 200) {
+      editHouseholdData = data.data as EditHouseholdData;
+      pushState(`/dashboard/household/${householdId}/edit`, {});
+    }
+  }
+
   let showDelete = false;
 </script>
 
@@ -28,43 +39,15 @@
   </title>
 </svelte:head>
 
-<Drawer
-  on:close={() => (showDrawer = false)}
-  open={showDrawer}
-  let:close={closeDrawer}
->
-  <section class="p-4">
-    <form
-      action="/dashboard/household?/updateHousehold"
-      class="flex flex-col gap-4"
-      method="post"
-      use:enhance={() => {
-        return async ({ formElement, update }) => {
-          await update();
-          formElement.reset();
-          showDrawer = false;
-          await invalidateAll();
-        };
-      }}
-    >
-      <input type="hidden" name="household-id" value={household.id} />
-      <h2 class="h2">
-        Edit {household.name}
-      </h2>
-      <p class="text-surface-700-200-token">ID: {household.id}</p>
-
-      <label class="label">
-        <span>Household Name</span>
-        <input name="name" type="text" class="input" value={household.name} />
-      </label>
-
-      <section class="flex gap-3">
-        <Button variant="filled" on:click={() => closeDrawer()}>Close</Button>
-        <Button>Save</Button>
-      </section>
-    </form>
-  </section>
-</Drawer>
+{#if editHouseholdData !== null}
+  <Drawer
+    on:close={() => (editHouseholdData = null)}
+    open={editHouseholdData !== null}
+    let:close={closeDrawer}
+  >
+    <EditHousehold data={editHouseholdData} component onclose={closeDrawer} />
+  </Drawer>
+{/if}
 
 <HouseholdSidebar
   households={data.households}
@@ -102,7 +85,7 @@
       <Button
         size="sm"
         variant="primary:ghost"
-        on:click={() => (showDrawer = true)}>Edit</Button
+        on:click={() => showEdit(household.id)}>Edit</Button
       >
       <Button
         size="sm"
@@ -122,6 +105,17 @@
               <header class="card-header pb-3">
                 {bill.billName} due on the {bill.dueDate} of each month
               </header>
+              <section class="p-4 pt-0">
+                {#if bill.payments.length === 1}
+                  {@const payment = bill.payments[0]}
+                  Latest payment status:
+                  {#if payment.paidAt !== null}
+                    Paid ({payment.paidAt.toLocaleDateString(undefined)})
+                  {:else}
+                    Not Paid
+                  {/if}
+                {/if}
+              </section>
             </div>
           {/each}
         </div>
@@ -132,7 +126,7 @@
       class="w-1/4 bg-surface-300-600-token p-3 rounded flex flex-col gap-2"
     >
       <h4 class="h4">Members</h4>
-      {#if data.session?.user && data.session.user.id === household.ownerId}
+      {#if data.user && data.user.id === household.ownerId}
         <form
           method="post"
           action="?/inviteUsers"

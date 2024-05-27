@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db/client.js';
-import { exportedSchema as schema } from '@sungmanito/db';
 import { formDataValidObject, validateFormData } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
+import { exportedSchema as schema } from '@sungmanito/db';
 import { error, redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
 import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
@@ -34,13 +34,22 @@ export const load = async ({ params, locals }) => {
     // Current household info
     household,
     // Not 100% i need this anymore, but we'll leave it in for now.
-    user: session.user,
+    // user: session.user,
     streamed: {
       // The bills for the current household
-      bills: db
-        .select()
-        .from(schema.bills)
-        .where(eq(schema.bills.householdId, household.id)),
+      bills: db.query.bills.findMany({
+        with: {
+          payments: {
+            orderBy(fields, operators) {
+              return operators.desc(fields.createdAt);
+            },
+            limit: 1,
+          },
+        },
+        where(fields, operators) {
+          return operators.eq(fields.householdId, household.id);
+        },
+      }),
       // Invites for the current household
       invites: db
         .select()
