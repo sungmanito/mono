@@ -23,8 +23,6 @@
   });
 </script>
 
-<Toast position="t" />
-
 <div class="min-h-screen flex flex-col">
   <Navbar />
   {@render children?.()}
