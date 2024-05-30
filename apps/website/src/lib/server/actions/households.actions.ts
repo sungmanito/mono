@@ -6,14 +6,17 @@ export type Household = typeof schema.households.$inferSelect;
 export type HouseholdInsertArgs = typeof schema.households.$inferInsert;
 
 export async function getUserHouseholds(userId: string) {
-  return db
-    .select()
-    .from(schema.households)
-    .innerJoin(
-      schema.usersToHouseholds,
-      and(eq(schema.households.id, schema.usersToHouseholds.householdId)),
-    )
-    .where(eq(schema.usersToHouseholds.userId, userId));
+  return (
+    db
+      // TODO: Fix this to just grab the households
+      .select()
+      .from(schema.households)
+      .innerJoin(
+        schema.usersToHouseholds,
+        and(eq(schema.households.id, schema.usersToHouseholds.householdId)),
+      )
+      .where(eq(schema.usersToHouseholds.userId, userId))
+  );
 }
 
 export async function addHousehold(household: HouseholdInsertArgs) {

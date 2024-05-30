@@ -1,7 +1,10 @@
 <script lang="ts">
   import Header from '$lib/components/header/header.svelte';
+  import { XIcon } from 'lucide-svelte';
 
   export let data;
+  export let component = false;
+  export let onclose: () => void = () => void 0;
 
   const monthYear = data.payment.forMonthD.toLocaleDateString(undefined, {
     month: 'long',
@@ -17,6 +20,11 @@
   <Header class="mt-8">
     Payment for {data.payment.bill.billName}
     ({monthYear})
+    <svelte:fragment slot="actions">
+      <button on:click={() => onclose()}>
+        <XIcon size="1em" />
+      </button>
+    </svelte:fragment>
   </Header>
 
   {data.payment.paidAt?.toLocaleString(undefined, {
