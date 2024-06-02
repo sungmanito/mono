@@ -115,11 +115,11 @@
     </div>
     <div class="col-start-1">
       <FormLabel label="Amount paid (optional)">
-        <input class="input" type="number" min="0" />
+        <input class="input" type="number" min="0" name="amount" step="0.01" />
       </FormLabel>
     </div>
     <div>
-      <FormLabel label="Notes">
+      <FormLabel label="Notes (optional)">
         <textarea
           class="textarea"
           name="proof"

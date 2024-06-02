@@ -19,6 +19,9 @@ const config = {
         'child-src': ['self', 'blob:'],
       },
     },
+    alias: {
+      $components: 'src/lib/components',
+    },
   },
 };
 

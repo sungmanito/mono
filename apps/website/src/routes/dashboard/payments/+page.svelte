@@ -3,20 +3,33 @@
   import { CheckIcon } from 'lucide-svelte';
   import { enhance } from '$app/forms';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
-  import type { PageData as CreatePageData } from './create/[id=ulid]/.$types';
+  import type { PageData as CreatePageData } from './create/[id=ulid]/$types';
+  import type { PageData as PaymentDetailsData } from './[id=ulid]/$types';
   import CreatePaymentPage from './create/[id=ulid]/+page.svelte';
   import { preloadData, pushState, replaceState } from '$app/navigation';
   import Drawer from '$lib/components/drawer/drawer.svelte';
+  import PaymentDetails from './[id=ulid]/+page.svelte';
 
   export let data;
 
   let createPaymentData: CreatePageData | null = null;
 
+  let showPaymentData: PaymentDetailsData | null = null;
+
   async function showModal(paymentId: string) {
     const data = await preloadData(`/dashboard/payments/create/${paymentId}`);
     if (data.type === 'loaded' && data.status === 200) {
       pushState(`/dashboard/payments/create/${paymentId}`, {});
-      createPaymentData = data.data;
+      createPaymentData = data.data as CreatePageData;
+    }
+  }
+
+  async function showDetailsModal(paymentId: string) {
+    const response = await preloadData(`/dashboard/payments/${paymentId}`);
+
+    if (response.type === 'loaded' && response.status === 200) {
+      showPaymentData = response.data as PaymentDetailsData;
+      pushState(`/dashboard/payments/${paymentId}`, {});
     }
   }
 </script>
@@ -39,6 +52,19 @@
       component={true}
       onclose={closeDrawer}
     />
+  </Drawer>
+{/if}
+
+{#if showPaymentData !== null}
+  <Drawer
+    open={showPaymentData !== null}
+    on:close={() => {
+      showPaymentData = null;
+      pushState('/dashboard/payments', {});
+    }}
+    let:close={onclose}
+  >
+    <PaymentDetails data={showPaymentData} component {onclose} />
   </Drawer>
 {/if}
 
@@ -66,18 +92,20 @@
       <div class="card" class:variant-outline-success={payment.paidAt !== null}>
         <header class="card-header">
           <Header tag="h5" color="secondary">
-            <div class="flex gap-3">
+            <div class="flex gap-3 items-baseline">
               {#if payment.paidAt !== null}
                 <CheckIcon size="1em" />
               {/if}
               <div>
-                {#if payment.paidAt !== null}
-                  <a href={`/dashboard/payments/${payment.id}`}>
-                    {payment.billName}
-                  </a>
-                {:else}
+                <a
+                  href="/"
+                  on:click={(e) => {
+                    e.preventDefault();
+                    showDetailsModal(payment.id);
+                  }}
+                >
                   {payment.billName}
-                {/if}
+                </a>
               </div>
             </div>
             <svelte:fragment slot="actions">

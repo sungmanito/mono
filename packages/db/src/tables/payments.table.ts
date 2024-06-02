@@ -7,6 +7,7 @@ import {
   timestamp,
   uniqueIndex,
   uuid,
+  numeric,
 } from 'drizzle-orm/pg-core';
 import { bills } from './bills.table';
 import { households } from './households.table';
@@ -23,7 +24,6 @@ export const payments = pgTable(
     billId: text('bill_id')
       .notNull()
       .references(() => bills.id, { onDelete: 'cascade' }),
-    proof: text('proof'),
     paidAt: timestamp('paid_at', { withTimezone: true }),
     updatedBy: uuid('updated_by').references(() => users.id),
     createdAt: timestamp('created_at', { withTimezone: true })
@@ -37,6 +37,7 @@ export const payments = pgTable(
       onDelete: 'set null',
       onUpdate: 'cascade',
     }),
+    amount: numeric('amount', { scale: 6, precision: 12 }),
     householdId: text('household_id')
       .notNull()
       .references(() => households.id, { onDelete: 'no action' }),

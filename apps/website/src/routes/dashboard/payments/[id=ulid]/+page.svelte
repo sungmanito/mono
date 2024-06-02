@@ -1,6 +1,9 @@
 <script lang="ts">
+  import Image from '$components/image/image.svelte';
+  import UserInfo from '$components/userInfo/userInfo.svelte';
   import Header from '$lib/components/header/header.svelte';
-  import { XIcon } from 'lucide-svelte';
+  import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
+  import { CheckIcon, XIcon } from 'lucide-svelte';
 
   export let data;
   export let component = false;
@@ -16,32 +19,103 @@
   <title>{data.payment.bill.billName} {monthYear} Payment</title>
 </svelte:head>
 
-<div class="container mx-auto">
+<div class="container mx-auto" class:px-4={component}>
   <Header class="mt-8">
     Payment for {data.payment.bill.billName}
     ({monthYear})
     <svelte:fragment slot="actions">
-      <button on:click={() => onclose()}>
-        <XIcon size="1em" />
-      </button>
+      {#if component}
+        <button on:click={() => onclose()}>
+          <XIcon size="1em" />
+        </button>
+      {/if}
     </svelte:fragment>
   </Header>
 
-  {data.payment.paidAt?.toLocaleString(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'full',
-  })}
+  {#if data.payment.paidAt !== null}
+    {@const paidAt = data.payment.paidAt?.toLocaleString(undefined, {
+      dateStyle: 'medium',
+      timeStyle: 'full',
+    })}
+    <p>
+      <strong>Paid at: </strong>{paidAt}
+    </p>
+    {#if data.payment.amount}
+      {@const paymentNumber = Number(data.payment.amount)}
+      <p>
+        <strong>Paid:</strong> ${paymentNumber.toFixed(2)}
+      </p>
+    {/if}
+  {:else}
+    <strong>Payment Pending</strong>
+  {/if}
 
   {#if data.payment.paymentImageUrl}
-    <img
+    <Image
+      placeholderClass="w-64 h-32"
+      class="mt-4"
       src={data.payment.paymentImageUrl}
       alt={`Uploaded on ${data.payment.paidAt?.toLocaleDateString()}`}
     />
   {/if}
 
-  {#if data.payment.proof}
-    <p class="first-line:font-bold first-line:text-xl">
-      {JSON.stringify(data.payment.proof)}
-    </p>
+  {#if data.payment.notes}
+    <section class="mt-4 border p-3 rounded-lg">
+      <div class="h3 mb-4">Notes</div>
+      <blockquote class="blockquote">
+        {data.payment.notes}
+      </blockquote>
+
+      <footer class="mt-4">
+        {#if data.payment.payee}
+          <UserInfo user={data.payment.payee} />
+        {/if}
+      </footer>
+    </section>
   {/if}
+
+  <Accordion>
+    <AccordionItem>
+      <svelte:fragment slot="summary">
+        <Header tag="h2" class="my-4">Payment History</Header>
+      </svelte:fragment>
+      <svelte:fragment slot="content">
+        {#await data.history}
+          <div class="placeholder"></div>
+          <div class="placeholder"></div>
+          <div class="placeholder"></div>
+        {:then pastPayments}
+          {#each pastPayments as pastPayment (pastPayment.id)}
+            <div
+              class="card"
+              class:variant-filled-primary={pastPayment.paidAt !== null}
+            >
+              <div class="card-header flex items-center gap-4">
+                {#if pastPayment.paidAt !== null}
+                  <CheckIcon size="1em" />
+                {/if}
+                <a href={`/dashboard/payments/${pastPayment.id}`}>
+                  {pastPayment.forMonthD.toLocaleDateString(undefined, {
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </a>
+              </div>
+              <div class="card-footer">
+                {#if pastPayment.paidAt !== null && pastPayment.payee !== null}
+                  Paid by {pastPayment.payee.email} on {pastPayment.paidAt.toLocaleString(
+                    undefined,
+                    {
+                      dateStyle: 'full',
+                      timeStyle: 'full',
+                    },
+                  )}
+                {/if}
+              </div>
+            </div>
+          {/each}
+        {/await}
+      </svelte:fragment>
+    </AccordionItem>
+  </Accordion>
 </div>
