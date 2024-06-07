@@ -28,5 +28,6 @@ module.exports = {
   ],
   rules: {
     quotes: ['warn', 'single'],
+    'no-undef': ['off'],
   },
 };
