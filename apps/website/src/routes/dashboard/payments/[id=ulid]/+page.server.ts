@@ -47,10 +47,24 @@ export const load = async ({ locals, params }) => {
   // Throw a 404 error if we do not have a payment option.
   if (!payment) error(404);
 
-  console.info(payment);
-
   // Return the payment for this page.
   return {
     payment,
+    // Fetches the payment history for the associated bill BEFORE the current payment
+    history: db.query.payments.findMany({
+      with: {
+        payee: true,
+      },
+      where(fields, operators) {
+        return operators.and(
+          operators.eq(fields.billId, payment.billId),
+          operators.lt(fields.forMonthD, payment.forMonthD),
+        );
+      },
+      orderBy(fields, operators) {
+        return operators.desc(fields.forMonthD);
+      },
+      limit: 12,
+    }),
   };
 };

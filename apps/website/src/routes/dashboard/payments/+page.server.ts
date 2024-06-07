@@ -32,6 +32,7 @@ export const load = async ({ locals, depends }) => {
     .select({
       ...getTableColumns(schema.payments),
       billName: schema.bills.billName,
+      household: schema.households,
     })
     .from(schema.payments)
     .innerJoin(
@@ -43,6 +44,10 @@ export const load = async ({ locals, depends }) => {
           households.map((h) => h.households.id),
         ),
       ),
+    )
+    .innerJoin(
+      schema.households,
+      eq(schema.households.id, schema.payments.householdId),
     )
     .where(eq(schema.payments.forMonth, today.getMonth() + 1))
     .orderBy(schema.payments.forMonth);
@@ -57,11 +62,6 @@ export const actions = {
     const session = await locals.getSession();
     if (!validateUserSession(session)) error(401);
 
-    const updateArgs: PaymentUpdateArgs = {
-      paidAt: new Date(),
-      updatedBy: session.user.id,
-    };
-
     const formData = validateFormData(
       await request.formData(),
       type({
@@ -69,8 +69,17 @@ export const actions = {
         'household-id': 'string',
         proof: 'string',
         'proof-file?': instanceOf(File),
+        'notes?': 'string',
+        'amount?': 'number',
       }),
     );
+
+    const updateArgs: PaymentUpdateArgs = {
+      paidAt: new Date(),
+      updatedBy: session.user.id,
+      amount: formData.amount?.toString() || null,
+      notes: formData.notes || null,
+    };
 
     // if we have a proof file we're going to need to upload it to the stash
     if (formData['proof-file']) {
@@ -119,13 +128,6 @@ export const actions = {
 
     return fail(400);
   },
-  payBill: async ({ locals, request }) => {
-    const session = await locals.getSession();
-    if (!validateUserSession(session)) throw error(401);
-    const fd = await request.formData();
-    console.info(fd);
-    return {};
-  },
   unpayBill: async ({ locals, request }) => {
     const session = await locals.getSession();
 
@@ -158,10 +160,10 @@ export const actions = {
     const [payment] = await db
       .update(schema.payments)
       .set({
-        proof: null,
         proofImage: null,
         updatedBy: session.user.id,
         paidAt: null,
+        notes: null,
       })
       .where(
         and(

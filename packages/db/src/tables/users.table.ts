@@ -12,3 +12,5 @@ export const users = authSchema.table('users', {
     avatar_url: string;
   }>(),
 });
+
+export type UserSqlType = typeof users.$inferSelect;
