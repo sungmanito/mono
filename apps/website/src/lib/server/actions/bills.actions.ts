@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import { exportedSchema as schema } from '@sungmanito/db';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, getTableColumns } from 'drizzle-orm';
 import { NotFound } from '../errors';
 
 export type Bill = typeof schema.bills.$inferSelect;
@@ -43,9 +43,13 @@ export async function createBill(bill: BillInsertArgs) {
  */
 export async function getBill(billId: Bill['id']) {
   return db
-    .select()
+    .select({ ...getTableColumns(schema.bills), household: schema.households })
     .from(schema.bills)
     .where(eq(schema.bills.id, billId))
+    .innerJoin(
+      schema.households,
+      eq(schema.bills.householdId, schema.households.id),
+    )
     .then((r) => {
       if (r.length > 1 || r.length === 0)
         throw new NotFound(`Bill not found (id: ${billId})`);
@@ -66,7 +70,7 @@ export async function getUserBills(userId: string) {
   return (
     db
       .select({
-        ...schema.bills,
+        ...getTableColumns(schema.bills),
         householdName: schema.households.name,
       })
       // Selecting from bills

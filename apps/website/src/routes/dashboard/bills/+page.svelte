@@ -1,14 +1,16 @@
 <script lang="ts">
-  import { invalidateAll } from '$app/navigation';
+  import { invalidateAll, preloadData, pushState } from '$app/navigation';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import Button from '$lib/components/button/button.svelte';
   import Header from '$lib/components/header/header.svelte';
   import { getToastStore } from '@skeletonlabs/skeleton';
   import type { ActionResult } from '@sveltejs/kit';
   import { PencilIcon, PlusIcon, TrashIcon } from 'lucide-svelte';
-  import CreateBill from '$lib/components/bills/create.svelte';
-  import EditBill from '$lib/components/bills/edit.svelte';
-  import type { Bill } from '$lib/server/actions/bills.actions';
+  import type { PageData as CreateBillData } from './create/$types';
+  import type { PageData as EditBillData } from './[id=ulid]/edit/$types';
+  import CreateBillComponent from './create/+page.svelte';
+  import EditBillComponent from './[id=ulid]/edit/+page.svelte';
+  import Drawer from '$lib/components/drawer/drawer.svelte';
 
   export let data;
 
@@ -19,8 +21,48 @@
   let validation = '';
 
   const toastStore = getToastStore();
-  let showAdd = false;
-  let editBill: Bill | null = null;
+
+  let createBillData: CreateBillData | null = null;
+  let editBillData: EditBillData | null = null;
+
+  /**
+   * @description Fetches and loads the data for creating new bills for the given householdIds
+   * @param householdIds
+   */
+  async function fetchCreateBillData(householdIds?: string[]) {
+    const params = householdIds?.map((h) => `household-id[]=${h}`).join('&');
+
+    const data = await preloadData(
+      `/dashboard/bills/create${params ? '?' + params : ''}`,
+    );
+
+    if (data.type === 'loaded' && data.status === 200) {
+      createBillData = data.data as CreateBillData;
+      pushState('/dashboard/bills/create', {});
+    }
+  }
+
+  /**
+   * @description Updates the edit bill data to show the editing drawer
+   * @param bill
+   */
+  async function fetchEditBillData(bill: (typeof data.bills)[number]) {
+    const h = data.households.find(
+      (hh) => hh.households.id === bill.householdId,
+    );
+
+    if (h !== undefined) {
+      editBillData = {
+        ...data,
+        bill: {
+          ...bill,
+          household: h.households,
+        },
+        households: data.households.map((h) => h.households),
+      };
+      pushState(`/dashboard/bills/${bill.id}/edit`, {});
+    }
+  }
 
   async function submitForm(
     e: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement },
@@ -63,39 +105,32 @@
   <title>Sungmanito &ndash; Bills</title>
 </svelte:head>
 
-<CreateBill
-  on:close={() => (showAdd = false)}
-  households={data.households.map((h) => ({
-    id: h.households.id,
-    name: h.households.name,
-  }))}
-  open={showAdd}
-  submit={() => {
-    return async ({ formElement, update }) => {
-      formElement.reset();
-      await update();
-      await invalidateAll();
-      showAdd = false;
-    };
-  }}
-/>
+{#if createBillData !== null}
+  <Drawer
+    open={createBillData !== null}
+    on:close={() => (createBillData = null)}
+    let:close={closeDrawer}
+  >
+    <CreateBillComponent
+      data={createBillData}
+      component
+      onclose={closeDrawer}
+    />
+  </Drawer>
+{/if}
 
-<EditBill
-  open={editBill !== null}
-  on:close={() => (editBill = null)}
-  submit={() => {
-    return async ({ formElement }) => {
-      formElement.reset();
-      editBill = null;
-      await invalidateAll();
-    };
-  }}
-  households={data.households.map((h) => ({
-    id: h.households.id,
-    name: h.households.name,
-  }))}
-  bill={editBill}
-/>
+{#if editBillData !== null}
+  <Drawer
+    open={editBillData !== null}
+    let:close={closeDrawer}
+    on:close={() => {
+      editBillData = null;
+      pushState('/dashboard/bills', {});
+    }}
+  >
+    <EditBillComponent data={editBillData} component onclose={closeDrawer} />
+  </Drawer>
+{/if}
 
 <dialog
   bind:this={deleteModal}
@@ -152,7 +187,10 @@
   <Header class="mb-6">
     Bills
     <svelte:fragment slot="actions">
-      <Button class="flex gap-2 items-center" on:click={() => (showAdd = true)}>
+      <Button
+        class="flex gap-2 items-center"
+        on:click={() => fetchCreateBillData()}
+      >
         <PlusIcon size="0.9em" />
         Add
       </Button>
@@ -173,7 +211,7 @@
       {#each data.bills as bill}
         <tr on:click={() => console.info(bill)}>
           <td>
-            {bill.billName}
+            {bill.billName} &ndash; <small>({bill.id})</small>
           </td>
           <td>
             {bill.dueDate}
@@ -187,7 +225,7 @@
                 class="btn-icon btn-icon-sm variant-filled-secondary"
                 title={`Edit Bill ${bill.billName}`}
                 on:click={() => {
-                  editBill = bill;
+                  fetchEditBillData(bill);
                 }}
               >
                 <PencilIcon size="1em" />
