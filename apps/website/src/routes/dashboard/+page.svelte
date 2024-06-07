@@ -1,91 +1,62 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import { invalidate, preloadData } from '$app/navigation';
-  import CreateBill from '$lib/components/bills/create.svelte';
+  import { pushState, replaceState } from '$app/navigation';
+  import Drawerify from '$components/drawerify/drawerify.svelte';
   import Button from '$lib/components/button/button.svelte';
-  import Drawer from '$lib/components/drawer/drawer.svelte';
   import Header from '$lib/components/header/header.svelte';
-  import {
-    Accordion,
-    AccordionItem,
-    Step,
-    Stepper,
-  } from '@skeletonlabs/skeleton';
-  import { HomeIcon, PlusIcon, XIcon } from 'lucide-svelte';
-  import type { PageData as CreatePaymentData } from './payments/create/[id=ulid]/$types';
-  import type { PageData as CreateHouseholdData } from './household/create/$types';
-  import CreatePayment from './payments/create/[id=ulid]/+page.svelte';
+  import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
+  import { HomeIcon, PlusIcon } from 'lucide-svelte';
+  import CreateBillComponent from './bills/create/+page.svelte';
   import CreateHousehold from './household/create/+page.svelte';
+  import CreatePayment from './payments/create/[id=ulid]/+page.svelte';
   export let data;
 
-  let billName = '';
-  let dueDate = 1;
-  let householdId = '';
-
-  let modalEl: HTMLDialogElement;
-
   let showCreateBillModal = false;
-  let createPaymentData: CreatePaymentData | null = null;
 
-  let createHouseholdData: CreateHouseholdData | null = null;
+  let createPaymentDrawerUrl = '/';
+
+  let showCreatePaymentDrawer = false;
+
+  let showCreateHousehold = false;
+
+  $: showCreatePaymentDrawer = createPaymentDrawerUrl !== '/';
 
   async function showPaymentDrawer(paymentId: string) {
-    const data = await preloadData(`/dashboard/payments/create/${paymentId}`);
-    if (data.type === 'loaded' && data.status === 200) {
-      createPaymentData = data.data as CreatePaymentData;
-    }
+    createPaymentDrawerUrl = `/dashboard/payments/create/${paymentId}`;
   }
 
   async function showCreateHouseholdDrawer() {
-    const data = await preloadData('/dashboard/household/create');
-
-    if (data.type === 'loaded' && data.status === 200) {
-      createHouseholdData = data.data as CreateHouseholdData;
-    }
+    showCreateHousehold = true;
   }
 </script>
 
 <svelte:head>
-  <title>Dashboard</title>
+  <title>Dashboard &ndash; Home</title>
 </svelte:head>
 
-<CreateBill
-  open={showCreateBillModal}
-  on:close={() => (showCreateBillModal = false)}
-  households={data.households}
-  submit={() => {
-    return async ({ update, formElement }) => {
-      formElement.reset();
-      await update();
-      showCreateBillModal = false;
-      await invalidate('household:bills');
-    };
-  }}
+<Drawerify
+  bind:open={showCreateBillModal}
+  component={CreateBillComponent}
+  url="/dashboard/bills/create"
+  on:open={() => pushState('/dashboard/bills/create', {})}
+  on:close={() => replaceState('/dashboard', {})}
 />
 
-{#if createHouseholdData !== null}
-  <Drawer
-    open={showCreateBillModal !== null}
-    on:close={() => (createHouseholdData = null)}
-    let:close={closeDrawer}
-  >
-    <CreateHousehold onclose={closeDrawer} component={true} />
-  </Drawer>
-{/if}
+<Drawerify
+  bind:open={showCreateHousehold}
+  url="/dashboard/household/create"
+  on:open={() => pushState('/dashboard/household/create', {})}
+  on:close={() => replaceState('/dashboard', {})}
+  component={CreateHousehold}
+/>
 
-{#if createPaymentData !== null}
-  <Drawer
-    open={createPaymentData !== null}
-    on:close={() => (createPaymentData = null)}
-    let:close={closeDrawer}
-  >
-    <CreatePayment
-      data={createPaymentData}
-      component={true}
-      onclose={closeDrawer}
-    />
-  </Drawer>
-{/if}
+<Drawerify
+  bind:open={showCreatePaymentDrawer}
+  on:close={() => replaceState('/dashboard', {})}
+  on:open={() => pushState(createPaymentDrawerUrl, {})}
+  component={CreatePayment}
+  url={createPaymentDrawerUrl}
+/>
 
 <div class="container mx-auto p-3">
   <Header class="mt-4 mb-4">
@@ -110,81 +81,6 @@
       </button>
     </svelte:fragment>
   </Header>
-
-  <dialog
-    bind:this={modalEl}
-    class="bg-surface-800 w-10/12 text-white p-4 rounded backdrop:bg-zinc-900/40"
-    id="add-bill-ui"
-  >
-    <header class="flex justify-end">
-      <button
-        class="btn btn-icon"
-        on:click={() => {
-          modalEl.close();
-        }}
-      >
-        <XIcon size="1.1em" />
-      </button>
-    </header>
-    <form action="?/addBill" method="post">
-      <Stepper
-        on:complete={() => {
-          const fd = new FormData();
-          fd.append('household-id', householdId);
-          fd.append('bill-name', billName);
-          fd.append('due-date', dueDate.toString());
-          fetch('?/addBill', {
-            method: 'post',
-            body: fd,
-          })
-            .then(console.info)
-            .catch(console.error);
-          // Reset
-          [householdId, billName, dueDate] = ['', '', 1];
-
-          modalEl.close();
-        }}
-      >
-        <Step>
-          <svelte:fragment slot="header">Bill Information</svelte:fragment>
-          <input
-            class="px-2 input"
-            type="text"
-            name="bill-name"
-            placeholder="Name of the bill"
-            required
-            bind:value={billName}
-          />
-          <input
-            bind:value={dueDate}
-            name="dueDate"
-            class="px-2 input"
-            placeholder="1"
-            type="number"
-            min="1"
-            max="31"
-            required
-          />
-        </Step>
-        <Step>
-          <svelte:fragment slot="header">Household</svelte:fragment>
-          <select
-            bind:value={householdId}
-            name="household-id"
-            class="input p-3"
-          >
-            {#each data.households as household}
-              <option value={household.id}>
-                {household.name} &ndash; {household.householdCount} member(s)
-              </option>
-            {:else}
-              <option disabled> No households </option>
-            {/each}
-          </select>
-        </Step>
-      </Stepper>
-    </form>
-  </dialog>
 
   <div class="">
     <Accordion class="grid grid-cols-4 gap-2">
