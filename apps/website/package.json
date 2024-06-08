@@ -6,14 +6,15 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "pnpm test:integration && pnpm test:unit",
+    "test": "pnpm test:e2e && pnpm test:unit",
     "prettier:format": "prettier src/ --write",
     "prettier:check": "prettier src --check",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "lint": "eslint .",
-    "test:integration": "playwright test",
-    "test:unit": "vitest",
+    "test:e2e": "playwright test --trace retain-on-failure",
+    "test:e2e:dev": "playwright test --ui",
+    "test:unit": "vitest run",
     "story:dev": "histoire dev"
   },
   "devDependencies": {

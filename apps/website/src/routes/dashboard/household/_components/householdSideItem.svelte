@@ -16,6 +16,8 @@
 <a
   in:fly={{ y: 20 }}
   out:slide
+  role="menuitem"
+  data-testid="sidebar-household-item"
   data-sveltekit-preload-data="tap"
   href={generateLinkUri(household)}
   class="flex flex-col gap-2 bg-primary-active-token rounded p-3 hover:bg-primary-hover-token"

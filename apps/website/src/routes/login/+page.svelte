@@ -1,65 +1,57 @@
 <script lang="ts">
-  import { goto, invalidateAll } from '$app/navigation';
-  import client from '$lib/client/supabase';
+  import { enhance } from '$app/forms';
   import { getToastStore } from '@skeletonlabs/skeleton';
-  import type { EventHandler } from 'svelte/elements';
+  import { page } from '$app/stores';
+  import { goto, invalidateAll } from '$app/navigation';
 
   export let data;
   const toastStore = getToastStore();
 
   let email = '';
   let password = '';
-
-  async function handleLoginWithPassword(
-    e: Parameters<EventHandler<Event, HTMLFormElement>>[0],
-  ) {
-    e.preventDefault();
-
-    const { data, error } = await client.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (data.user) {
-      const f = await fetch('?/saveLogin', {
-        method: 'POST',
-        body: JSON.stringify(data || {}),
-      }).then((r) => r.json());
-
-      if (f.type === 'success') {
-        await invalidateAll();
-        goto('/dashboard');
-      }
-    } else if (error) {
-      toastStore.trigger({
-        message: `Error occurred${
-          error.message ? ': ' + error.message : null
-        } `,
-      });
-    }
-  }
+  // $: if (!data.enabled) {
+  //   goto('/');
+  // }
 </script>
 
-<form on:submit={handleLoginWithPassword}>
+<svelte:head>
+  <title>Sungmanito &ndash; Login</title>
+</svelte:head>
+
+<form
+  method="post"
+  action="?/saveLogin"
+  use:enhance={() => {
+    return async ({ result }) => {
+      if (result.type === 'success') {
+        await invalidateAll();
+        if (
+          $page.url.searchParams.has('url') &&
+          $page.url.searchParams.get('url')?.startsWith('/')
+        ) {
+          goto($page.url.searchParams.get('url'));
+        } else {
+          goto('/dashboard');
+        }
+      } else if (result.type === 'error' || result.type === 'failure') {
+        toastStore.trigger({
+          timeout: 7000,
+          message: 'Login failed, please try again later',
+        });
+      } else if (result.type === 'redirect') {
+        // Not sure I'll need this
+        goto(result.location);
+      }
+      console.info(result, $page);
+    };
+  }}
+>
   <div class="bg-zinc-800 h-screen flex items-center">
     <div
       class="container mx-auto bg-gradient-to-b from-slate-300 to-slate-100 gap-4 text-zinc-800 p-6 rounded-lg flex flex-col"
     >
       <h1 class="text-2xl font-semibold">Login</h1>
-      <section>
-        <form
-          action="?/login-with-google"
-          method="post"
-          on:submit={(e) => {
-            console.info(data.enabled);
-            if (!data.enabled) e.preventDefault();
-          }}
-        >
-          <button class="btn btn-sm variant-outline-surface" type="submit">
-            Login with Google
-          </button>
-        </form>
-      </section>
+      <!-- TODO: Add Google login button -->
       <label class="flex gap-3 flex-col">
         <div class="font-bold">Username</div>
         <input

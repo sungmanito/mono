@@ -7,16 +7,3 @@
 </svelte:head>
 
 <Hero />
-
-<div id="something" class="container mx-auto mt-8 mb-6">
-  <h1 class="text-4xl font-bold mb-8">
-    Sungmanito,
-    <small><em>Noun</em></small>
-  </h1>
-
-  <div>
-    <p class="text-2xl font-semibold">
-      The Lakota Wolf god considered the source and patron of the hunt.
-    </p>
-  </div>
-</div>
