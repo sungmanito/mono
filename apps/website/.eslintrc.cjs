@@ -2,6 +2,7 @@ module.exports = {
   root: true,
   extends: [
     'eslint:recommended',
+    'prettier',
     'plugin:@typescript-eslint/recommended',
     'plugin:svelte/prettier',
   ],
@@ -27,6 +28,6 @@ module.exports = {
     },
   ],
   rules: {
-    quotes: ['warn', 'single'],
+    quotes: ['warn', 'single', { avoidEscape: true }],
   },
 };

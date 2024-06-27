@@ -61,18 +61,22 @@ export const actions = {
   updatePayment: async ({ locals, request }) => {
     const session = await locals.getSession();
     if (!validateUserSession(session)) error(401);
+    const formValidator = type({
+      'payment-id': 'string',
+      'household-id': 'string',
+      'proof-file?': instanceOf(File),
+      'notes?': 'string',
+      'amount?': "number | ''",
+    });
+    let formData: typeof formValidator.infer;
 
-    const formData = validateFormData(
-      await request.formData(),
-      type({
-        'payment-id': 'string',
-        'household-id': 'string',
-        proof: 'string',
-        'proof-file?': instanceOf(File),
-        'notes?': 'string',
-        'amount?': 'number',
-      }),
-    );
+    try {
+      formData = validateFormData(await request.formData(), formValidator);
+    } catch (e) {
+      console.error('SHITS FUCKED');
+      console.error(e);
+      return fail(400);
+    }
 
     const updateArgs: PaymentUpdateArgs = {
       paidAt: new Date(),
@@ -82,7 +86,7 @@ export const actions = {
     };
 
     // if we have a proof file we're going to need to upload it to the stash
-    if (formData['proof-file']) {
+    if (formData['proof-file'] && formData['proof-file'].name !== '') {
       const file = formData['proof-file'];
       if (file.size > 1024 * 1024) error(400, 'File too large');
 

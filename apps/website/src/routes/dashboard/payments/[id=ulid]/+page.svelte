@@ -86,6 +86,11 @@
           <div class="placeholder"></div>
         {:then pastPayments}
           {#each pastPayments as pastPayment (pastPayment.id)}
+            {@const paymentDateString =
+              pastPayment.forMonthD.toLocaleDateString(undefined, {
+                month: 'long',
+                year: 'numeric',
+              })}
             <div
               class="card"
               class:variant-filled-primary={pastPayment.paidAt !== null}
@@ -95,10 +100,7 @@
                   <CheckIcon size="1em" />
                 {/if}
                 <a href={`/dashboard/payments/${pastPayment.id}`}>
-                  {pastPayment.forMonthD.toLocaleDateString(undefined, {
-                    month: 'long',
-                    year: 'numeric',
-                  })}
+                  {paymentDateString}
                 </a>
               </div>
               <div class="card-footer">
@@ -113,6 +115,8 @@
                 {/if}
               </div>
             </div>
+          {:else}
+            <p>No payment history for this bill</p>
           {/each}
         {/await}
       </svelte:fragment>
