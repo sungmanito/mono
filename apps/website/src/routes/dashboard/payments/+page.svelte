@@ -87,9 +87,13 @@
     Includes payments from this month.
   </p>
 
-  <div class="flex flex-col gap-3 mt-4">
+  <div class="flex flex-col gap-3 mt-4" role="list">
     {#each data.payments as payment}
-      <div class="card" class:variant-outline-success={payment.paidAt !== null}>
+      <div
+        role="listitem"
+        class="card"
+        class:variant-outline-success={payment.paidAt !== null}
+      >
         <header class="card-header">
           <Header tag="h5" color="secondary">
             <div class="flex gap-3 items-baseline">
@@ -98,7 +102,7 @@
               {/if}
               <div>
                 <a
-                  href="/"
+                  href={`/dashboard/payments/${payment.id}`}
                   on:click={(e) => {
                     e.preventDefault();
                     showDetailsModal(payment.id);
