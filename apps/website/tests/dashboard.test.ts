@@ -9,7 +9,7 @@ test('Dashboard redirects to login page when user is not logged in', async ({
   expect(page.getByRole('heading', { name: 'Login' })).toBeVisible();
   await login(page);
   await expect(
-    page.getByRole('heading', { name: 'jimpburbridge@gmail.com Dashboard' }),
+    page.getByRole('heading', { name: `${process.env.TEST_USER} Dashboard` }),
   ).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Past Due' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Upcoming' })).toBeVisible();

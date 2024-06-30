@@ -33,6 +33,6 @@ test('Login', async ({ page }) => {
   await login(page);
   await page.waitForURL(/dashboard/);
   await expect(
-    page.getByText('jimpburbridge@gmail.com Dashboard'),
+    page.getByText(`${process.env.TEST_USER} Dashboard`),
   ).toBeInViewport();
 });
