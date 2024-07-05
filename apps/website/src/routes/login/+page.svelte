@@ -1,46 +1,36 @@
 <script lang="ts">
+  import { enhance } from '$app/forms';
   import { goto, invalidateAll } from '$app/navigation';
-  import client from '$lib/client/supabase';
+  import { page } from '$app/stores';
   import { getToastStore } from '@skeletonlabs/skeleton';
-  import type { EventHandler } from 'svelte/elements';
 
   export let data;
   const toastStore = getToastStore();
 
   let email = '';
   let password = '';
-
-  async function handleLoginWithPassword(
-    e: Parameters<EventHandler<Event, HTMLFormElement>>[0],
-  ) {
-    e.preventDefault();
-
-    const { data, error } = await client.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (data.user) {
-      const f = await fetch('?/saveLogin', {
-        method: 'POST',
-        body: JSON.stringify(data || {}),
-      }).then((r) => r.json());
-
-      if (f.type === 'success') {
-        await invalidateAll();
-        goto('/dashboard');
-      }
-    } else if (error) {
-      toastStore.trigger({
-        message: `Error occurred${
-          error.message ? ': ' + error.message : null
-        } `,
-      });
-    }
-  }
 </script>
 
-<form on:submit={handleLoginWithPassword}>
+<svelte:head>
+  <title>Login</title>
+</svelte:head>
+
+<form
+  method="post"
+  action="?/saveLogin"
+  use:enhance={() => {
+    return async ({ result }) => {
+      if (result.type === 'success') {
+        await invalidateAll();
+        await goto($page.url.searchParams.get('url') || '/dashboard');
+      } else if (result.type === 'error') {
+        toastStore.trigger({
+          message: 'Error occurred',
+        });
+      }
+    };
+  }}
+>
   <div class="bg-zinc-800 h-screen flex items-center">
     <div
       class="container mx-auto bg-gradient-to-b from-slate-300 to-slate-100 gap-4 text-zinc-800 p-6 rounded-lg flex flex-col"

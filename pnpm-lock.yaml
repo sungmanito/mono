@@ -1282,6 +1282,11 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
+  acorn@8.12.1:
+    resolution: {integrity: sha512-tcpGyI9zbizT9JbV6oYE477V6mTlXvvi0T0G3SNIYE2apm/G5huBa1+K89VGeovbg+jycCrfhl3ADxErOuO6Jg==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
   agent-base@6.0.2:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
     engines: {node: '>= 6.0.0'}
@@ -2416,12 +2421,11 @@ packages:
     resolution: {integrity: sha512-8UnnX2PeRAPZuN12svgR9j7M1uWMovg/CEnIwIG0LFkXSJJe4PdfUGiTGl8V9bsBHFUtfVINcSyYxd7q+kx9fA==}
     engines: {node: '>=12'}
 
+  magic-string@0.30.10:
+    resolution: {integrity: sha512-iIRwTIf0QKV3UAnYK4PU8uiEc4SRh5jX0mwpIwETPpHdhVM4f53RSwS/vXvN1JhGX+Cs7B8qIq3d6AH49O5fAQ==}
+
   magic-string@0.30.5:
     resolution: {integrity: sha512-7xlpfBaQaP/T6Vh8MO/EqXSW5En6INHEvEXQiuff7Gku0PWjU3uf6w/j9o7O+SpB5fOAkrI5HeoNgwjEO0pFsA==}
-    engines: {node: '>=12'}
-
-  magic-string@0.30.8:
-    resolution: {integrity: sha512-ISQTe55T2ao7XtlAStud6qwYPZjE4GK1S/BeVPus4jrq6JuOnQ00YKQC581RWhR122W7msZV263KzVeLoqidyQ==}
     engines: {node: '>=12'}
 
   magicast@0.2.8:
@@ -4761,6 +4765,8 @@ snapshots:
 
   acorn@8.11.3: {}
 
+  acorn@8.12.1: {}
+
   agent-base@6.0.2:
     dependencies:
       debug: 4.3.4
@@ -6056,11 +6062,11 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.4.15
 
-  magic-string@0.30.5:
+  magic-string@0.30.10:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.4.15
 
-  magic-string@0.30.8:
+  magic-string@0.30.5:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.4.15
 
@@ -6890,7 +6896,7 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.4.15
       '@jridgewell/trace-mapping': 0.3.25
       '@types/estree': 1.0.5
-      acorn: 8.11.3
+      acorn: 8.12.1
       aria-query: 5.3.0
       axobject-query: 4.0.0
       code-red: 1.0.4
@@ -6898,7 +6904,7 @@ snapshots:
       estree-walker: 3.0.3
       is-reference: 3.0.2
       locate-character: 3.0.0
-      magic-string: 0.30.8
+      magic-string: 0.30.10
       periscopic: 3.1.0
 
   svelte@4.2.8:

@@ -1,7 +1,8 @@
-import type { AuthTokenResponse } from '@supabase/supabase-js';
-import type { Actions } from './$types';
-import { error, fail, redirect } from '@sveltejs/kit';
 import { dev } from '$app/environment';
+import { validateFormData } from '$lib/util/formData';
+import { error, fail, redirect } from '@sveltejs/kit';
+import { type } from 'arktype';
+import type { Actions } from './$types';
 
 export const load = async ({ url, locals }) => {
   const code = url.searchParams.get('code');
@@ -27,18 +28,34 @@ export const load = async ({ url, locals }) => {
 
 export const actions = {
   saveLogin: async ({ request, locals }) => {
-    const json = (await request.json()) as AuthTokenResponse['data'];
-    await locals.supabase.auth.setSession({
-      access_token: json.session?.access_token || '',
-      refresh_token: json.session?.refresh_token || '',
+    const validator = type({
+      username: 'string',
+      password: 'string>=8',
     });
+
+    let data: typeof validator.infer;
+
+    try {
+      data = validateFormData(await request.formData(), validator);
+    } catch (e) {
+      console.error('FORM VALIDATION FAILS', e);
+      return fail(400);
+    }
+
+    const { data: session, error: err } =
+      await locals.supabase.auth.signInWithPassword({
+        email: data.username,
+        password: data.password,
+      });
+
+    if (err) return fail(400, { message: err.message });
 
     return {
       success: true,
+      session,
     };
   },
   'login-with-google': async ({ url, locals }) => {
-    console.info(locals.config.allow_registration, dev);
     if (!locals.config.allow_registration && !dev) return fail(401);
     const { data, error: err } = await locals.supabase.auth.signInWithOAuth({
       provider: 'google',

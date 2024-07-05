@@ -1,0 +1,63 @@
+name: Playwright Tests
+
+on:
+  deployment_status:
+jobs:
+  run-e2es:
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache/restore@v4
+        name: Setup PNPM cache
+        id: npm-cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+            ${{ runner.os }}-pnpm-store-
+            ${{ runner.os }}-pnpm-
+      - uses: pnpm/action-setup@v4
+        name: Install PNPM
+        with:
+          version: 9.0.5
+
+      - uses: actions/cache/restore@v4
+        name: Restore Playwright from Cache
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+            ${{ runner.os }}-playwright-store-
+            ${{ runner.os }}-playwright-
+
+      - name: Install packages
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: pnpm i --frozen-lockfile
+      - uses: actions/cache/save@v4
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ steps.npm-cache.outputs.cache-primary-key }}
+
+      - name: Install Playwright
+        run: cd apps/website && pnpx playwright install --with-deps && pnpm exec playwright install chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+      - name: Run tests
+        id: e2e
+        run: cd apps/website && pnpm test:e2e
+        env:
+          BASE_URL: ${{ github.event.deployment_status.environment_url }}
+          TEST_USER: ${{ secrets.TEST_USER }}
+          TEST_PW: ${{ secrets.TEST_PW }}
+          TEST_SECRET: ${{ secrets.TEST_SECRET }}
+      - name: Upload test artifacts
+        if: ${{ failure() && steps.e2e.conclusion == 'failure' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: apps/website/test-results
