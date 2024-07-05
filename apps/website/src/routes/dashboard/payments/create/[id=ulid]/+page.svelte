@@ -27,7 +27,6 @@
   enctype="multipart/form-data"
   use:enhance={({ formData }) => {
     if (file !== null) formData.set('proof-file', file);
-    else formData.delete('proof-file');
 
     return async ({ formElement }) => {
       if (component) onclose();
