@@ -7,6 +7,8 @@
   export let data;
 
   let paymentDetailData: PaymentPageData | null = null;
+  export let component = false;
+  export let onclose: () => void = () => {};
 
   async function showPaymentDetails(paymentId: string) {
     const paymentData = await preloadData(`/dashboard/payments/${paymentId}`);
