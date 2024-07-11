@@ -11,8 +11,10 @@ import { error, fail, redirect } from '@sveltejs/kit';
 import { scope, type } from 'arktype';
 import { and, eq, inArray } from 'drizzle-orm';
 
-export const load = async ({ locals }) => {
+export const load = async ({ locals, depends }) => {
   const session = await locals.getSession();
+
+  depends('user:bills');
 
   if (!validateUserSession(session)) {
     redirect(300, '/login');

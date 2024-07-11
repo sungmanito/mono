@@ -1,72 +1,46 @@
 <script lang="ts">
+  import { enhance } from '$app/forms';
+  import { pushState, replaceState } from '$app/navigation';
+  import Drawerify from '$components/drawerify/drawerify.svelte';
+  import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import Header from '$lib/components/header/header.svelte';
   import { CheckIcon } from 'lucide-svelte';
-  import { enhance } from '$app/forms';
-  import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
-  import type { PageData as CreatePageData } from './create/[id=ulid]/$types';
-  import type { PageData as PaymentDetailsData } from './[id=ulid]/$types';
-  import CreatePaymentPage from './create/[id=ulid]/+page.svelte';
-  import { preloadData, pushState, replaceState } from '$app/navigation';
-  import Drawer from '$lib/components/drawer/drawer.svelte';
   import PaymentDetails from './[id=ulid]/+page.svelte';
+  import CreatePaymentPage from './create/[id=ulid]/+page.svelte';
 
   export let data;
 
-  let createPaymentData: CreatePageData | null = null;
-
-  let showPaymentData: PaymentDetailsData | null = null;
-
   async function showModal(paymentId: string) {
-    const data = await preloadData(`/dashboard/payments/create/${paymentId}`);
-    if (data.type === 'loaded' && data.status === 200) {
-      pushState(`/dashboard/payments/create/${paymentId}`, {});
-      createPaymentData = data.data as CreatePageData;
-    }
+    showMakePaymentModal = true;
+    showModalOpenUrl = `/dashboard/payments/create/${paymentId}`;
   }
 
-  async function showDetailsModal(paymentId: string) {
-    const response = await preloadData(`/dashboard/payments/${paymentId}`);
+  let showMakePaymentModal = false;
+  let showModalOpenUrl = '';
 
-    if (response.type === 'loaded' && response.status === 200) {
-      showPaymentData = response.data as PaymentDetailsData;
-      pushState(`/dashboard/payments/${paymentId}`, {});
-    }
-  }
+  let detailsModalOpen = false;
+  let detailsModalUrl = '/dashboard/payments/create/';
 </script>
 
 <svelte:head>
   <title>Dashboard &ndash; Payments</title>
 </svelte:head>
 
-{#if createPaymentData !== null}
-  <Drawer
-    open={createPaymentData !== null}
-    on:close={() => {
-      createPaymentData = null;
-      replaceState('/dashboard/payments', {});
-    }}
-    let:close={closeDrawer}
-  >
-    <CreatePaymentPage
-      data={createPaymentData}
-      component={true}
-      onclose={closeDrawer}
-    />
-  </Drawer>
-{/if}
+<Drawerify
+  on:open={() => pushState(showModalOpenUrl, {})}
+  on:close={() => replaceState('/dashboard/payments', {})}
+  bind:open={showMakePaymentModal}
+  url={showModalOpenUrl}
+  component={CreatePaymentPage}
+/>
 
-{#if showPaymentData !== null}
-  <Drawer
-    open={showPaymentData !== null}
-    on:close={() => {
-      showPaymentData = null;
-      pushState('/dashboard/payments', {});
-    }}
-    let:close={onclose}
-  >
-    <PaymentDetails data={showPaymentData} component {onclose} />
-  </Drawer>
-{/if}
+<Drawerify
+  on:open={() => pushState(detailsModalUrl, {})}
+  on:close={() => replaceState('/dashboard/payments', {})}
+  bind:open={detailsModalOpen}
+  component={PaymentDetails}
+  url={detailsModalUrl}
+/>
 
 <div class="container mx-auto px-3">
   <Breadcrumb
@@ -105,7 +79,8 @@
                   href={`/dashboard/payments/${payment.id}`}
                   on:click={(e) => {
                     e.preventDefault();
-                    showDetailsModal(payment.id);
+                    detailsModalUrl = `/dashboard/payments/${payment.id}`;
+                    detailsModalOpen = true;
                   }}
                 >
                   {payment.billName}

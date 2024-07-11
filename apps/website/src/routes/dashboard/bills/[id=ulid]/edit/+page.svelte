@@ -1,6 +1,6 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import { invalidateAll } from '$app/navigation';
+  import { goto, invalidate } from '$app/navigation';
   import Button from '$lib/components/button/button.svelte';
   import FormLabel from '$lib/components/formLabel/formLabel.svelte';
   import Header from '$lib/components/header/header.svelte';
@@ -20,9 +20,11 @@
     return async ({ update, formElement }) => {
       formElement.reset();
       await update();
-      await invalidateAll();
+      await invalidate('user:bills');
       if (component) {
         onclose();
+      } else {
+        goto('/dashboard/bills');
       }
     };
   };
