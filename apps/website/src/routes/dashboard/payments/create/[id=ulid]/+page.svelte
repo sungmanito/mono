@@ -7,7 +7,7 @@
   import { FileDownIcon, XIcon } from 'lucide-svelte';
   import Dropzone from '$lib/components/dropzone/dropzone.svelte';
   import { enhance } from '$app/forms';
-  import { invalidate } from '$app/navigation';
+  import { goto, invalidate } from '$app/navigation';
 
   export let data;
   export let component = false;
@@ -28,10 +28,18 @@
   use:enhance={({ formData }) => {
     if (file !== null) formData.set('proof-file', file);
 
-    return async ({ formElement }) => {
-      if (component) onclose();
-      formElement.reset();
-      await invalidate('household:payments');
+    return async ({ formElement, result }) => {
+      if (result.type === 'success') {
+        formElement.reset();
+        await invalidate('household:payments');
+        if (component) onclose();
+        else goto(`/dashboard/payments`);
+      } else {
+        toastStore.trigger({
+          message: 'Error saving payment, please try again later',
+          background: 'variant-filled-error',
+        });
+      }
     };
   }}
 >
