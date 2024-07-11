@@ -10,7 +10,7 @@ test('Navigating and logging in redirection works', async ({ page }) => {
     page.getByRole('heading', { name: 'Households', level: 1 }),
   ).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Invites' })).toBeVisible();
-  await expect(page.getByTestId('sidebar-household')).toBeVisible();
+  await expect(page.getByRole('complementary')).toBeVisible();
   expect(page.url()).toMatch('/dashboard/household');
 });
 
@@ -23,12 +23,16 @@ test('User can create household through dialog', async ({ page }) => {
     .filter({ hasText: /^Add$/ })
     .getByRole('button')
     .click();
-  await expect(page.getByText('New household')).toBeVisible();
-  await page.getByLabel('Household Name').fill('Household 1');
+  await expect(
+    page.getByRole('dialog').getByText('New household'),
+  ).toBeVisible();
+  await page
+    .getByRole('textbox', { name: 'Household Name' })
+    .fill('Household 1');
   await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();
   await expect(
-    page.getByTestId('sidebar-household').getByText('Household 1'),
+    page.getByRole('complementary').getByText('Household 1'),
   ).toBeVisible();
 });
 
@@ -37,10 +41,29 @@ test('User can view household details', async ({ page }) => {
   await page.goto('/dashboard/household');
   await login(page);
 
-  await page.getByTestId('sidebar-household').getByText('Household 1').click();
+  await page.getByRole('complementary').getByText('Default').click();
+  await expect(page.getByRole('heading', { name: 'Default' })).toBeInViewport();
   await expect(
-    page.getByRole('heading', { name: 'Household 1' }),
+    page.getByRole('listitem').filter({ hasText: 'Phone' }),
   ).toBeInViewport();
+  await expect(
+    page.getByRole('listitem').filter({ hasText: 'Credit Card' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('listitem').filter({ hasText: 'Student Loans' }),
+  ).toBeVisible();
+
+  await page.getByRole('listitem').filter({ hasText: 'Phone' }).click();
+
+  await expect(
+    page
+      .getByRole('dialog')
+      .getByRole('heading', { name: 'Phone', exact: false }),
+  ).toBeInViewport();
+
+  expect(page.url()).toMatch(/\/dashboard\/bills\/[A-Z0-9]+$/);
+  await page.keyboard.press('Escape');
+  expect(page.url()).toMatch('/dashboard/household/');
 });
 
 test('User can edit', async ({ page }) => {
@@ -48,7 +71,7 @@ test('User can edit', async ({ page }) => {
   await page.goto('/dashboard/household');
   await login(page);
 
-  await page.getByTestId('sidebar-household').getByText('Household 1').click();
+  await page.getByRole('complementary').getByText('Household 1').click();
 
   await page.getByRole('button', { name: 'Edit' }).click();
   await page.getByLabel('Household Name').clear();

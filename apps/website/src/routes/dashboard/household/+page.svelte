@@ -3,31 +3,25 @@
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import Button from '$lib/components/button/button.svelte';
   import Header from '$lib/components/header/header.svelte';
-  import CreateHousehold, {
-    makeSubmitterFunction,
-  } from '$lib/components/households/create.svelte';
+  import CreateHouseholdComponent from './create/+page.svelte';
+  import Drawerify from '$components/drawerify/drawerify.svelte';
   import { CheckIcon, XIcon } from 'lucide-svelte';
-  import HouseholdSidebar from './_components/householdSidebar.svelte';
+  import { pushState } from '$app/navigation';
   export let data;
-
-  let households = data.households;
-  $: households = data.households;
-
-  let addHousehold = false;
+  let showCreateHousehold = false;
+  const createHouseholdUrl = '/dashboard/household/create';
 </script>
 
 <svelte:head>
   <title>Dashboard &ndash; Households</title>
 </svelte:head>
 
-<HouseholdSidebar {households} userMap={data.streamable.userHouseholds} />
-
-<CreateHousehold
-  open={addHousehold}
-  on:close={() => (addHousehold = false)}
-  submit={makeSubmitterFunction(() => {
-    addHousehold = false;
-  })}
+<Drawerify
+  bind:open={showCreateHousehold}
+  url={createHouseholdUrl}
+  on:open={() => pushState(createHouseholdUrl, {})}
+  on:close={() => pushState('/dashboard/household', {})}
+  component={CreateHouseholdComponent}
 />
 
 <div class="container mx-auto mt-4 px-6">
@@ -48,8 +42,10 @@
   <Header class="mb-4">
     Households
     <svelte:fragment slot="actions">
-      <Button size="sm" variant="primary" on:click={() => (addHousehold = true)}
-        >Add</Button
+      <Button
+        size="sm"
+        variant="primary"
+        on:click={() => (showCreateHousehold = true)}>Add</Button
       >
     </svelte:fragment>
   </Header>

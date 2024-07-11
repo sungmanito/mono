@@ -1,38 +1,36 @@
 <script lang="ts">
-  import { preloadData } from '$app/navigation';
+  import { pushState } from '$app/navigation';
   import { page } from '$app/stores';
+  import Drawerify from '$components/drawerify/drawerify.svelte';
   import Button from '$lib/components/button/button.svelte';
-  import Drawer from '$lib/components/drawer/drawer.svelte';
   import { PlusIcon } from 'lucide-svelte';
   import type { PageData } from '../$types';
-  import type { PageData as CreateHouseholdData } from '../create/$types';
   import CreateHouseholdComponent from '../create/+page.svelte';
   import HouseholdSideItem from './householdSideItem.svelte';
 
   export let households: PageData['households'];
   export let userMap: PageData['streamable']['userHouseholds'];
 
-  let createHouseholdData: CreateHouseholdData | null = null;
+  let createDrawerOpen = false;
 
   async function loadCreate() {
-    const data = await preloadData('/dashboard/household/create');
-    if (data.type === 'loaded' && data.status === 200) {
-      createHouseholdData = data.data as CreateHouseholdData;
-    }
+    createDrawerOpen = true;
   }
 </script>
 
-{#if createHouseholdData !== null}
-  <Drawer
-    open={createHouseholdData !== null}
-    let:close={closeDrawer}
-    on:close={() => (createHouseholdData = null)}
-  >
-    <CreateHouseholdComponent component={true} onclose={closeDrawer} />
-  </Drawer>
-{/if}
+<Drawerify
+  component={CreateHouseholdComponent}
+  bind:open={createDrawerOpen}
+  url="/dashboard/household/create"
+  on:close={() => {
+    pushState('/dashboard/household', {});
+  }}
+  on:open={() => {
+    pushState('/dashboard/household/create', {});
+  }}
+/>
 
-<section
+<aside
   data-testid="sidebar-household"
   class="bg-surface-50-900-token p-4 overflow-auto min-w-max"
 >
@@ -58,4 +56,4 @@
       />
     {/each}
   </div>
-</section>
+</aside>

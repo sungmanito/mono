@@ -1,33 +1,34 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import { goto, preloadData, pushState } from '$app/navigation';
+  import { goto, pushState, invalidate } from '$app/navigation';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import { CrownIcon, XIcon } from 'lucide-svelte';
 
+  import Drawerify from '$components/drawerify/drawerify.svelte';
+  import Header from '$components/header/header.svelte';
   import Button from '$lib/components/button/button.svelte';
-  import Drawer from '$lib/components/drawer/drawer.svelte';
   import DeleteHousehold from '$lib/components/households/delete.svelte';
-  import HouseholdSidebar from '../_components/householdSidebar.svelte';
-  import type { PageData as EditHouseholdData } from './edit/$types';
+  import BillDetails from '../../bills/[id=ulid]/+page.svelte';
   import EditHousehold from './edit/+page.svelte';
 
   export let data;
 
   let household = data.household;
 
-  let editHouseholdData: EditHouseholdData | null = null;
+  let billDetailUrl = '';
+  let showBillDetails = false;
+
+  let editBillUrl = '';
+  let showEditHousehold = false;
 
   $: household = data.household;
   if (household === undefined) {
     goto('/dashboard/household');
   }
 
-  async function showEdit(householdId: string) {
-    const data = await preloadData(`/dashboard/household/${householdId}/edit`);
-    if (data.type === 'loaded' && data.status === 200) {
-      editHouseholdData = data.data as EditHouseholdData;
-      pushState(`/dashboard/household/${householdId}/edit`, {});
-    }
+  function showEdit(householdId: string) {
+    showEditHousehold = true;
+    editBillUrl = `/dashboard/household/${householdId}/edit`;
   }
 
   let showDelete = false;
@@ -35,23 +36,36 @@
 
 <svelte:head>
   <title>
-    Dashboard - {household.name} Household
+    Household - {household.name}
   </title>
 </svelte:head>
 
-{#if editHouseholdData !== null}
-  <Drawer
-    on:close={() => (editHouseholdData = null)}
-    open={editHouseholdData !== null}
-    let:close={closeDrawer}
-  >
-    <EditHousehold data={editHouseholdData} component onclose={closeDrawer} />
-  </Drawer>
-{/if}
+<Drawerify
+  bind:open={showBillDetails}
+  on:open={() => {
+    pushState(billDetailUrl, {});
+  }}
+  on:close={() => {
+    showBillDetails = false;
+    billDetailUrl = '';
+    pushState(`/dashboard/household/${household.id}`, {});
+  }}
+  component={BillDetails}
+  url={billDetailUrl}
+/>
 
-<HouseholdSidebar
-  households={data.households}
-  userMap={data.streamable.userHouseholds}
+<Drawerify
+  url={editBillUrl}
+  bind:open={showEditHousehold}
+  on:open={() => {
+    pushState(editBillUrl, {});
+  }}
+  on:close={() => {
+    showEditHousehold = false;
+    editBillUrl = '';
+    pushState(`/dashboard/household/${household.id}`, {});
+  }}
+  component={EditHousehold}
 />
 
 <DeleteHousehold
@@ -99,24 +113,32 @@
       {#await data.streamed.bills}
         <div class="placeholder animate-pulse" />
       {:then bills}
-        <div class="flex flex-col gap-3">
+        <div class="flex flex-col gap-3" role="list">
           {#each bills as bill}
-            <div class="bill card variant-filled-primary">
-              <header class="card-header pb-3">
-                {bill.billName} due on the {bill.dueDate} of each month
-              </header>
-              <section class="p-4 pt-0">
-                {#if bill.payments.length === 1}
-                  {@const payment = bill.payments[0]}
-                  Latest payment status:
-                  {#if payment.paidAt !== null}
-                    Paid ({payment.paidAt.toLocaleDateString(undefined)})
-                  {:else}
-                    Not Paid
+            <a
+              href={`/dashboard/bills/${bill.id}`}
+              on:click|preventDefault={() => {
+                billDetailUrl = `/dashboard/bills/${bill.id}`;
+                showBillDetails = true;
+              }}
+            >
+              <div role="listitem" class="bill card variant-filled-primary">
+                <header class="card-header pb-3 flex justify-between">
+                  {bill.billName} due on the {bill.dueDate} of each month
+                </header>
+                <section class="p-4 pt-0">
+                  {#if bill.payments.length === 1}
+                    {@const payment = bill.payments[0]}
+                    Latest payment status:
+                    {#if payment.paidAt !== null}
+                      Paid ({payment.paidAt.toLocaleDateString(undefined)})
+                    {:else}
+                      Not Paid
+                    {/if}
                   {/if}
-                {/if}
-              </section>
-            </div>
+                </section>
+              </div>
+            </a>
           {/each}
         </div>
       {/await}
@@ -125,7 +147,7 @@
     <section
       class="w-1/4 bg-surface-300-600-token p-3 rounded flex flex-col gap-2"
     >
-      <h4 class="h4">Members</h4>
+      <Header tag="h4">Members</Header>
       {#if data.user && data.user.id === household.ownerId}
         <form
           method="post"
@@ -150,8 +172,10 @@
               formData.append('emails', email);
             }
 
-            return async () => {
+            return async ({ formElement }) => {
               // Not 100% why this works but ok
+              await invalidate('user:households');
+              formElement.reset();
             };
           }}
         >

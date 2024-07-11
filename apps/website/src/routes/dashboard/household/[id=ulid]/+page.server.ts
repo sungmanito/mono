@@ -10,8 +10,9 @@ const formDataValidator = type({
   user: 'email | string',
 });
 
-export const load = async ({ params, locals }) => {
+export const load = async ({ params, locals, depends }) => {
   const session = await locals.getSession();
+  depends('user:households');
 
   if (!validateUserSession(session)) redirect(300, '/login');
 
