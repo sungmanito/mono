@@ -10,6 +10,7 @@
   import DeleteHousehold from '$lib/components/households/delete.svelte';
   import BillDetails from '../../bills/[id=ulid]/+page.svelte';
   import EditHousehold from './edit/+page.svelte';
+  import CreateBillPage from '../../bills/create/+page.svelte';
 
   export let data;
 
@@ -20,6 +21,8 @@
 
   let editBillUrl = '';
   let showEditHousehold = false;
+  let showCreateBill = false;
+  let showCreateBillUrl = '';
 
   $: household = data.household;
   if (household === undefined) {
@@ -52,6 +55,12 @@
   }}
   component={BillDetails}
   url={billDetailUrl}
+/>
+
+<Drawerify
+  bind:open={showCreateBill}
+  url={showCreateBillUrl}
+  component={CreateBillPage}
 />
 
 <Drawerify
@@ -110,6 +119,19 @@
   </header>
   <div class="flex gap-4">
     <main class="flex-grow">
+      <Header tag="h3">
+        <svelte:fragment slot="actions">
+          <Button
+            size="sm"
+            variant="secondary"
+            on:click={() => {
+              showCreateBillUrl = `/dashboard/bills/create?household-id[]=${household.id}`;
+              showCreateBill = true;
+            }}>Add</Button
+          >
+        </svelte:fragment>
+        Bills
+      </Header>
       {#await data.streamed.bills}
         <div class="placeholder animate-pulse" />
       {:then bills}
