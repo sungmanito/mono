@@ -10,7 +10,7 @@ test('Navigating and logging in redirection works', async ({ page }) => {
     page.getByRole('heading', { name: 'Households', level: 1 }),
   ).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Invites' })).toBeVisible();
-  await expect(page.getByRole('complementary')).toBeVisible();
+  await expect(page.getByTestId('sidebar-household')).toBeVisible();
   expect(page.url()).toMatch('/dashboard/household');
 });
 

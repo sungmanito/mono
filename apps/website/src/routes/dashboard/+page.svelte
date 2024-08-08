@@ -82,8 +82,8 @@
     </svelte:fragment>
   </Header>
 
-  <div class="">
-    <Accordion class="grid grid-cols-4 gap-2">
+  <div>
+    <Accordion class="grid md:grid-cols-4 gap-2">
       <AccordionItem open class="card variant-soft-surface col-span-2">
         <svelte:fragment slot="summary">
           <Header tag="h3" color="secondary">Past Due</Header>
@@ -106,7 +106,7 @@
           </section>
         </svelte:fragment>
       </AccordionItem>
-      <AccordionItem open class="card variant-soft-surface col-span-2">
+      <AccordionItem open class="card variant-soft-surface">
         <svelte:fragment slot="summary">
           <Header tag="h3" color="secondary">Upcoming</Header>
         </svelte:fragment>
