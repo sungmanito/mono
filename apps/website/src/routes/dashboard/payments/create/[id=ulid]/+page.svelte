@@ -33,7 +33,7 @@
         formElement.reset();
         await invalidate('household:payments');
         if (component) onclose();
-        else goto(`/dashboard/payments`);
+        else goto('/dashboard/payments');
       } else {
         toastStore.trigger({
           message: 'Error saving payment, please try again later',

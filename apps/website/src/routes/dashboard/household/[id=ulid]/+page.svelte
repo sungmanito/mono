@@ -2,7 +2,7 @@
   import { enhance } from '$app/forms';
   import { goto, pushState, invalidate } from '$app/navigation';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
-  import { CrownIcon, XIcon } from 'lucide-svelte';
+  import { CrownIcon, Loader2, Trash2Icon, XIcon } from 'lucide-svelte';
 
   import Drawerify from '$components/drawerify/drawerify.svelte';
   import Header from '$components/header/header.svelte';
@@ -11,6 +11,8 @@
   import BillDetails from '../../bills/[id=ulid]/+page.svelte';
   import EditHousehold from './edit/+page.svelte';
   import CreateBillPage from '../../bills/create/+page.svelte';
+  import DeleteBillPage from '../../bills/[id=ulid]/delete/+page.svelte';
+  import Modalify from '$components/modalify/modalify.svelte';
 
   export let data;
 
@@ -34,6 +36,9 @@
     editBillUrl = `/dashboard/household/${householdId}/edit`;
   }
 
+  let showDeleteBill = false;
+  let deleteBillId = '';
+
   let showDelete = false;
 </script>
 
@@ -56,6 +61,24 @@
   component={BillDetails}
   url={billDetailUrl}
 />
+
+<Modalify
+  bind:open={showDeleteBill}
+  url={`/dashboard/bills/${deleteBillId}/delete`}
+  component={DeleteBillPage}
+  on:close={() => (showDeleteBill = false)}
+>
+  <svelte:fragment slot="header" let:data={fragData}>
+    {#await fragData?.bill}
+      <Loader2 size="1em" />
+    {:then bill}
+      Delete Bill
+      {#if bill}
+        &ndash; {bill.billName}
+      {/if}
+    {/await}
+  </svelte:fragment>
+</Modalify>
 
 <Drawerify
   bind:open={showCreateBill}
@@ -137,30 +160,45 @@
       {:then bills}
         <div class="flex flex-col gap-3" role="list">
           {#each bills as bill}
-            <a
-              href={`/dashboard/bills/${bill.id}`}
-              on:click|preventDefault={() => {
-                billDetailUrl = `/dashboard/bills/${bill.id}`;
-                showBillDetails = true;
-              }}
-            >
-              <div role="listitem" class="bill card variant-filled-primary">
-                <header class="card-header pb-3 flex justify-between">
+            <div role="listitem" class="bill card variant-soft-surface">
+              <header
+                class="card-header pb-3 flex justify-between items-baseline"
+              >
+                <a
+                  href={`/dashboard/bills/${bill.id}`}
+                  class="text-xl font-semibold"
+                  on:click|preventDefault={() => {
+                    billDetailUrl = `/dashboard/bills/${bill.id}`;
+                    showBillDetails = true;
+                  }}
+                >
                   {bill.billName} due on the {bill.dueDate} of each month
-                </header>
-                <section class="p-4 pt-0">
-                  {#if bill.payments.length === 1}
-                    {@const payment = bill.payments[0]}
-                    Latest payment status:
-                    {#if payment.paidAt !== null}
-                      Paid ({payment.paidAt.toLocaleDateString(undefined)})
-                    {:else}
-                      Not Paid
-                    {/if}
-                  {/if}
+                </a>
+                <section>
+                  <Button
+                    variant="destructive:ghost"
+                    on:click={() => {
+                      showDeleteBill = true;
+                      deleteBillId = bill.id;
+                      pushState(`/dashboard/bills/${bill.id}/delete`, {});
+                    }}
+                  >
+                    <Trash2Icon size="1em" />
+                  </Button>
                 </section>
-              </div>
-            </a>
+              </header>
+              <section class="p-4 pt-0">
+                {#if bill.payments.length === 1}
+                  {@const payment = bill.payments[0]}
+                  Latest payment status:
+                  {#if payment.paidAt !== null}
+                    Paid ({payment.paidAt.toLocaleString(undefined)})
+                  {:else}
+                    Not Paid
+                  {/if}
+                {/if}
+              </section>
+            </div>
           {/each}
         </div>
       {/await}
