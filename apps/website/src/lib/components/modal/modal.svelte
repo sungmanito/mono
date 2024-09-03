@@ -53,9 +53,12 @@
       dispatchEvent('close');
     }
   }
+
+  export let baseClasses =
+    'modal bg-surface-100-800-token p-4 rounded-lg shadow-md shazdow-zinc-100 min-h-12 text-surface-800-100-token';
 </script>
 
-<dialog class={cx($$props.class)} bind:this={modalElement}>
+<dialog class={cx($$props.class, baseClasses)} bind:this={modalElement}>
   <form
     method="dialog"
     class="flex flex-col gap-4"
