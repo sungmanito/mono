@@ -1,71 +1,34 @@
 <script lang="ts">
-  import { AppRail, AppRailAnchor } from '@skeletonlabs/skeleton';
-  import {
-    CreditCardIcon,
-    LayoutDashboardIcon,
-    MenuIcon,
-    ReceiptIcon,
-    Users2Icon,
-  } from 'lucide-svelte';
-  import { page } from '$app/stores';
+  import NavRail from '$components/navrail/navrail.svelte';
   import { queryClient } from '$lib/client/svelte-query';
   import { QueryClientProvider } from '@tanstack/svelte-query';
 </script>
 
 <QueryClientProvider client={queryClient}>
   <div class="flex flex-grow">
-    <aside role="list">
-      <AppRail>
-        <svelte:fragment slot="lead">
-          <AppRailAnchor href="/"
-            ><MenuIcon class="mx-auto" size={32} /></AppRailAnchor
-          >
-        </svelte:fragment>
-        <!-- --- -->
-        <AppRailAnchor
-          href="/dashboard"
-          selected={$page.url.pathname === '/dashboard'}
-        >
-          <svelte:fragment slot="lead"
-            ><LayoutDashboardIcon class="mx-auto" size={32} /></svelte:fragment
-          >
-          <span>Dashboard</span>
-        </AppRailAnchor>
-        <AppRailAnchor
-          href="/dashboard/bills"
-          selected={$page.url.pathname === '/dashboard/bills'}
-        >
-          <svelte:fragment slot="lead">
-            <ReceiptIcon class="mx-auto" size={32} />
-          </svelte:fragment>
-          <span>Bills</span>
-        </AppRailAnchor>
-        <AppRailAnchor
-          href="/dashboard/household"
-          selected={$page.url.pathname.startsWith('/dashboard/household')}
-        >
-          <svelte:fragment slot="lead">
-            <Users2Icon class="mx-auto" size={32} />
-          </svelte:fragment>
-          <span>Household</span>
-        </AppRailAnchor>
-        <AppRailAnchor
-          href="/dashboard/payments"
-          selected={$page.url.pathname.startsWith('/dashboard/payments')}
-        >
-          <svelte:fragment slot="lead">
-            <CreditCardIcon size={32} class="mx-auto" />
-          </svelte:fragment>
-          <span>Payments</span>
-        </AppRailAnchor>
-      </AppRail>
+    <aside popover id="side-menu">
+      <NavRail class="flex-shrink-0" />
     </aside>
     <slot />
   </div>
 </QueryClientProvider>
 
-<style>
+<style lang="scss">
   :global([data-theme]) {
     background-image: unset;
+  }
+  #side-menu {
+    margin: 0;
+    height: 100dvh;
+    padding: 0;
+    color: var(--token-color);
+    translate: translateX(-100%);
+    transition: translate 0.2s ease-in-out;
+    &:popover-open {
+      translate: translateX(0);
+      &::backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+    }
   }
 </style>
