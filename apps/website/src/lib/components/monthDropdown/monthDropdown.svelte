@@ -5,6 +5,7 @@
   export let value: number;
   const options = Array.from({ length: 12 }, (_, i) => {
     const d = new Date();
+    d.setDate(1);
     d.setMonth(i);
     return d.toLocaleDateString(undefined, {
       month: 'long',

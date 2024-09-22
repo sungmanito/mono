@@ -16,5 +16,9 @@
     "$website/routes/": "${workspaceRoot}/apps/website/src/routes/",
     "$website/": "${workspaceRoot}/apps/website/",
     "$packages/": "${workspaceRoot}/packages/"
-  }
+  },
+  "deno.enable": true,
+  "deno.enablePaths": [
+    "./apps/reminders/src"
+  ]
 }
