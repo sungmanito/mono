@@ -4,11 +4,11 @@
   import Button from '$lib/components/button/button.svelte';
   import { page } from '$app/stores';
   import { enhance } from '$app/forms';
-  export let data: PageData;
-  export let component = false;
-  export let onclose: () => void = () => void 0;
+  interface Props { data: PageData, component?: boolean, onclose?: () => void }
 
-  let inputValue = '';
+  let { data, component = false, onclose = () => void 0 }: Props = $props();
+
+  let inputValue = $state('');
 </script>
 
 {#await data.bill}

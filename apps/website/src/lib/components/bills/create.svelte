@@ -8,10 +8,8 @@
   import FormLabel from '../formLabel/formLabel.svelte';
   import Header from '../header/header.svelte';
 
-  export let open = false;
-  export let households: Pick<Household, 'id' | 'name'>[] = [];
 
-  let hasDrag = false;
+  let hasDrag = $state(false);
 
   type BillTmp = {
     name: string;
@@ -19,20 +17,22 @@
     household: string;
   };
 
-  let bills: BillTmp[] = [
+  let bills: BillTmp[] = $state([
     {
       name: '',
       dueDate: 1,
       household: '',
     },
-  ];
+  ]);
 
-  export let submit: SubmitFunction = () => {
+  interface Props { open?: boolean, households?: Pick<Household, 'id' | 'name'>[], submit?: SubmitFunction }
+
+  let { open = false, households = [], submit = () => {
     return async ({ update, formElement }) => {
       formElement.reset();
       await update();
     };
-  };
+  } }: Props = $props();
 </script>
 
 <Drawer
@@ -50,7 +50,7 @@
     class="p-4"
     class:border={hasDrag}
     class:border-dashed={hasDrag}
-    on:drop={async (e) => {
+    ondrop={async (e) => {
       e.preventDefault();
       if (e.dataTransfer && e.dataTransfer.items) {
         for (let i of Array.from(e.dataTransfer.items)) {
@@ -83,7 +83,7 @@
     <Header color="secondary" tag="h2">
       Create new bill
       <svelte:fragment slot="actions">
-        <button type="button" on:click={() => closeMe()}>
+        <button type="button" onclick={() => closeMe()}>
           <XIcon size="1em" />
         </button>
       </svelte:fragment>
@@ -150,7 +150,7 @@
               <button
                 type="button"
                 class="btn-icon"
-                on:click={() => {
+                onclick={() => {
                   bills = bills.filter((_, idx) => idx !== i);
                 }}
               >

@@ -4,11 +4,11 @@
   import type { PageData as PaymentPageData } from '../../payments/[id=ulid]/$types';
   import PaymentDetails from '../../payments/[id=ulid]/+page.svelte';
 
-  export let data;
 
-  let paymentDetailData: PaymentPageData | null = null;
-  export let component = false;
-  export let onclose: () => void = () => {};
+  let paymentDetailData: PaymentPageData | null = $state(null);
+  interface Props { data: any, component?: boolean, onclose?: () => void }
+
+  let { data, component = false, onclose = () => {} }: Props = $props();
 
   async function showPaymentDetails(paymentId: string) {
     const paymentData = await preloadData(`/dashboard/payments/${paymentId}`);
@@ -64,7 +64,7 @@
           <header class="card-header flex gap-4 pb-3">
             <a
               href={`/dashboard/payments/${payment.id}`}
-              on:click={(e) => {
+              onclick={(e) => {
                 e.preventDefault();
                 // @ts-expect-error can't turn this shit off rn
                 // eslint-disable-next-line

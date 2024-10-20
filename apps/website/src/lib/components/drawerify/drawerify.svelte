@@ -2,6 +2,8 @@
   lang="ts"
   generics="Data extends Record<string, any>, T extends { data: unknown; component: boolean; onclose: () => void}"
 >
+  import { run } from 'svelte/legacy';
+
   import { preloadData } from '$app/navigation';
 
   import Drawer from '$components/drawer/drawer.svelte';
@@ -11,15 +13,25 @@
   import type { SvelteComponent } from 'svelte';
   import { createEventDispatcher } from 'svelte';
 
-  export let component: typeof SvelteComponent<T>;
-  export let open = false;
-  export let url: string;
+  interface Props {
+    component: typeof SvelteComponent<T>,
+    open?: boolean,
+    url: string,
+    loading?: import('svelte').Snippet
+  }
+
+  let {
+    component,
+    open = $bindable(false),
+    url,
+    loading
+  }: Props = $props();
 
   let data = {} as Data;
 
   const dispatcher = createEventDispatcher();
 
-  $: query = createQuery({
+  let query = $derived(createQuery({
     queryKey: ['drawerify', url],
     queryFn: async () => {
       const response = await preloadData(url);
@@ -29,15 +41,19 @@
     },
     staleTime: 5000,
     enabled: open,
+  }));
+
+  run(() => {
+    if (open && Object.keys(data).length === 0) {
+      dispatcher('open');
+    }
   });
 
-  $: if (open && Object.keys(data).length === 0) {
-    dispatcher('open');
-  }
-
-  $: if (open && url) {
-    dispatcher('open');
-  }
+  run(() => {
+    if (open && url) {
+      dispatcher('open');
+    }
+  });
 </script>
 
 <Drawer
@@ -49,11 +65,11 @@
   let:close={closeDrawer}
 >
   {#if $query.isLoading || !$query.isSuccess}
-    <slot name="loading">
+    {#if loading}{@render loading()}{:else}
       <div class="flex items-center justify-center">
         <LoaderIcon class="animate-spin" size="3rem" />
       </div>
-    </slot>
+    {/if}
   {:else}
     <svelte:component
       this={component}

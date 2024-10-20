@@ -7,15 +7,23 @@
   import type { SubmitFunction } from '@sveltejs/kit';
   import { XIcon } from 'lucide-svelte';
 
-  export let data;
-  export let component = false;
-  export let onclose: () => void = () => void 0;
 
-  $: bill = data.bill;
+  let bill = $derived(data.bill);
 
-  $: households = data.households;
+  let households = $derived(data.households);
 
-  export let submit: SubmitFunction = () => {
+  interface Props {
+    data: any,
+    component?: boolean,
+    onclose?: () => void,
+    submit?: SubmitFunction
+  }
+
+  let {
+    data,
+    component = false,
+    onclose = () => void 0,
+    submit = () => {
     saving = true;
     return async ({ update, formElement }) => {
       formElement.reset();
@@ -27,8 +35,9 @@
         goto('/dashboard/bills');
       }
     };
-  };
-  let saving = false;
+  }
+  }: Props = $props();
+  let saving = $state(false);
 </script>
 
 <form
@@ -42,7 +51,7 @@
     Update {bill.billName}
     <svelte:fragment slot="actions">
       {#if component}
-        <button on:click={() => onclose}>
+        <button onclick={() => onclose}>
           <XIcon size="1em" />
         </button>
       {/if}

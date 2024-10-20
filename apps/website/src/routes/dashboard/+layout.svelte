@@ -1,4 +1,7 @@
 <script lang="ts">
+  interface Props { children?: import('svelte').Snippet }
+
+  let { children }: Props = $props();
   import { AppRail, AppRailAnchor } from '@skeletonlabs/skeleton';
   import {
     CreditCardIcon,
@@ -26,9 +29,9 @@
           href="/dashboard"
           selected={$page.url.pathname === '/dashboard'}
         >
-          <svelte:fragment slot="lead"
-            ><LayoutDashboardIcon class="mx-auto" size={32} /></svelte:fragment
-          >
+          <svelte:fragment slot="lead">
+            <LayoutDashboardIcon class="mx-auto" size={32} />
+          </svelte:fragment>
           <span>Dashboard</span>
         </AppRailAnchor>
         <AppRailAnchor
@@ -60,7 +63,7 @@
         </AppRailAnchor>
       </AppRail>
     </aside>
-    <slot />
+    {@render children?.()}
   </div>
 </QueryClientProvider>
 

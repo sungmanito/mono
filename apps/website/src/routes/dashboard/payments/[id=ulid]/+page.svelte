@@ -5,9 +5,9 @@
   import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
   import { CheckIcon, XIcon } from 'lucide-svelte';
 
-  export let data;
-  export let component = false;
-  export let onclose: () => void = () => void 0;
+  interface Props { data: any, component?: boolean, onclose?: () => void }
+
+  let { data, component = false, onclose = () => void 0 }: Props = $props();
 
   const monthYear = data.payment.forMonthD.toLocaleDateString(undefined, {
     month: 'long',
@@ -25,7 +25,7 @@
     ({monthYear})
     <svelte:fragment slot="actions">
       {#if component}
-        <button on:click={() => onclose()}>
+        <button onclick={() => onclose()}>
           <XIcon size="1em" />
         </button>
       {/if}

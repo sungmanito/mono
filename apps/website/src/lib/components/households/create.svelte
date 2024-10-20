@@ -53,14 +53,15 @@
   import Button from '../button/button.svelte';
   import FormLabel from '../formLabel/formLabel.svelte';
 
-  export let open = false;
-  export let submit: SubmitFunction = () => {
+  interface Props { open?: boolean, submit?: SubmitFunction }
+
+  let { open = false, submit = () => {
     return async ({ formElement, update }) => {
       await update();
       formElement.reset();
       invalidate('user:households');
     };
-  };
+  } }: Props = $props();
 </script>
 
 <Drawer {open} on:close let:close={closeDrawer}>
@@ -75,7 +76,7 @@
       <svelte:fragment slot="actions">
         <button
           type="button"
-          on:click={() => closeDrawer()}
+          onclick={() => closeDrawer()}
           class="btn-icon btn-icon-sm"
         >
           <XIcon size="1em" />

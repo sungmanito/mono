@@ -5,12 +5,21 @@
   import { CrownIcon, ReceiptIcon, Users2Icon } from 'lucide-svelte';
   import { fly, slide } from 'svelte/transition';
 
-  export let household: PageData['households'][number];
-  export let userMap: PageData['streamable']['userHouseholds'];
-  export let generateLinkUri: (p: PageData['households'][number]) => string = (
+  interface Props {
+    household: PageData['households'][number],
+    userMap: PageData['streamable']['userHouseholds'],
+    generateLinkUri?: (p: PageData['households'][number]) => string,
+    selected?: boolean
+  }
+
+  let {
+    household,
+    userMap,
+    generateLinkUri = (
     p,
-  ) => `/dashboard/household/${p.id}`;
-  export let selected = false;
+  ) => `/dashboard/household/${p.id}`,
+    selected = false
+  }: Props = $props();
 </script>
 
 <a

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { enhance } from '$app/forms';
   import { pushState, replaceState } from '$app/navigation';
   import Drawerify from '$components/drawerify/drawerify.svelte';
@@ -9,17 +11,21 @@
   import CreateBillComponent from './bills/create/+page.svelte';
   import CreateHousehold from './household/create/+page.svelte';
   import CreatePayment from './payments/create/[id=ulid]/+page.svelte';
-  export let data;
+  interface Props { data: any }
 
-  let showCreateBillModal = false;
+  let { data }: Props = $props();
 
-  let createPaymentDrawerUrl = '/';
+  let showCreateBillModal = $state(false);
 
-  let showCreatePaymentDrawer = false;
+  let createPaymentDrawerUrl = $state('/');
 
-  let showCreateHousehold = false;
+  let showCreatePaymentDrawer = $state(false);
 
-  $: showCreatePaymentDrawer = createPaymentDrawerUrl !== '/';
+  let showCreateHousehold = $state(false);
+
+  run(() => {
+    showCreatePaymentDrawer = createPaymentDrawerUrl !== '/';
+  });
 
   async function showPaymentDrawer(paymentId: string) {
     createPaymentDrawerUrl = `/dashboard/payments/create/${paymentId}`;
@@ -74,7 +80,7 @@
       <button
         class="btn variant-ghost-primary btn-sm flex gap-2"
         type="button"
-        on:click={() => showCreateHouseholdDrawer()}
+        onclick={() => showCreateHouseholdDrawer()}
       >
         <HomeIcon size="1.1em" />
         New Household
@@ -96,7 +102,7 @@
                 <button
                   class="btn btn-sm variant-filled"
                   type="button"
-                  on:click={() =>
+                  onclick={() =>
                     payments !== null ? showPaymentDrawer(payments.id) : void 0}
                 >
                   Pay bill
@@ -125,7 +131,7 @@
                     <button
                       class="btn btn-sm variant-filled"
                       name="pay-bill-id"
-                      on:click={() =>
+                      onclick={() =>
                         payments !== null
                           ? showPaymentDrawer(payments.id)
                           : void 0}
@@ -155,7 +161,7 @@
                 <button
                   class="btn btn-sm variant-filled"
                   type="button"
-                  on:click={() =>
+                  onclick={() =>
                     payments !== null ? showPaymentDrawer(payments.id) : void 0}
                 >
                   Pay bill

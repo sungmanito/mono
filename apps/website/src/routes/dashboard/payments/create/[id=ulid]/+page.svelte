@@ -9,10 +9,10 @@
   import { enhance } from '$app/forms';
   import { goto, invalidate } from '$app/navigation';
 
-  export let data;
-  export let component = false;
-  export let onclose: () => void = () => void 0;
-  let file: File | null = null;
+  interface Props { data: any, component?: boolean, onclose?: () => void }
+
+  let { data, component = false, onclose = () => void 0 }: Props = $props();
+  let file: File | null = $state(null);
   const toastStore = getToastStore();
 </script>
 
@@ -47,7 +47,7 @@
     Add payment info
     <svelte:fragment slot="actions">
       {#if component}
-        <button type="button" on:click={() => onclose()}
+        <button type="button" onclick={() => onclose()}
           ><XIcon size="1.5em" /></button
         >
       {/if}
@@ -110,7 +110,7 @@
             {@const blobUrl = URL.createObjectURL(file)}
             <div class="relative">
               <div class="absolute top-0 right-0">
-                <button on:click={() => (file = null)}>
+                <button onclick={() => (file = null)}>
                   <XIcon size="1em" />
                 </button>
               </div>

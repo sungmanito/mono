@@ -9,8 +9,7 @@
 
   // export let households: Pick<Household, 'id' | 'name'>[] = [];
 
-  export let data;
-  $: households = data.households;
+  let households = $derived(data.households);
 
   let hasDrag = false;
 
@@ -20,27 +19,37 @@
     household: string;
   };
 
-  let bills: BillTmp[] = [
+  let bills: BillTmp[] = $state([
     {
       name: '',
       dueDate: 1,
       household: '',
     },
-  ];
+  ]);
 
   onMount(() => {
     if (data.initialBills.length > 0) bills = data.initialBills;
   });
-  export let component = false;
-  export let onclose: () => void = () => void 0;
 
-  export let submit: SubmitFunction = () => {
+  interface Props {
+    data: any,
+    component?: boolean,
+    onclose?: () => void,
+    submit?: SubmitFunction
+  }
+
+  let {
+    data,
+    component = false,
+    onclose = () => void 0,
+    submit = () => {
     return async ({ update, formElement }) => {
       onclose();
       formElement.reset();
       await update();
     };
-  };
+  }
+  }: Props = $props();
 </script>
 
 <form
@@ -49,7 +58,7 @@
   class="p-4"
   class:border={hasDrag}
   class:border-dashed={hasDrag}
-  on:drop={async (e) => {
+  ondrop={async (e) => {
     e.preventDefault();
     if (e.dataTransfer && e.dataTransfer.items) {
       for (let i of Array.from(e.dataTransfer.items)) {
@@ -83,7 +92,7 @@
     Create new bill
     <svelte:fragment slot="actions">
       {#if component}
-        <button type="button" on:click={() => console.info('hold')}>
+        <button type="button" onclick={() => console.info('hold')}>
           <XIcon size="1em" />
         </button>
       {/if}
@@ -155,7 +164,7 @@
             <button
               type="button"
               class="btn-icon"
-              on:click={() => {
+              onclick={() => {
                 bills = bills.filter((_, idx) => idx !== i);
               }}
             >

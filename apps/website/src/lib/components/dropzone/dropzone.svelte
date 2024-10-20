@@ -1,14 +1,25 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import type { EventHandler } from 'svelte/elements';
-  export let name = 'dropped';
-  export let accept = 'image/*';
+  interface Props {
+    name?: string,
+    accept?: string,
+    drag_over?: import('svelte').Snippet,
+    children?: import('svelte').Snippet
+  }
+
+  let {
+    name = 'dropped',
+    accept = 'image/*',
+    drag_over,
+    children
+  }: Props = $props();
 
   const dispatch = createEventDispatcher();
 
   let count = 1;
-  let hasDragOver = false;
-  $: arr = Array.from({ length: count });
+  let hasDragOver = $state(false);
+  let arr = $derived(Array.from({ length: count }));
 
   const onDragExit: EventHandler<DragEvent, HTMLDivElement> = (e) => {
     e.preventDefault();
@@ -35,23 +46,23 @@
   class:border-blue-500={hasDragOver}
   aria-dropeffect="copy"
   role="form"
-  on:drop={onDrop}
-  on:dragover={onDragOver}
-  on:dragleave={onDragExit}
-  on:dragend={onDragExit}
+  ondrop={onDrop}
+  ondragover={onDragOver}
+  ondragleave={onDragExit}
+  ondragend={onDragExit}
 >
   {#if hasDragOver}
     <div
       class="absolute top-0 bottom-0 left-0 right-0 text-on-surface-token bg-surface-50-900-token flex items-center justify-center"
     >
-      <slot name="drag-over">You can drop items here</slot>
+      {#if drag_over}{@render drag_over()}{:else}You can drop items here{/if}
     </div>
   {/if}
   <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
   {#each arr as _}
     <input type="file" {name} class="hidden" {accept} />
   {/each}
-  <slot />
+  {@render children?.()}
 </div>
 
 <style>

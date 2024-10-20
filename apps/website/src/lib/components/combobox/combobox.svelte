@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
+  import { run } from 'svelte/legacy';
+
+  import = $state() { = $state() ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
   import { ChevronDownIcon } from 'lucide-svelte';
   import {
     computePosition,
@@ -9,14 +11,15 @@
   } from '@floating-ui/dom';
   import { onMount, createEventDispatcher } from 'svelte';
 
-  export let value: string | number;
-  export let options = [];
+  interface Props { value: string | number, options?: any }
+
+  let { value = $bindable(), options = [] }: Props = $props();
 
   const dispatcher = createEventDispatcher();
 
   let trigger: HTMLDivElement;
   let popup: HTMLDivElement;
-  let open = false;
+  let open = $state(false);
 
   onMount(() => {
     if (!trigger || !trigger.parentElement) return;
@@ -58,10 +61,12 @@
     }
   }
 
-  $: dispatcher('change', value);
+  run(() => {
+    dispatcher('change', value);
+  });
 </script>
 
-<svelte:body on:click={bodyOnClick} />
+<svelte:body onclick={bodyOnClick} />
 
 <div class="relative">
   <button class="btn btn-sm variant-filled justify-between items-center">
@@ -73,8 +78,8 @@
     <div
       class="border-l border-zinc-800 hover:bg-primary-hover-token"
       bind:this={trigger}
-      on:focus={() => (open = true)}
-      on:click={(e) => {
+      onfocus={() => (open = true)}
+      onclick={(e) => {
         e.stopPropagation();
         open = !open;
       }}

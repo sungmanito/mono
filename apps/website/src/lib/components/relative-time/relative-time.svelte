@@ -1,6 +1,7 @@
 <script lang="ts">
-  export let to: Date | number = new Date();
-  export let from: Date | number;
+  interface Props { to?: Date | number, from: Date | number }
+
+  let { to = new Date(), from }: Props = $props();
 </script>
 
 {from}

@@ -1,4 +1,7 @@
 <script lang="ts">
+  interface Props { children?: import('svelte').Snippet }
+
+  let { children }: Props = $props();
   import Navbar from '$lib/components/navbar.svelte';
   import { Toast, initializeStores } from '@skeletonlabs/skeleton';
   import '../app.css';
@@ -10,7 +13,7 @@
 
 <div class="min-h-screen flex flex-col">
   <Navbar />
-  <slot />
+  {@render children?.()}
   <footer class="p-4 bg-surface-50-900-token flex justify-center">
     &copy; Sungmanito
   </footer>

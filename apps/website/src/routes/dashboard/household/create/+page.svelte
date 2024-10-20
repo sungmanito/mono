@@ -7,10 +7,10 @@
   import type { SubmitFunction } from '@sveltejs/kit';
   import { XIcon } from 'lucide-svelte';
 
-  export let component = false;
-  export let onclose: () => void = () => void 0;
 
-  export let submit: SubmitFunction = ({ formData }) => {
+  interface Props { component?: boolean, onclose?: () => void, submit?: SubmitFunction }
+
+  let { component = false, onclose = () => void 0, submit = ({ formData }) => {
     const rawMembers = formData.get('members') || '';
     if (typeof rawMembers !== 'string' || rawMembers === '')
       formData.delete('members');
@@ -27,7 +27,7 @@
       onclose();
       invalidate('user:households');
     };
-  };
+  } }: Props = $props();
 </script>
 
 <form
@@ -42,7 +42,7 @@
       {#if component}
         <button
           type="button"
-          on:click={() => onclose()}
+          onclick={() => onclose()}
           class="btn-icon btn-icon-sm"
         >
           <XIcon size="1em" />

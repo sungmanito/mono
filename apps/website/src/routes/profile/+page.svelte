@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { goto, invalidateAll } from '$app/navigation';
   import { page } from '$app/stores';
   import Header from '$lib/components/header/header.svelte';
@@ -10,19 +12,23 @@
   import { enhance } from '$app/forms';
   import FormLabel from '$lib/components/formLabel/formLabel.svelte';
 
-  export let data;
+  interface Props { data: any }
 
-  $: if (!$page.data.user.id) {
-    goto('/login', { replaceState: true });
-  }
+  let { data }: Props = $props();
+
+  run(() => {
+    if (!$page.data.user.id) {
+      goto('/login', { replaceState: true });
+    }
+  });
 
   function usernameOrEmail(user: User) {
     if (user.user_metadata.name) return user.user_metadata.name;
     return user.email;
   }
 
-  let editProfile = false;
-  let profileSaving = false;
+  let editProfile = $state(false);
+  let profileSaving = $state(false);
 </script>
 
 <svelte:head>
@@ -50,7 +56,7 @@
     <Header color="secondary" tag="h2" class="mb-10">
       Edit Profile
       <svelte:fragment slot="actions">
-        <button class="btn-icon btn-icon-sm" on:click={() => closeEditDrawer()}>
+        <button class="btn-icon btn-icon-sm" onclick={() => closeEditDrawer()}>
           <XIcon size="1.5em" />
         </button>
       </svelte:fragment>

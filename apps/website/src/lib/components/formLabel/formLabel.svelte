@@ -1,20 +1,32 @@
 <script lang="ts">
-  export let label: string;
-  export let description: string = '';
-  export let required: boolean = false;
+  interface Props {
+    label: string,
+    description?: string,
+    required?: boolean,
+    children?: import('svelte').Snippet,
+    error?: import('svelte').Snippet
+  }
+
+  let {
+    label,
+    description = '',
+    required = false,
+    children,
+    error
+  }: Props = $props();
 </script>
 
 <label class="flex flex-col gap-2">
   <span class="font-bold"
     >{label}{#if required}&nbsp;*{/if}</span
   >
-  <slot />
+  {@render children?.()}
   {#if description}
     <span class="text-sm">{description}</span>
   {/if}
   {#if $$slots.error}
     <span class="error-text">
-      <slot name="error" />
+      {@render error?.()}
     </span>
   {/if}
 </label>

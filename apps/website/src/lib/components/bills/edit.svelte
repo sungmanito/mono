@@ -9,16 +9,25 @@
   import Button from '../button/button.svelte';
   import { invalidateAll } from '$app/navigation';
 
-  export let open = false;
-  export let bill: Bill | null;
-  export let households: Pick<Household, 'id' | 'name'>[] = [];
-  export let submit: SubmitFunction = () => {
+  interface Props {
+    open?: boolean,
+    bill: Bill | null,
+    households?: Pick<Household, 'id' | 'name'>[],
+    submit?: SubmitFunction
+  }
+
+  let {
+    open = false,
+    bill,
+    households = [],
+    submit = () => {
     return async ({ update, formElement }) => {
       formElement.reset();
       await update();
       await invalidateAll();
     };
-  };
+  }
+  }: Props = $props();
   let saving = false;
 </script>
 

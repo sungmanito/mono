@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { invalidateAll, pushState } from '$app/navigation';
+  import { invali = $state()dateAll, pushState } from '$app/navigation';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import Button from '$lib/components/button/button.svelte';
   import Drawerify from '$lib/components/drawerify/drawerify.svelte';
@@ -10,20 +10,22 @@
   import EditBillComponent from './[id=ulid]/edit/+page.svelte';
   import CreateBillComponent from './create/+page.svelte';
 
-  export let data;
+  interface Props { data: any }
+
+  let { data }: Props = $props();
 
   let editModal: HTMLDialogElement;
   let deleteModal: HTMLDialogElement;
 
-  let selectedBill: (typeof data.bills)[number] | null = null;
-  let validation = '';
+  let selectedBill: (typeof data.bills)[number] | null = $state(null);
+  let validation = $state('');
 
   const toastStore = getToastStore();
 
-  let createBillUrl = '/dashboard/bills/create';
-  let showCreatebill = false;
-  let editBillUrl = '/dasahboard/bills';
-  let showEditBill = false;
+  let createBillUrl = $state('/dashboard/bills/create');
+  let showCreatebill = $state(false);
+  let editBillUrl = $state('/dasahboard/bills');
+  let showEditBill = $state(false);
 
   /**
    * @description Fetches and loads the data for creating new bills for the given householdIds
@@ -120,7 +122,7 @@
     class="flex flex-col gap-2"
     method="dialog"
     action="?/deleteBill"
-    on:submit={submitForm}
+    onsubmit={submitForm}
   >
     <input type="hidden" name="bill-id" value={selectedBill?.id} />
     <header class="h4 border-b pb-2">
@@ -134,7 +136,7 @@
     <footer class="border-t pt-3 flex justify-end gap-2">
       <button
         type="button"
-        on:click={() => deleteModal.close()}
+        onclick={() => deleteModal.close()}
         class="btn variant-outline btn-sm"
       >
         Close
@@ -204,7 +206,7 @@
               <button
                 class="btn-icon btn-icon-sm variant-filled-secondary"
                 title={`Edit Bill ${bill.billName}`}
-                on:click={() => {
+                onclick={() => {
                   console.info('BILL', bill);
                   fetchEditBillData(bill);
                 }}
@@ -215,7 +217,7 @@
               <button
                 class="btn-icon btn-icon-sm variant-filled-secondary"
                 title={`Delete bill ${bill.billName}`}
-                on:click={() => {
+                onclick={() => {
                   selectedBill = bill;
                   deleteModal.showModal();
                 }}

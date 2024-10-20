@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { enhance } from '$app/forms';
   import { goto, pushState, invalidate } from '$app/navigation';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
@@ -14,19 +16,23 @@
   import DeleteBillPage from '../../bills/[id=ulid]/delete/+page.svelte';
   import Modalify from '$components/modalify/modalify.svelte';
 
-  export let data;
+  interface Props { data: any }
 
-  let household = data.household;
+  let { data }: Props = $props();
 
-  let billDetailUrl = '';
-  let showBillDetails = false;
+  let household = $state(data.household);
 
-  let editBillUrl = '';
-  let showEditHousehold = false;
-  let showCreateBill = false;
-  let showCreateBillUrl = '';
+  let billDetailUrl = $state('');
+  let showBillDetails = $state(false);
 
-  $: household = data.household;
+  let editBillUrl = $state('');
+  let showEditHousehold = $state(false);
+  let showCreateBill = $state(false);
+  let showCreateBillUrl = $state('');
+
+  run(() => {
+    household = data.household;
+  });
   if (household === undefined) {
     goto('/dashboard/household');
   }
@@ -36,10 +42,10 @@
     editBillUrl = `/dashboard/household/${householdId}/edit`;
   }
 
-  let showDeleteBill = false;
-  let deleteBillId = '';
+  let showDeleteBill = $state(false);
+  let deleteBillId = $state('');
 
-  let showDelete = false;
+  let showDelete = $state(false);
 </script>
 
 <svelte:head>
@@ -167,10 +173,13 @@
                 <a
                   href={`/dashboard/bills/${bill.id}`}
                   class="text-xl font-semibold"
-                  on:click|preventDefault={() => {
+                  onclick={(event) => {
+  event.preventDefault();
+  
                     billDetailUrl = `/dashboard/bills/${bill.id}`;
                     showBillDetails = true;
-                  }}
+                  
+}}
                 >
                   {bill.billName} due on the {bill.dueDate} of each month
                 </a>

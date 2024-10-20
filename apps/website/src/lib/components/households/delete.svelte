@@ -4,9 +4,10 @@
   import Button from '../button/button.svelte';
   import Modal from '../modal/modal.svelte';
 
-  export let household: Household;
-  export let open = false;
-  let confirmation = '';
+  interface Props { household: Household, open?: boolean }
+
+  let { household, open = false }: Props = $props();
+  let confirmation = $state('');
 </script>
 
 <Modal

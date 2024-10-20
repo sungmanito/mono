@@ -3,7 +3,9 @@
   import Google from './google.svelte';
   import Email from './email.svelte';
 
-  export let identity: UserIdentity;
+  interface Props { identity: UserIdentity }
+
+  let { identity }: Props = $props();
 </script>
 
 {#if identity.provider === 'google'}

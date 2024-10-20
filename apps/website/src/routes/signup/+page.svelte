@@ -2,7 +2,9 @@
   import Header from '$lib/components/header/header.svelte';
   import FormLabel from '$lib/components/formLabel/formLabel.svelte';
   import Button from '$lib/components/button/button.svelte';
-  export let data;
+  interface Props { data: any }
+
+  let { data }: Props = $props();
 </script>
 
 <svelte:head>

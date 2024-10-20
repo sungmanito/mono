@@ -8,18 +8,20 @@
   import PaymentDetails from './[id=ulid]/+page.svelte';
   import CreatePaymentPage from './create/[id=ulid]/+page.svelte';
 
-  export let data;
+  interface Props { data: any }
+
+  let { data }: Props = $props();
 
   async function showModal(paymentId: string) {
     showMakePaymentModal = true;
     showModalOpenUrl = `/dashboard/payments/create/${paymentId}`;
   }
 
-  let showMakePaymentModal = false;
-  let showModalOpenUrl = '';
+  let showMakePaymentModal = $state(false);
+  let showModalOpenUrl = $state('');
 
-  let detailsModalOpen = false;
-  let detailsModalUrl = '/dashboard/payments/create/';
+  let detailsModalOpen = $state(false);
+  let detailsModalUrl = $state('/dashboard/payments/create/');
 </script>
 
 <svelte:head>
@@ -77,7 +79,7 @@
               <div>
                 <a
                   href={`/dashboard/payments/${payment.id}`}
-                  on:click={(e) => {
+                  onclick={(e) => {
                     e.preventDefault();
                     detailsModalUrl = `/dashboard/payments/${payment.id}`;
                     detailsModalOpen = true;
@@ -92,7 +94,7 @@
                 <button
                   class="btn btn-sm variant-outline-primary"
                   type="button"
-                  on:click={() => {
+                  onclick={() => {
                     showModal(payment.id);
                   }}
                 >

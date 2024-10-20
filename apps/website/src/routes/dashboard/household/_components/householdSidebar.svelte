@@ -8,10 +8,11 @@
   import CreateHouseholdComponent from '../create/+page.svelte';
   import HouseholdSideItem from './householdSideItem.svelte';
 
-  export let households: PageData['households'];
-  export let userMap: PageData['streamable']['userHouseholds'];
+  interface Props { households: PageData['households'], userMap: PageData['streamable']['userHouseholds'] }
 
-  let createDrawerOpen = false;
+  let { households, userMap }: Props = $props();
+
+  let createDrawerOpen = $state(false);
 
   async function loadCreate() {
     createDrawerOpen = true;

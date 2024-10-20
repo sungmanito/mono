@@ -24,17 +24,24 @@
 
   type VariantValues = VariantProps<typeof headers>;
 
-  export let tag: VariantValues['tag'] = 'h1';
-  export let color: VariantValues['color'] = 'primary';
+  interface Props { [key: string]: any }
+
+  let {
+    tag = 'h1',
+    color = 'primary',
+    children,
+    actions,
+    ...rest
+  }: Props = $props();
 
   const classes = headers({ tag, color, class: $$restProps.class });
 </script>
 
 <div class="flex justify-between items-baseline">
   <svelte:element this={tag} class={classes}>
-    <slot />
+    {@render children?.()}
   </svelte:element>
   <section class="actions inline-flex gap-2">
-    <slot name="actions" />
+    {@render actions?.()}
   </section>
 </div>

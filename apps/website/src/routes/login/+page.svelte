@@ -4,11 +4,13 @@
   import { page } from '$app/stores';
   import { getToastStore } from '@skeletonlabs/skeleton';
 
-  export let data;
+  interface Props { data: any }
+
+  let { data }: Props = $props();
   const toastStore = getToastStore();
 
-  let email = '';
-  let password = '';
+  let email = $state('');
+  let password = $state('');
 </script>
 
 <svelte:head>
@@ -40,7 +42,7 @@
         <form
           action="?/login-with-google"
           method="post"
-          on:submit={(e) => {
+          onsubmit={(e) => {
             console.info(data.enabled);
             if (!data.enabled) e.preventDefault();
           }}

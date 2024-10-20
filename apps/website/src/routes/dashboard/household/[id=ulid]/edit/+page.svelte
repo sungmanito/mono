@@ -6,14 +6,14 @@
   import { page } from '$app/stores';
   import { Loader2 } from 'lucide-svelte';
 
-  export let data;
 
-  export let component = false;
-  export let onclose: () => void = () => void 0;
+  interface Props { data: any, component?: boolean, onclose?: () => void }
 
-  let sending = false;
+  let { data, component = false, onclose = () => void 0 }: Props = $props();
 
-  $: household = data.household;
+  let sending = $state(false);
+
+  let household = $derived(data.household);
 </script>
 
 <svelte:head>

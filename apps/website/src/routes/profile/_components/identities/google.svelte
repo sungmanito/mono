@@ -3,7 +3,9 @@
   import GoogleIcon from '$lib/components/googleIcon.svelte';
   import { formatDate } from './util';
 
-  export let identity: UserIdentity;
+  interface Props { identity: UserIdentity }
+
+  let { identity }: Props = $props();
 </script>
 
 {#if identity.provider !== 'google'}

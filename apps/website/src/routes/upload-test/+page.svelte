@@ -1,6 +1,7 @@
 <script>
   import { enhance } from '$app/forms';
-  export let data;
+  /** @type {{data: any}} */
+  let { data } = $props();
 </script>
 
 <ol>
