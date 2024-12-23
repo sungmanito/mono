@@ -12,6 +12,7 @@ export async function navigateAndLoginTo(url: string, page: Page) {
   await page.goto('/');
   await page.goto(url);
   await login(page);
+  await page.waitForURL(url);
 }
 
 // Content shamelessly stolen from https://github.com/microsoft/playwright/issues/10667#issuecomment-998397241

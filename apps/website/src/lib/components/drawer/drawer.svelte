@@ -1,14 +1,29 @@
+<script lang="ts" module>
+  export interface DrawerProps
+    extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
+    open: boolean;
+    onclose: () => void;
+    children: Snippet<[{ close: () => void }]>;
+  }
+</script>
+
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import { focusTrap } from '@skeletonlabs/skeleton';
   import { cx } from 'class-variance-authority';
-  export let open = false;
-  const dispatch = createEventDispatcher();
-  function dispatchCloseEvent() {
-    dispatch('close');
-  }
+  import { type Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
 
-  export let { class: propClass } = $$props;
+  let {
+    open = $bindable(false),
+    onclose,
+    children,
+    class: propClass,
+    ...rest
+  }: DrawerProps = $props();
+
+  function dispatchCloseEvent() {
+    onclose();
+  }
 
   let classNames = cx(
     'drawer bg-surface-100-800-token shadow-xl rounded-r-xl h-full w-5/6 overflow-auto',
@@ -17,29 +32,21 @@
 </script>
 
 <svelte:window
-  on:keyup={(e) => {
+  onkeyup={(e) => {
     if (e.key === 'Escape') dispatchCloseEvent();
   }}
 />
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-  on:click={(e) => (e.currentTarget === e.target ? dispatchCloseEvent() : null)}
+  onclick={(e) => (e.currentTarget === e.target ? dispatchCloseEvent() : null)}
   class="drawer-backdrop flex fixed top-0 bottom-0 left-0 right-0 bg-surface-backdrop-token z-50"
   class:hidden={!open}
   use:focusTrap={true}
 >
-  <div
-    role="dialog"
-    class={classNames}
-    on:drag
-    on:dragenter
-    on:dragend
-    on:dragleave
-    on:drop
-  >
-    <slot close={() => dispatchCloseEvent()} />
+  <div role="dialog" class={classNames} {...rest}>
+    {@render children({ close: () => dispatchCloseEvent() })}
   </div>
 </div>
 

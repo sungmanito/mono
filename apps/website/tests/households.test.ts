@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-import { login } from './util';
+import { login, navigateAndLoginTo } from './util';
 
 test('Navigating and logging in redirection works', async ({ page }) => {
   await page.goto('/');
@@ -37,9 +37,10 @@ test('User can create household through dialog', async ({ page }) => {
 });
 
 test('User can view household details', async ({ page }) => {
-  await page.goto('/');
-  await page.goto('/dashboard/household');
-  await login(page);
+  await navigateAndLoginTo('/dashboard/household', page);
+  // await page.goto('/');
+  // await page.goto('/dashboard/household');
+  // await login(page);
 
   await page.getByRole('complementary').getByText('Default').click();
   await expect(page.getByRole('heading', { name: 'Default' })).toBeInViewport();
@@ -53,7 +54,11 @@ test('User can view household details', async ({ page }) => {
     page.getByRole('listitem').filter({ hasText: 'Student Loans' }),
   ).toBeVisible();
 
-  await page.getByRole('listitem').filter({ hasText: 'Phone' }).click();
+  await page
+    .getByRole('listitem')
+    .getByRole('link')
+    .filter({ hasText: 'Phone' })
+    .click();
 
   await expect(
     page
@@ -67,9 +72,10 @@ test('User can view household details', async ({ page }) => {
 });
 
 test('User can edit', async ({ page }) => {
-  await page.goto('/');
-  await page.goto('/dashboard/household');
-  await login(page);
+  await navigateAndLoginTo('/dashboard/household', page);
+  // await page.goto('/');
+  // await page.goto('/dashboard/household');
+  // await login(page);
 
   await page.getByRole('complementary').getByText('Household 1').click();
 
@@ -83,9 +89,7 @@ test('User can edit', async ({ page }) => {
 });
 
 test('User can delete household', async ({ page }) => {
-  await page.goto('/');
-  await page.goto('/dashboard/household');
-  await login(page);
+  await navigateAndLoginTo('/dashboard/household', page);
 
   await page
     .getByTestId('sidebar-household')

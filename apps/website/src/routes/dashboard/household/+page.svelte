@@ -17,10 +17,10 @@
 </svelte:head>
 
 <Drawerify
-  bind:open={showCreateHousehold}
+  open={showCreateHousehold}
   url={createHouseholdUrl}
-  on:open={() => pushState(createHouseholdUrl, {})}
-  on:close={() => pushState('/dashboard/household', {})}
+  onopen={() => pushState(createHouseholdUrl, {})}
+  onclose={() => pushState('/dashboard/household', {})}
   component={CreateHouseholdComponent}
 />
 
