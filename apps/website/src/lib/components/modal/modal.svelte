@@ -1,31 +1,57 @@
+<script lang="ts" module>
+  export interface ModalProps
+    extends Omit<HTMLAttributes<HTMLDialogElement>, 'children'> {
+    open?: boolean;
+    modal?: boolean;
+    onclose: () => void;
+    children: Snippet<[{ close: () => void }]>;
+    header?: Snippet<[{ close: () => void }]>;
+    footer?: Snippet<[{ close: () => void }]>;
+    action?: string;
+    submitFn?: (response: Response) => Promise<unknown>;
+    baseClasses?: string;
+  }
+</script>
+
 <script lang="ts">
-  import { XIcon } from 'lucide-svelte';
-  import { createEventDispatcher } from 'svelte';
-  import { cx } from 'class-variance-authority';
   import { invalidateAll } from '$app/navigation';
+  import { cx } from 'class-variance-authority';
+  import { XIcon } from 'lucide-svelte';
+  import { type Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
 
-  export let open = false;
-  export let modal = false;
-  export let submitFn: (response: Response) => Promise<unknown> = () =>
-    Promise.resolve(void 0);
+  let {
+    open = $bindable(false),
+    onclose = () => void 0,
+    children,
+    header,
+    footer,
+    modal,
+    action = '/',
+    submitFn = () => Promise.resolve(void 0),
+    baseClasses = 'modal bg-surface-100-800-token p-4 rounded-lg shadow-md shazdow-zinc-100 min-h-12 text-surface-800-100-token',
+    ...rest
+  }: ModalProps = $props();
 
-  export let action = '/';
+  let modalElement: HTMLDialogElement = $state();
 
-  const dispatchEvent = createEventDispatcher();
+  $effect(() => {
+    if (open && modal && modalElement) {
+      modalElement.showModal();
+    }
+  });
 
-  let modalElement: HTMLDialogElement;
+  $effect(() => {
+    if (open && !modal && modalElement) {
+      modalElement.show();
+    }
+  });
 
-  $: if (open && modal && modalElement) {
-    modalElement.showModal();
-  }
-
-  $: if (open && !modal && modalElement) {
-    modalElement.show();
-  }
-
-  $: if (!open && modalElement) {
-    modalElement.close();
-  }
+  $effect(() => {
+    if (!open && modalElement) {
+      modalElement.close();
+    }
+  });
 
   async function submitForm(
     e: SubmitEvent & { currentTarget: HTMLFormElement },
@@ -50,49 +76,47 @@
 
       invalidateAll();
       e.currentTarget.reset();
-      dispatchEvent('close');
+      onclose();
     }
   }
-
-  export let baseClasses =
-    'modal bg-surface-100-800-token p-4 rounded-lg shadow-md shazdow-zinc-100 min-h-12 text-surface-800-100-token';
 </script>
 
-<dialog class={cx($$props.class, baseClasses)} bind:this={modalElement}>
+<dialog class={cx(rest.class, baseClasses)} bind:this={modalElement}>
   <form
     method="dialog"
     class="flex flex-col gap-4"
     {action}
-    on:submit={submitForm}
+    onsubmit={submitForm}
   >
     <header class="flex justify-between">
       <div>
-        <slot name="header" />
+        {#if header}
+          {@render header({ close: () => onclose() })}
+        {/if}
       </div>
       <button
         type="button"
         class="btn-icon btn-icon-sm"
         title="Close Modal"
-        on:click={(e) => {
+        onclick={() => {
           modalElement.close();
-          dispatchEvent('close', e);
+          onclose();
         }}
       >
         <XIcon size="1em" />
       </button>
     </header>
     <section>
-      <slot close={() => dispatchEvent('close')} />
+      {@render children({ close: onclose })}
     </section>
     <footer>
-      <slot name="footer" close={() => dispatchEvent('close')}>
-        <button
-          class="btn variant-filled-primary"
-          on:click={(e) => dispatchEvent('close', e)}
-        >
+      {#if footer}
+        {@render footer({ close: onclose })}
+      {:else}
+        <button class="btn variant-filled-primary" onclick={() => onclose()}>
           Close
         </button>
-      </slot>
+      {/if}
     </footer>
   </form>
 </dialog>
