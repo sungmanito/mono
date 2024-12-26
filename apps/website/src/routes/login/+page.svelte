@@ -36,20 +36,7 @@
       class="container mx-auto bg-gradient-to-b from-slate-300 to-slate-100 gap-4 text-zinc-800 p-6 rounded-lg flex flex-col"
     >
       <h1 class="text-2xl font-semibold">Login</h1>
-      <section>
-        <form
-          action="?/login-with-google"
-          method="post"
-          on:submit={(e) => {
-            console.info(data.enabled);
-            if (!data.enabled) e.preventDefault();
-          }}
-        >
-          <button class="btn btn-sm variant-outline-surface" type="submit">
-            Login with Google
-          </button>
-        </form>
-      </section>
+      <section></section>
       <label class="flex gap-3 flex-col">
         <div class="font-bold">Username</div>
         <input

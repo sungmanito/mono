@@ -1,6 +1,21 @@
+<script lang="ts" module>
+  export interface DrawerifyProps<
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    Data,
+    T extends { data: unknown; component: boolean; onclose: () => void },
+  > {
+    component: Component<T>;
+    open: boolean;
+    onopen?: () => void;
+    onclose?: () => void;
+    url: string;
+    loading?: Snippet<[]>;
+  }
+</script>
+
 <script
   lang="ts"
-  generics="Data extends Record<string, any>, T extends { data: unknown; component: boolean; onclose: () => void}"
+  generics="Data extends Record<string, any>, T extends { data: Data; component: boolean; onclose: () => void}"
 >
   import { preloadData } from '$app/navigation';
 
@@ -8,58 +23,68 @@
   import { createQuery } from '@tanstack/svelte-query';
   import { LoaderIcon } from 'lucide-svelte';
 
-  import type { SvelteComponent } from 'svelte';
-  import { createEventDispatcher } from 'svelte';
+  import type { Component, Snippet } from 'svelte';
 
-  export let component: typeof SvelteComponent<T>;
-  export let open = false;
-  export let url: string;
+  let {
+    component,
+    open = $bindable(false),
+    onopen = () => void 0,
+    onclose = () => void 0,
+    url,
+    loading,
+  }: DrawerifyProps<Data, T> = $props();
 
-  let data = {} as Data;
+  const query = $derived(
+    createQuery({
+      queryKey: ['drawerify', url],
+      queryFn: async () => {
+        const response = await preloadData(url);
+        if (response.type === 'loaded' && response.status === 200) {
+          return response.data as Data;
+        }
+      },
+      staleTime: 5000,
+      enabled: open,
+    }),
+  );
 
-  const dispatcher = createEventDispatcher();
-
-  $: query = createQuery({
-    queryKey: ['drawerify', url],
-    queryFn: async () => {
-      const response = await preloadData(url);
-      if (response.type === 'loaded' && response.status === 200) {
-        return response.data as Data;
-      }
-    },
-    staleTime: 5000,
-    enabled: open,
+  $effect(() => {
+    if (onopen && open && Object.keys($query.data || {}).length === 0) {
+      onopen();
+    }
   });
 
-  $: if (open && Object.keys(data).length === 0) {
-    dispatcher('open');
-  }
-
-  $: if (open && url) {
-    dispatcher('open');
-  }
+  $effect(() => {
+    if (onopen && open && url) {
+      onopen();
+    }
+  });
 </script>
 
 <Drawer
-  {open}
-  on:close={() => {
+  bind:open
+  onclose={() => {
     open = false;
-    dispatcher('close');
+    onclose();
   }}
-  let:close={closeDrawer}
+  aria-atomic="true"
 >
-  {#if $query.isLoading || !$query.isSuccess}
-    <slot name="loading">
-      <div class="flex items-center justify-center">
-        <LoaderIcon class="animate-spin" size="3rem" />
-      </div>
-    </slot>
-  {:else}
-    <svelte:component
-      this={component}
-      data={$query.data || {}}
-      onclose={closeDrawer}
-      component={true}
-    />
-  {/if}
+  {#snippet children({ close: closeDrawer })}
+    {#if $query.isLoading || !$query.isSuccess}
+      {#if loading}
+        {@render loading()}
+      {:else}
+        <div class="flex items-center justify-center">
+          <LoaderIcon class="animate-spin" size="3rem" />
+        </div>
+      {/if}
+    {:else}
+      {@const Component = component}
+      <Component
+        data={$query.data || {}}
+        onclose={closeDrawer}
+        component={true}
+      />
+    {/if}
+  {/snippet}
 </Drawer>

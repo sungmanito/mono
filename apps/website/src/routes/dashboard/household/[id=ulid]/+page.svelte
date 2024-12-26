@@ -50,10 +50,10 @@
 
 <Drawerify
   bind:open={showBillDetails}
-  on:open={() => {
+  onopen={() => {
     pushState(billDetailUrl, {});
   }}
-  on:close={() => {
+  onclose={() => {
     showBillDetails = false;
     billDetailUrl = '';
     pushState(`/dashboard/household/${household.id}`, {});

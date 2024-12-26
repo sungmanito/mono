@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test';
 
-import { login } from './util';
+import { login, navigateAndLoginTo } from './util';
 
 test('User can create bills', async ({ page }) => {
-  await page.goto('/');
-  await page.goto('/dashboard/bills');
-  await login(page);
+  await navigateAndLoginTo('/dashboard/bills', page);
+  // await page.goto('/');
+  // await page.goto('/dashboard/bills');
+  // await login(page);
 
   await expect(page.getByRole('heading', { name: 'Bills' })).toBeVisible();
 
