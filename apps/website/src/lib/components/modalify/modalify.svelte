@@ -1,3 +1,20 @@
+<script lang="ts" module>
+  export interface ModalifyProps<
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    Data,
+    T extends { data: unknown; component: boolean; onclose: () => void },
+  > {
+    component: Component<T>;
+    open: boolean;
+    onopen?: () => void;
+    onclose?: () => void;
+    url: string;
+    loading?: Snippet<[]>;
+    header?: Snippet<[{ data: Data | undefined; close: () => void }]>;
+    footer?: Snippet<[{ data: Data | undefined; close: () => void }]>;
+  }
+</script>
+
 <script
   lang="ts"
   generics="Data extends Record<string, any>, T extends { data: unknown; component: boolean; onclose: () => void}"
@@ -7,63 +24,76 @@
   import { createQuery } from '@tanstack/svelte-query';
   import { LoaderIcon } from 'lucide-svelte';
 
-  import type { SvelteComponent } from 'svelte';
-  import { createEventDispatcher } from 'svelte';
+  import type { Component, Snippet } from 'svelte';
 
-  export let component: typeof SvelteComponent<T>;
-
-  export let open = false;
-  export let url: string;
+  let {
+    component,
+    open = $bindable(false),
+    onopen = () => void 0,
+    onclose = () => void 0,
+    url,
+    loading,
+    header: modalifyHeader,
+    footer,
+  }: ModalifyProps<Data, T> = $props();
 
   let data = {} as Data;
 
-  const dispatcher = createEventDispatcher();
+  const query = $derived(
+    createQuery({
+      queryKey: ['modalify', url],
+      queryFn: async () => {
+        const response = await preloadData(url);
 
-  $: query = createQuery({
-    queryKey: ['modalify', url],
-    queryFn: async () => {
-      const response = await preloadData(url);
+        if (response.type === 'loaded' && response.status === 200) {
+          return response.data as Data;
+        }
+      },
+      staleTime: 5000,
+      enabled: open,
+    }),
+  );
 
-      if (response.type === 'loaded' && response.status === 200) {
-        return response.data as Data;
-      }
-    },
-    staleTime: 5000,
-    enabled: open,
+  $effect(() => {
+    if (open && Object.keys(data).length === 0) {
+      onopen();
+    }
   });
 
-  $: if (open && Object.keys(data).length === 0) {
-    dispatcher('open');
-  }
-
-  $: if (open && url) {
-    dispatcher('open');
-  }
+  $effect(() => {
+    if (open && url) {
+      onopen();
+    }
+  });
 </script>
 
 <Modal
   {open}
   on:close={() => {
     open = false;
-    dispatcher('close');
+    onclose();
   }}
-  let:close={closeModal}
+  {footer}
 >
-  <svelte:fragment slot="header">
-    <slot name="header" data={$query.data} />
-  </svelte:fragment>
-  {#if $query.isLoading || !$query.isSuccess}
-    <slot name="loading">
-      <div class="flex items-center justify-center">
-        <LoaderIcon class="animate-spin" size="3rem" />
-      </div>
-    </slot>
-  {:else}
-    <svelte:component
-      this={component}
-      data={$query.data || {}}
-      onclose={closeModal}
-      component={true}
-    />
-  {/if}
+  {#snippet header({ close: closeModal })}
+    {#if modalifyHeader}
+      {@render modalifyHeader({ data: $query.data, close: closeModal })}
+    {/if}
+  {/snippet}
+  {#snippet children({ close: closeModal })}
+    {#if $query.isLoading || !$query.isSuccess}
+      {#if loading}{:else}
+        <div class="flex items-center justify-center">
+          <LoaderIcon class="animate-spin" size="3rem" />
+        </div>
+      {/if}
+    {:else}
+      {@const Component = component}
+      <Component
+        data={$query.data || {}}
+        onclose={closeModal}
+        component={true}
+      />
+    {/if}
+  {/snippet}
 </Modal>

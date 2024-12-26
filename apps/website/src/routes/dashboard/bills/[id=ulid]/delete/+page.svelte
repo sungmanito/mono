@@ -2,7 +2,7 @@
   import type { PageData } from './$types';
 
   import Button from '$lib/components/button/button.svelte';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { enhance } from '$app/forms';
   export let data: PageData;
   export let component = false;
@@ -50,6 +50,6 @@
       </div>
     </form>
   {:else}
-    Could not find bill with id {$page.params.id}
+    Could not find bill with id {page.params.id}
   {/if}
 {/await}

@@ -66,18 +66,21 @@
   bind:open={showDeleteBill}
   url={`/dashboard/bills/${deleteBillId}/delete`}
   component={DeleteBillPage}
-  on:close={() => (showDeleteBill = false)}
+  onclose={() => (showDeleteBill = false)}
 >
-  <svelte:fragment slot="header" let:data={fragData}>
-    {#await fragData?.bill}
+  {#snippet header({ data })}
+    Delete Bill
+    {#await data?.bill}
       <Loader2 size="1em" />
-    {:then bill}
-      Delete Bill
-      {#if bill}
-        &ndash; {bill.billName}
+    {:then billData}
+      {#if billData}
+        &ndash; {billData.billName}
       {/if}
     {/await}
-  </svelte:fragment>
+  {/snippet}
+  {#snippet footer()}
+    &nbsp;
+  {/snippet}
 </Modalify>
 
 <Drawerify
@@ -89,10 +92,10 @@
 <Drawerify
   url={editBillUrl}
   bind:open={showEditHousehold}
-  on:open={() => {
+  onopen={() => {
     pushState(editBillUrl, {});
   }}
-  on:close={() => {
+  onclose={() => {
     showEditHousehold = false;
     editBillUrl = '';
     pushState(`/dashboard/household/${household.id}`, {});
