@@ -38,7 +38,7 @@
 >
   <Header color="secondary" tag="h2" class="mb-8">
     New household
-    <svelte:fragment slot="actions">
+    {#snippet actions()}
       {#if component}
         <button
           type="button"
@@ -48,7 +48,7 @@
           <XIcon size="1em" />
         </button>
       {/if}
-    </svelte:fragment>
+    {/snippet}
   </Header>
   <section class="grid grid-cols-3 gap-3">
     <div>

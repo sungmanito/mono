@@ -146,20 +146,22 @@
   <div class="flex gap-4">
     <main class="flex-grow">
       <Header tag="h3">
-        <svelte:fragment slot="actions">
+        {#snippet actions()}
           <Button
             size="sm"
             variant="secondary"
             on:click={() => {
               showCreateBillUrl = `/dashboard/bills/create?household-id[]=${household.id}`;
               showCreateBill = true;
-            }}>Add</Button
+            }}
           >
-        </svelte:fragment>
+            Add</Button
+          >
+        {/snippet}
         Bills
       </Header>
       {#await data.streamed.bills}
-        <div class="placeholder animate-pulse" />
+        <div class="placeholder animate-pulse"></div>
       {:then bills}
         <div class="flex flex-col gap-3" role="list">
           {#each bills as bill}

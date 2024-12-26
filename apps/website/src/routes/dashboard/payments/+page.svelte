@@ -87,7 +87,7 @@
                 </a>
               </div>
             </div>
-            <svelte:fragment slot="actions">
+            {#snippet actions()}
               {#if payment.paidAt === null}
                 <button
                   class="btn btn-sm variant-outline-primary"
@@ -106,7 +106,7 @@
                   </button>
                 </form>
               {/if}
-            </svelte:fragment>
+            {/snippet}
           </Header>
         </header>
 

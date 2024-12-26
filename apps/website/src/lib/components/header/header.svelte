@@ -1,5 +1,6 @@
-<script lang="ts">
+<script lang="ts" module>
   import { cva, type VariantProps } from 'class-variance-authority';
+  import type { Snippet } from 'svelte';
 
   const headers = cva('mb-2', {
     variants: {
@@ -23,18 +24,34 @@
   });
 
   type VariantValues = VariantProps<typeof headers>;
+  export interface HeaderProps {
+    tag?: VariantValues['tag'];
+    color?: VariantValues['color'];
+    class?: string;
+    children: Snippet<[]>;
+    actions?: Snippet<[]>;
+  }
+</script>
 
-  export let tag: VariantValues['tag'] = 'h1';
-  export let color: VariantValues['color'] = 'primary';
+<script lang="ts">
+  let {
+    tag = 'h1',
+    color = 'primary',
+    class: className,
+    children,
+    actions,
+  }: HeaderProps = $props();
 
-  const classes = headers({ tag, color, class: $$restProps.class });
+  const classes = headers({ tag, color, class: className });
 </script>
 
 <div class="flex justify-between items-baseline">
   <svelte:element this={tag} class={classes}>
-    <slot />
+    {@render children()}
   </svelte:element>
   <section class="actions inline-flex gap-2">
-    <slot name="actions" />
+    {#if actions}
+      {@render actions()}
+    {/if}
   </section>
 </div>
