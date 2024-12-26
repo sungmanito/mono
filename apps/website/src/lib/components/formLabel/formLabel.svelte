@@ -1,20 +1,38 @@
-<script lang="ts">
-  export let label: string;
-  export let description: string = '';
-  export let required: boolean = false;
+<script lang="ts" module>
+  import type { Snippet } from 'svelte';
+  import type { HTMLAttributes } from 'svelte/elements';
+  export interface FormLabelProps
+    extends Omit<HTMLAttributes<HTMLLabelElement>, 'children'> {
+    label: string;
+    description?: string;
+    required?: boolean;
+    error?: Snippet<[]>;
+    children?: Snippet<[]>;
+  }
 </script>
 
-<label class="flex flex-col gap-2">
+<script lang="ts">
+  let {
+    label,
+    description,
+    required,
+    children,
+    error,
+    ...rest
+  }: FormLabelProps = $props();
+</script>
+
+<label {...rest} class="flex flex-col gap-2">
   <span class="font-bold"
     >{label}{#if required}&nbsp;*{/if}</span
   >
-  <slot />
+  {@render children?.()}
   {#if description}
     <span class="text-sm">{description}</span>
   {/if}
-  {#if $$slots.error}
+  {#if error}
     <span class="error-text">
-      <slot name="error" />
+      {@render error()}
     </span>
   {/if}
 </label>

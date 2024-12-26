@@ -166,7 +166,7 @@
 
   <Header class="mb-6">
     Bills
-    <svelte:fragment slot="actions">
+    {#snippet actions()}
       <Button
         class="flex gap-2 items-center"
         on:click={() => fetchCreateBillData()}
@@ -174,7 +174,7 @@
         <PlusIcon size="0.9em" />
         Add
       </Button>
-    </svelte:fragment>
+    {/snippet}
   </Header>
 
   <!-- TODO: Fancy todo table -->

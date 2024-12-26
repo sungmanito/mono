@@ -49,11 +49,11 @@
   >
     <Header color="secondary" tag="h2" class="mb-10">
       Edit Profile
-      <svelte:fragment slot="actions">
+      {#snippet actions()}
         <button class="btn-icon btn-icon-sm" on:click={() => closeEditDrawer()}>
           <XIcon size="1.5em" />
         </button>
-      </svelte:fragment>
+      {/snippet}
     </Header>
     <div class="grid grid-cols-3 gap-2">
       <div class="flex gap-2">
@@ -132,9 +132,9 @@
   <div class="container mx-auto">
     <Header class="mt-4">
       Profile
-      <svelte:fragment slot="actions">
+      {#snippet actions()}
         <Button on:click={() => (editProfile = true)}>Edit profile</Button>
-      </svelte:fragment>
+      {/snippet}
     </Header>
     {#if data.user}
       <div class="grid grid-cols-12 gap-3">

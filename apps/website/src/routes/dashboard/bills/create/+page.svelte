@@ -81,13 +81,13 @@
 >
   <Header color="secondary" tag="h2">
     Create new bill
-    <svelte:fragment slot="actions">
+    {#snippet actions()}
       {#if component}
         <button type="button" on:click={() => console.info('hold')}>
           <XIcon size="1em" />
         </button>
       {/if}
-    </svelte:fragment>
+    {/snippet}
   </Header>
   <section
     class="grid grid-cols-[repeat(3,1fr)_minmax(20px,min-content)] gap-3"

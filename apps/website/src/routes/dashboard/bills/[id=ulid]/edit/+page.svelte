@@ -40,13 +40,13 @@
   <input type="hidden" name="bill-id" value={bill.id} />
   <Header color="secondary" tag="h2">
     Update {bill.billName}
-    <svelte:fragment slot="actions">
+    {#snippet actions()}
       {#if component}
         <button on:click={() => onclose}>
           <XIcon size="1em" />
         </button>
       {/if}
-    </svelte:fragment>
+    {/snippet}
   </Header>
   <section class="grid grid-cols-3 gap-3">
     <div>

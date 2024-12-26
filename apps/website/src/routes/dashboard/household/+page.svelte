@@ -41,13 +41,13 @@
 
   <Header class="mb-4">
     Households
-    <svelte:fragment slot="actions">
+    {#snippet actions()}
       <Button
         size="sm"
         variant="primary"
         on:click={() => (showCreateHousehold = true)}>Add</Button
       >
-    </svelte:fragment>
+    {/snippet}
   </Header>
 
   <section class="flex flex-col gap-4">

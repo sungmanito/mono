@@ -45,15 +45,15 @@
 <Drawerify
   bind:open={showCreateHousehold}
   url="/dashboard/household/create"
-  on:open={() => pushState('/dashboard/household/create', {})}
-  on:close={() => replaceState('/dashboard', {})}
+  onopen={() => pushState('/dashboard/household/create', {})}
+  onclose={() => replaceState('/dashboard', {})}
   component={CreateHousehold}
 />
 
 <Drawerify
   bind:open={showCreatePaymentDrawer}
-  on:close={() => replaceState('/dashboard', {})}
-  on:open={() => pushState(createPaymentDrawerUrl, {})}
+  onclose={() => replaceState('/dashboard', {})}
+  onopen={() => pushState(createPaymentDrawerUrl, {})}
   component={CreatePayment}
   url={createPaymentDrawerUrl}
 />
@@ -62,7 +62,7 @@
   <Header class="mt-4 mb-4">
     {data.user?.email || ''}
     Dashboard
-    <svelte:fragment slot="actions">
+    {#snippet actions()}
       <Button
         variant="primary:ghost"
         on:click={() => (showCreateBillModal = true)}
@@ -79,7 +79,7 @@
         <HomeIcon size="1.1em" />
         New Household
       </button>
-    </svelte:fragment>
+    {/snippet}
   </Header>
 
   <div class="">
