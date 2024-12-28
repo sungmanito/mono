@@ -72,7 +72,7 @@
     </div>
     <footer class="col-span-3 flex justify-end gap-3">
       {#if component}
-        <Button type="button" variant="filled" on:click={() => onclose()}>
+        <Button type="button" variant="filled" onclick={() => onclose()}>
           Close
         </Button>
       {/if}

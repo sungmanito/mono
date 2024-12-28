@@ -49,7 +49,7 @@
   class="p-4"
   class:border={hasDrag}
   class:border-dashed={hasDrag}
-  on:drop={async (e) => {
+  ondrop={async (e) => {
     e.preventDefault();
     if (e.dataTransfer && e.dataTransfer.items) {
       for (let i of Array.from(e.dataTransfer.items)) {
@@ -83,7 +83,7 @@
     Create new bill
     {#snippet actions()}
       {#if component}
-        <button type="button" on:click={() => console.info('hold')}>
+        <button type="button" onclick={() => console.info('hold')}>
           <XIcon size="1em" />
         </button>
       {/if}
@@ -142,7 +142,7 @@
           {#if i === bills.length - 1}
             <Button
               type="button"
-              on:click={() => {
+              onclick={() => {
                 bills = bills.concat({
                   name: '',
                   household: '',
@@ -155,7 +155,7 @@
             <button
               type="button"
               class="btn-icon"
-              on:click={() => {
+              onclick={() => {
                 bills = bills.filter((_, idx) => idx !== i);
               }}
             >
@@ -167,7 +167,7 @@
     {/each}
     <div class="col-span-4 flex justify-end gap-3">
       {#if component}
-        <Button variant="filled" type="button" on:click={() => onclose()}>
+        <Button variant="filled" type="button" onclick={() => onclose()}>
           Close
         </Button>
       {/if}

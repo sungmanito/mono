@@ -96,7 +96,7 @@
           type="button"
           variant="filled"
           disabled={saving}
-          on:click={() => onclose()}
+          onclick={() => onclose()}
         >
           Close
         </Button>

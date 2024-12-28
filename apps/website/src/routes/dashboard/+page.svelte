@@ -65,7 +65,7 @@
     {#snippet actions()}
       <Button
         variant="primary:ghost"
-        on:click={() => (showCreateBillModal = true)}
+        onclick={() => (showCreateBillModal = true)}
         class="flex gap-1"
       >
         <PlusIcon size="1.1em" />

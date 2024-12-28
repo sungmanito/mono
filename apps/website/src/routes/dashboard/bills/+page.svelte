@@ -169,7 +169,7 @@
     {#snippet actions()}
       <Button
         class="flex gap-2 items-center"
-        on:click={() => fetchCreateBillData()}
+        onclick={() => fetchCreateBillData()}
       >
         <PlusIcon size="0.9em" />
         Add

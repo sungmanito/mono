@@ -41,7 +41,7 @@
         <Button
           variant="primary"
           class="inline-flex gap-2 items-baseline"
-          on:click={() => loadCreate()}
+          onclick={() => loadCreate()}
         >
           <PlusIcon size="1em" />
           Add

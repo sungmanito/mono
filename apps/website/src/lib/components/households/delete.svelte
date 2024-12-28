@@ -45,7 +45,7 @@
 
   <svelte:fragment slot="footer" let:close>
     <div class="flex gap-2">
-      <Button type="button" variant="filled" on:click={() => close()}>
+      <Button type="button" variant="filled" onclick={() => close()}>
         Close
       </Button>
       <Button type="submit" disabled={confirmation !== 'delete'}>Delete</Button>
