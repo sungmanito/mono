@@ -45,7 +45,7 @@
       <Button
         size="sm"
         variant="primary"
-        on:click={() => (showCreateHousehold = true)}>Add</Button
+        onclick={() => (showCreateHousehold = true)}>Add</Button
       >
     {/snippet}
   </Header>

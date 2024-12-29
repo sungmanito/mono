@@ -1,6 +1,5 @@
-<script lang="ts">
-  import { cva, type VariantProps } from 'class-variance-authority';
-
+<script lang="ts" module>
+  import type { HTMLButtonAttributes } from 'svelte/elements';
   const button = cva('btn', {
     variants: {
       variant: {
@@ -30,12 +29,30 @@
 
   type ButtonStyleProps = VariantProps<typeof button>;
 
-  export let variant: ButtonStyleProps['variant'] = 'primary';
-  export let size: ButtonStyleProps['size'] = 'sm';
-
-  const className = button({ size, variant, className: $$props.class });
+  export interface ButtonProps extends HTMLButtonAttributes {
+    variant?: ButtonStyleProps['variant'];
+    size?: ButtonStyleProps['size'];
+  }
 </script>
 
-<button {...$$props} class={className} on:click>
-  <slot />
+<script lang="ts">
+  import { cva, type VariantProps } from 'class-variance-authority';
+
+  let {
+    variant = 'primary',
+    size = 'sm',
+    class: classProp,
+    children,
+    ...rest
+  }: ButtonProps = $props();
+
+  // export let variant: ButtonStyleProps['variant'] = 'primary';
+  // export let size: ButtonStyleProps['size'] = 'sm';
+
+  const className = $derived(button({ size, variant, className: classProp }));
+</script>
+
+<!-- svelte-ignore a11y_consider_explicit_label -->
+<button {...rest} class={className}>
+  {@render children?.()}
 </button>

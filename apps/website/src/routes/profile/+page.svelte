@@ -118,7 +118,7 @@
     <footer class="mt-8 flex justify-end gap-3">
       <Button
         variant="filled"
-        on:click={() => closeEditDrawer()}
+        onclick={() => closeEditDrawer()}
         disabled={profileSaving}
       >
         Close
@@ -133,7 +133,7 @@
     <Header class="mt-4">
       Profile
       {#snippet actions()}
-        <Button on:click={() => (editProfile = true)}>Edit profile</Button>
+        <Button onclick={() => (editProfile = true)}>Edit profile</Button>
       {/snippet}
     </Header>
     {#if data.user}

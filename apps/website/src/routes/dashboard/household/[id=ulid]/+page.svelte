@@ -134,12 +134,12 @@
       <Button
         size="sm"
         variant="primary:ghost"
-        on:click={() => showEdit(household.id)}>Edit</Button
+        onclick={() => showEdit(household.id)}>Edit</Button
       >
       <Button
         size="sm"
         variant="destructive:ghost"
-        on:click={() => (showDelete = true)}>Delete</Button
+        onclick={() => (showDelete = true)}>Delete</Button
       >
     </div>
   </header>
@@ -150,7 +150,7 @@
           <Button
             size="sm"
             variant="secondary"
-            on:click={() => {
+            onclick={() => {
               showCreateBillUrl = `/dashboard/bills/create?household-id[]=${household.id}`;
               showCreateBill = true;
             }}
@@ -182,7 +182,7 @@
                 <section>
                   <Button
                     variant="destructive:ghost"
-                    on:click={() => {
+                    onclick={() => {
                       showDeleteBill = true;
                       deleteBillId = bill.id;
                       pushState(`/dashboard/bills/${bill.id}/delete`, {});

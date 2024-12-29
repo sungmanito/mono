@@ -136,7 +136,7 @@
     </div>
     <div class="col-span-4 flex gap-3 justify-end pt-6">
       {#if component}
-        <Button variant="filled" type="button" on:click={onclose}>Close</Button>
+        <Button variant="filled" type="button" onclick={onclose}>Close</Button>
       {/if}
       <Button>Save</Button>
     </div>

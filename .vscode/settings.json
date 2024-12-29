@@ -16,5 +16,6 @@
     "$website/routes/": "${workspaceRoot}/apps/website/src/routes/",
     "$website/": "${workspaceRoot}/apps/website/",
     "$packages/": "${workspaceRoot}/packages/"
-  }
+  },
+  "explorer.sortOrder": "filesFirst"
 }

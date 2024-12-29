@@ -62,7 +62,7 @@
 
   <section class="flex gap-3">
     {#if component}
-      <Button disabled={sending} variant="filled" on:click={() => onclose()}
+      <Button disabled={sending} variant="filled" onclick={() => onclose()}
         >Close</Button
       >
     {/if}
