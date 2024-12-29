@@ -1,8 +1,5 @@
-<script context="module" lang="ts">
-</script>
-
 <script lang="ts">
-  export let value: number;
+  let props = $props();
   const options = Array.from({ length: 12 }, (_, i) => {
     const d = new Date();
     d.setMonth(i);
@@ -12,8 +9,8 @@
   });
 </script>
 
-<select {...$$restProps} on:change>
+<select {...props}>
   {#each options as option, i (option)}
-    <option value={i + 1} selected={value === i}>{option}</option>
+    <option value={i + 1} selected={props.value === i}>{option}</option>
   {/each}
 </select>

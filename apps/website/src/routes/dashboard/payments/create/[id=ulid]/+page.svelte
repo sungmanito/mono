@@ -82,8 +82,8 @@
       <FormLabel label="Proof (optional):">
         <Dropzone
           name="proof-file"
-          on:drop={(e) => {
-            if (e.detail.length > 1) {
+          ondrop={(e, detail) => {
+            if (detail.length > 1) {
               toastStore.trigger({
                 message: 'Too many files',
                 background: 'variant-filled-error',
@@ -91,7 +91,7 @@
               return console.error('nope');
             }
 
-            const [f] = e.detail;
+            const [f] = detail;
 
             file = f.getAsFile();
           }}

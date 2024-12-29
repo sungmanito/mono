@@ -1,11 +1,17 @@
-<script lang="ts">
-  import Image from '$components/image/image.svelte';
+<script lang="ts" module>
   import type { UserSqlType } from '@sungmanito/db/src/tables';
-  export let user: UserSqlType;
-  export let preferName = true;
+  export interface UserInfoProps {
+    user: UserSqlType;
+    preferName?: boolean;
+  }
 </script>
 
-<div {...$$restProps} class="user-info flex items-center gap-3">
+<script lang="ts">
+  import Image from '$components/image/image.svelte';
+  let { user, preferName = true, ...rest } = $props();
+</script>
+
+<div {...rest} class="user-info flex items-center gap-3">
   {#if user.userMetadata && user.userMetadata.picture}
     <Image src={user.userMetadata.picture} class="rounded-full h-8" />
   {/if}
