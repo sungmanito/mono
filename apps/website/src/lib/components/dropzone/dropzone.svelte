@@ -1,10 +1,11 @@
 <script lang="ts" module>
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
-  export interface DropzoneProps extends HTMLAttributes<HTMLDivElement> {
+  export interface DropzoneProps
+    extends Omit<HTMLAttributes<HTMLDivElement>, 'ondrop'> {
     name?: string;
     accept?: string;
-    dragover?: Snippet<[]>;
+    dragover?: Snippet<[DataTransferItemList | null]>;
     ondrop?: (e: DragEvent, items: DataTransferItemList) => void;
   }
 </script>
@@ -16,11 +17,11 @@
     accept = 'image/*',
     ...rest
   }: DropzoneProps = $props();
-  // export let name = 'dropped';
-  // export let accept = 'image/*';
 
-  let count = 1;
+  let count = $state(1);
   let hasDragOver = $state(false);
+  let dropoverItems: DataTransferItemList | null = $state(null);
+
   const arr = $derived(Array.from({ length: count }));
 
   const onDragExit: EventHandler<DragEvent, HTMLDivElement> = (e) => {
@@ -32,13 +33,16 @@
   const onDragOver: EventHandler<DragEvent, HTMLDivElement> = (e) => {
     e.preventDefault();
     hasDragOver = true;
+    dropoverItems = e.dataTransfer?.items || null;
     rest?.ondragover?.(e);
   };
 
   const onDrop: EventHandler<DragEvent, HTMLDivElement> = (e) => {
     e.preventDefault();
     hasDragOver = false;
-    if (e.dataTransfer) rest?.ondrop?.(e, e.dataTransfer.items || []);
+    if (e.dataTransfer) {
+      rest?.ondrop?.(e, e.dataTransfer.items || []);
+    }
   };
 </script>
 
@@ -58,7 +62,7 @@
       class="absolute top-0 bottom-0 left-0 right-0 text-on-surface-token bg-surface-50-900-token flex items-center justify-center"
     >
       {#if rest.dragover}
-        {@render rest.dragover()}
+        {@render rest.dragover(dropoverItems)}
       {:else}
         You can drop items here
       {/if}
