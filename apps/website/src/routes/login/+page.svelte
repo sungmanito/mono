@@ -1,10 +1,9 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import { goto, invalidateAll } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { getToastStore } from '@skeletonlabs/skeleton';
 
-  export let data;
   const toastStore = getToastStore();
 
   let email = '';
@@ -22,7 +21,7 @@
     return async ({ result }) => {
       if (result.type === 'success') {
         await invalidateAll();
-        await goto($page.url.searchParams.get('url') || '/dashboard');
+        await goto(page.url.searchParams.get('url') || '/dashboard');
       } else if (result.type === 'error') {
         toastStore.trigger({
           message: 'Error occurred',

@@ -37,7 +37,10 @@ export const load = async ({ locals, depends }) => {
     .leftJoin(
       exportedSchema.payments,
       and(
-        eq(exportedSchema.payments.forMonth, today.getMonth() + 1),
+        eq(
+          sql`extract('month' from ${exportedSchema.payments.forMonthD})`,
+          today.getMonth() + 1,
+        ),
         eq(exportedSchema.payments.billId, exportedSchema.bills.id),
       ),
     );
@@ -152,7 +155,6 @@ export const actions = {
             bill.dueDate,
           ),
           householdId: bill.householdId,
-          forMonth: today.getMonth() + 1,
         });
       }
 

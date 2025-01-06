@@ -5,7 +5,6 @@ import { sql } from 'drizzle-orm';
 export const bills = pgTable(
   'bills',
   {
-    // Think we're going to use ULID here.
     id: text('id')
       .primaryKey()
       .default(sql`generate_ulid()`),

@@ -21,8 +21,9 @@ export const invites = pgTable(
       .notNull()
       .default(sql<string>`now() + interval '30 days'`),
   },
-  ({ toId, fromId }) => ({
+  ({ toId, fromId, householdId }) => ({
     toIdIdx: index('to_id_idx').on(toId),
     fromIdx: index('from_id_idx').on(fromId),
+    householdId: index('invites_household_idx').on(householdId),
   }),
 );
