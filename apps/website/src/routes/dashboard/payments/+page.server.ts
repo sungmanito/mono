@@ -15,7 +15,7 @@ import { validateUserSession } from '$lib/util/session.js';
 import { exportedSchema as schema } from '@sungmanito/db';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { instanceOf, type } from 'arktype';
-import { and, eq, getTableColumns, inArray } from 'drizzle-orm';
+import { and, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 
 export const load = async ({ locals, depends }) => {
   const today = new Date();
@@ -49,8 +49,13 @@ export const load = async ({ locals, depends }) => {
       schema.households,
       eq(schema.households.id, schema.payments.householdId),
     )
-    .where(eq(schema.payments.forMonth, today.getMonth() + 1))
-    .orderBy(schema.payments.forMonth);
+    .where(
+      eq(
+        sql`extract('month' from ${schema.payments.forMonthD})`,
+        today.getMonth() + 1,
+      ),
+    )
+    .orderBy(schema.payments.forMonthD);
 
   return {
     payments,

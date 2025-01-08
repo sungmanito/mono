@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db/client.js';
 import { exportedSchema } from '@sungmanito/db';
 import type { RequestHandler } from './$types';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { PaymentUpdateArgs } from '$lib/server/actions/payments.actions';
 import { json } from '@sveltejs/kit';
 
@@ -12,6 +12,7 @@ export const GET: RequestHandler = async () => {
   const today = new Date();
   const currentMonth = today.getMonth() + 1;
 
+  // Left join the bills onto the payments
   const bills = await db
     .select()
     .from(exportedSchema.bills)
@@ -19,7 +20,10 @@ export const GET: RequestHandler = async () => {
       exportedSchema.payments,
       and(
         eq(exportedSchema.payments.billId, exportedSchema.bills.id),
-        eq(exportedSchema.payments.forMonth, today.getMonth() + 1),
+        eq(
+          sql`extract('month' from ${exportedSchema.payments.forMonthD})`,
+          today.getMonth() + 1,
+        ),
       ),
     );
 
@@ -28,7 +32,6 @@ export const GET: RequestHandler = async () => {
       // if thre is a payment associated with this month already, we do not want to modify it.
       id: v.payments?.id,
       billId: v.bills.id,
-      forMonth: currentMonth,
       forMonthD: new Date(
         `${today.getFullYear()}-${currentMonth}-${v.bills.dueDate}`,
       ),
@@ -42,7 +45,7 @@ export const GET: RequestHandler = async () => {
     .onConflictDoNothing({
       target: [
         exportedSchema.payments.billId,
-        exportedSchema.payments.forMonth,
+        exportedSchema.payments.forMonthD,
       ],
     })
     .returning()

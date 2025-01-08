@@ -15,7 +15,8 @@ export const households = pgTable(
       .references(() => users.id),
   },
   // Creating an index on the name as we will search on it.
-  ({ name }) => ({
+  ({ name, ownerId }) => ({
     name: index('name_index').on(name),
+    ownerId: index('owner_id').on(ownerId),
   }),
 );
