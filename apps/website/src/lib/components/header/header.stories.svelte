@@ -1,5 +1,6 @@
 <script module>
   import { defineMeta } from '@storybook/addon-svelte-csf';
+  import { expect, within } from '@storybook/test';
   import Header from './header.svelte';
 
   // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
@@ -20,6 +21,24 @@
 {/snippet}
 
 <!-- More on writing stories with args: https://storybook.js.org/docs/writing-stories/args -->
-<Story name="Default" args={{ children: child }} />
+<Story
+  name="Default"
+  args={{ children: child }}
+  play={async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Header Text')).toBeInTheDocument();
+  }}
+/>
 
-<Story name="With Action" args={{ children: child, actions }} />
+<Story
+  name="With Action"
+  args={{ children: child, actions }}
+  play={async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getAllByRole('button')).toHaveLength(2);
+    const buttons = canvas.getAllByRole('button');
+    for (const [i, button] of buttons.entries()) {
+      expect(button).toHaveTextContent(`Action ${i + 1}`);
+    }
+  }}
+/>
