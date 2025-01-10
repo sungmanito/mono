@@ -87,6 +87,9 @@ importers:
       '@storybook/addon-svelte-csf':
         specifier: 5.0.0-next.21
         version: 5.0.0-next.21(@storybook/svelte@8.4.7(storybook@8.4.7(prettier@3.4.2))(svelte@5.16.0))(@sveltejs/vite-plugin-svelte@4.0.4(svelte@5.16.0)(vite@5.4.11(@types/node@20.14.8)(sass@1.69.7)))(storybook@8.4.7(prettier@3.4.2))(svelte@5.16.0)(vite@5.4.11(@types/node@20.14.8)(sass@1.69.7))
+      '@storybook/addon-themes':
+        specifier: ^8.4.7
+        version: 8.4.7(storybook@8.4.7(prettier@3.4.2))
       '@storybook/blocks':
         specifier: 8.4.7
         version: 8.4.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.4.7(prettier@3.4.2))
@@ -1666,6 +1669,11 @@ packages:
       '@sveltejs/vite-plugin-svelte': ^4.0.0 || ^5.0.0
       svelte: ^5.0.0
       vite: ^5.0.0 || ^6.0.0
+
+  '@storybook/addon-themes@8.4.7':
+    resolution: {integrity: sha512-MZa3eWTz0b3BQvF71WqLqvEYzDtbMhQx1IIluWBMMGzJ4sWBzLX85LoNMUlHsNd4EhEmAZ1xQQFIJpDWTBx0nQ==}
+    peerDependencies:
+      storybook: ^8.4.7
 
   '@storybook/addon-toolbars@8.4.7':
     resolution: {integrity: sha512-OSfdv5UZs+NdGB+nZmbafGUWimiweJ/56gShlw8Neo/4jOJl1R3rnRqqY7MYx8E4GwoX+i3GF5C3iWFNQqlDcw==}
@@ -7312,6 +7320,11 @@ snapshots:
     transitivePeerDependencies:
       - babel-plugin-macros
       - storybook
+
+  '@storybook/addon-themes@8.4.7(storybook@8.4.7(prettier@3.4.2))':
+    dependencies:
+      storybook: 8.4.7(prettier@3.4.2)
+      ts-dedent: 2.2.0
 
   '@storybook/addon-toolbars@8.4.7(storybook@8.4.7(prettier@3.4.2))':
     dependencies:
