@@ -2,27 +2,28 @@
   import { enhance } from '$app/forms';
   import { goto, invalidateAll } from '$app/navigation';
   import { page } from '$app/state';
+  import Button from '$components/button/button.svelte';
+  import FormLabel from '$components/formLabel/formLabel.svelte';
+  import Header from '$components/header/header.svelte';
   import { getToastStore } from '@skeletonlabs/skeleton';
 
   const toastStore = getToastStore();
 
-  let email = '';
-  let password = '';
+  let email = $state('');
+  let password = $state('');
 </script>
 
 <svelte:head>
   <title>Login</title>
 </svelte:head>
 
-<div class="bg-zinc-800 h-screen flex items-center">
+<div class="flex flex-grow items-center">
   <div
-    class="container mx-auto bg-gradient-to-b from-slate-300 to-slate-100 gap-4 text-zinc-800 p-6 rounded-lg flex flex-col"
+    class="container mx-auto text-on-surface-token bg-surface-backdrop-token text-zinc-800 p-6 rounded-lg flex flex-col"
   >
-    <h1 class="text-2xl font-semibold">Login</h1>
-    <form method="post" action="?/login-with-google">
-      <section>
-        <button type="submit">Login with Google</button>
-      </section>
+    <Header tag="h1" class="mb-6" color="secondary">Login</Header>
+    <form method="post" action="?/login-with-google" class="mb-6">
+      <Button type="submit" variant="secondary">Login with Google</Button>
     </form>
 
     <form
@@ -34,7 +35,6 @@
             await invalidateAll();
             await goto(page.url.searchParams.get('url') || '/dashboard');
           } else if (result.type === 'error') {
-            console.error(result);
             toastStore.trigger({
               message: 'Error occurred',
             });
@@ -42,31 +42,31 @@
         };
       }}
     >
-      <label class="flex gap-3 flex-col">
-        <div class="font-bold">Username</div>
+      <FormLabel label="Username" required>
         <input
           bind:value={email}
           name="username"
           type="text"
-          class="p-2 border rounded"
+          class="input"
           placeholder="john@sungmanito.app"
         />
-      </label>
-      <label class="flex gap-3 flex-col">
-        <div class="font-bold">Password</div>
+      </FormLabel>
+      <FormLabel label="Password" required>
         <input
           bind:value={password}
           name="password"
           type="password"
-          class="p-2 border rounded"
+          class="input"
           placeholder="Password"
         />
-      </label>
-      <button type="submit">Submit</button>
+      </FormLabel>
+      <Button class="mt-4" type="submit">Submit</Button>
 
-      <footer>
-        <a href="/login/forgot">Forgot your password?</a>
-        <a href="/signup">Sign up</a>
+      <footer class="mt-4 flex gap-4">
+        <a href="/login/forgot" class="text-sky-500 hover:underline"
+          >Forgot your password?</a
+        >
+        <a href="/signup" class="text-sky-500 hover:underline">Sign up</a>
       </footer>
     </form>
   </div>

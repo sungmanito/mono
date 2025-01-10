@@ -25,7 +25,9 @@ export const payments = pgTable(
       .notNull()
       .references(() => bills.id, { onDelete: 'cascade' }),
     paidAt: timestamp('paid_at', { withTimezone: true }),
-    updatedBy: uuid('updated_by').references(() => users.id),
+    updatedBy: uuid('updated_by').references(() => users.id, {
+      onDelete: 'set null',
+    }),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),

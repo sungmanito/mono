@@ -3,6 +3,7 @@
   import { page } from '$app/stores';
   import Header from '$lib/components/header/header.svelte';
   import { XIcon } from 'lucide-svelte';
+  import { getToastStore } from '@skeletonlabs/skeleton';
   import type { User } from '@supabase/supabase-js';
   import Identity from './_components/identities/identity.svelte';
   import Button from '$lib/components/button/button.svelte';
@@ -10,122 +11,138 @@
   import { enhance } from '$app/forms';
   import FormLabel from '$lib/components/formLabel/formLabel.svelte';
 
-  export let data;
+  let { data } = $props();
 
-  $: if (!$page.data.user.id) {
-    goto('/login', { replaceState: true });
-  }
+  $effect(() => {
+    if (!$page.data.user.id) {
+      goto('/login', { replaceState: true });
+    }
+  });
 
   function usernameOrEmail(user: User) {
     if (user.user_metadata.name) return user.user_metadata.name;
     return user.email;
   }
 
-  let editProfile = false;
-  let profileSaving = false;
+  const toastStore = getToastStore();
+
+  let editProfile = $state(false);
+  let profileSaving = $state(false);
 </script>
 
 <svelte:head>
   <title>Sungmanito &ndash; User Profile</title>
 </svelte:head>
 
-<Drawer
-  open={editProfile}
-  on:close={() => (editProfile = false)}
-  let:close={closeEditDrawer}
->
-  <form
-    action="?/updateProfile"
-    class="p-4"
-    method="post"
-    use:enhance={() => {
-      profileSaving = true;
-      return async () => {
-        profileSaving = false;
-        closeEditDrawer();
-        await invalidateAll();
-      };
-    }}
-  >
-    <Header color="secondary" tag="h2" class="mb-10">
-      Edit Profile
-      {#snippet actions()}
-        <button class="btn-icon btn-icon-sm" on:click={() => closeEditDrawer()}>
-          <XIcon size="1.5em" />
-        </button>
-      {/snippet}
-    </Header>
-    <div class="grid grid-cols-3 gap-2">
-      <div class="flex gap-2">
-        {#if data.user && data.user.user_metadata?.avatar_url}
-          <img
-            src={data.user.user_metadata.avatar_url}
-            class="rounded-full max-w-[100px]"
-            alt="Profile"
-          />
-        {/if}
-        <label class="flex flex-col gap-2 flex-grow">
-          <span class="font-semibold"> Avatar URL </span>
-          <input
-            disabled={profileSaving}
-            type="url"
-            class="input"
-            name="avatar-url"
-            value={data?.user?.user_metadata?.avatar_url || ''}
-            placeholder="https://images.website.com/your-profile.png"
-          />
-        </label>
+<Drawer open={editProfile} onclose={() => (editProfile = false)}>
+  {#snippet children({ close: closeEditDrawer })}
+    <form
+      action="?/updateProfile"
+      class="p-4"
+      method="post"
+      use:enhance={() => {
+        profileSaving = true;
+        return async ({ result }) => {
+          profileSaving = false;
+          if (result.type === 'success') {
+            toastStore.trigger({
+              message: 'Profile updated successfully',
+              background: 'variant-filled-success',
+            });
+            closeEditDrawer();
+            await invalidateAll();
+          } else {
+            toastStore.trigger({
+              message: result.data?.message || 'Failed to update profile',
+              background: 'variant-filled-error',
+            });
+          }
+        };
+      }}
+    >
+      <Header color="secondary" tag="h2" class="mb-10">
+        Edit Profile
+        {#snippet actions()}
+          <button
+            class="btn-icon btn-icon-sm"
+            onclick={() => closeEditDrawer()}
+          >
+            <XIcon size="1.5em" />
+          </button>
+        {/snippet}
+      </Header>
+      <div class="grid grid-cols-3 gap-2">
+        <div class="flex gap-2">
+          {#if data.user && data.user.user_metadata?.avatar_url}
+            <img
+              src={data.user.user_metadata.avatar_url}
+              class="rounded-full max-w-[100px]"
+              alt="Profile"
+            />
+          {/if}
+          <label class="flex flex-col gap-2 flex-grow">
+            <span class="font-semibold"> Avatar URL </span>
+            <input
+              disabled={profileSaving}
+              type="url"
+              class="input"
+              name="avatar-url"
+              value={data?.user?.user_metadata?.avatar_url || ''}
+              placeholder="https://images.website.com/your-profile.png"
+            />
+          </label>
+        </div>
+        <div>
+          <label class="flex flex-col gap-2">
+            <span class="font-semibold"> Name </span>
+            <input
+              disabled={profileSaving}
+              type="text"
+              class="input"
+              name="name"
+              value={data.user?.user_metadata?.name || ''}
+              placeholder="Name others will see"
+            />
+          </label>
+        </div>
+        <div>
+          <label class="flex flex-col gap-2">
+            <span class="font-semibold"> Email </span>
+            <input
+              disabled={profileSaving}
+              type="email"
+              name="email"
+              class="input"
+              value={data.user?.email}
+            />
+          </label>
+        </div>
+        <div>
+          <FormLabel
+            label="Password"
+            description="Please use a secure password complete with numbers, upper and lower case characters, and at least one special symbol"
+          >
+            <input
+              class="input"
+              type="password"
+              placeholder="New Password"
+              name="password"
+            />
+          </FormLabel>
+        </div>
       </div>
-      <div>
-        <label class="flex flex-col gap-2">
-          <span class="font-semibold"> Name </span>
-          <input
-            disabled={profileSaving}
-            type="text"
-            class="input"
-            name="name"
-            value={data.user?.user_metadata?.name || ''}
-            placeholder="Name others will see"
-          />
-        </label>
-      </div>
-      <div>
-        <label class="flex flex-col gap-2">
-          <span class="font-semibold"> Email </span>
-          <input
-            disabled={profileSaving}
-            type="email"
-            name="email"
-            class="input"
-            value={data.user?.email}
-          />
-        </label>
-      </div>
-      <div>
-        <FormLabel
-          label="Password"
-          description="Please use a secure password complete with numbers, upper and lower case characters, and at least one special symbol"
+      <footer class="mt-8 flex justify-end gap-3">
+        <Button
+          variant="filled"
+          onclick={() => closeEditDrawer()}
+          disabled={profileSaving}
         >
-          <input
-            class="input"
-            type="password"
-            placeholder="New Password"
-            name="password"
-          />
-        </FormLabel>
-      </div>
-    </div>
-    <footer class="mt-8 flex justify-end gap-3">
-      <Button
-        variant="filled"
-        onclick={() => closeEditDrawer()}
-        disabled={profileSaving}
-      >
-        Close
-      </Button>
-      <Button disabled={profileSaving}>Save</Button>
-    </footer>
-  </form>
+          Close
+        </Button>
+        <Button disabled={profileSaving}>Save</Button>
+      </footer>
+    </form>
+  {/snippet}
 </Drawer>
 
 <section class="flex-grow">
