@@ -9,7 +9,7 @@ reviews:
   high_level_summary_placeholder: '@coderabbitai summary'
   auto_title_placeholder: '@coderabbitai'
   auto_title_instructions: ''
-  review_status: false 
+  review_status: false
   commit_status: true
   collapse_walkthrough: false
   changed_files_summary: true

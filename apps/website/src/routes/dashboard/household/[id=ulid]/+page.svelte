@@ -2,7 +2,13 @@
   import { enhance } from '$app/forms';
   import { goto, pushState, invalidate } from '$app/navigation';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
-  import { CrownIcon, Loader2, Trash2Icon, XIcon } from 'lucide-svelte';
+  import {
+    AlertTriangleIcon,
+    CrownIcon,
+    Loader2,
+    Trash2Icon,
+    XIcon,
+  } from 'lucide-svelte';
 
   import Drawerify from '$components/drawerify/drawerify.svelte';
   import Header from '$components/header/header.svelte';
@@ -13,33 +19,35 @@
   import CreateBillPage from '../../bills/create/+page.svelte';
   import DeleteBillPage from '../../bills/[id=ulid]/delete/+page.svelte';
   import Modalify from '$components/modalify/modalify.svelte';
+  import Alert from '$components/alert/alert.svelte';
 
-  export let data;
+  let { data } = $props();
 
-  let household = data.household;
+  let household = $derived(data.household);
 
-  let billDetailUrl = '';
-  let showBillDetails = false;
+  let billDetailUrl = $state('');
+  let showBillDetails = $state(false);
 
-  let editBillUrl = '';
-  let showEditHousehold = false;
-  let showCreateBill = false;
-  let showCreateBillUrl = '';
+  let editBillUrl = $state('');
+  let showEditHousehold = $state(false);
+  let showCreateBill = $state(false);
+  let showCreateBillUrl = $state('');
 
-  $: household = data.household;
-  if (household === undefined) {
-    goto('/dashboard/household');
-  }
+  $effect(() => {
+    if (household === undefined) {
+      goto('/dashboard/household');
+    }
+  });
 
   function showEdit(householdId: string) {
     showEditHousehold = true;
     editBillUrl = `/dashboard/household/${householdId}/edit`;
   }
 
-  let showDeleteBill = false;
-  let deleteBillId = '';
+  let showDeleteBill = $state(false);
+  let deleteBillId = $state('');
 
-  let showDelete = false;
+  let showDelete = $state(false);
 </script>
 
 <svelte:head>
@@ -128,6 +136,28 @@
     ]}
   />
 
+  {#if household.ownerId === null}
+    <Alert type="warning:ghost">
+      <div class="flex items-center gap-4">
+        <AlertTriangleIcon size="2em" />
+        <div class="flex flex-col">
+          <Header tag="h3">Ownerless Household</Header>
+          <p>
+            You are viewing a household whose original owner has been removed,
+            either at their request or by administrators. Households who do not
+            have owners will be removed periodically. Please use the action to
+            the side in order to take ownership of this household.
+          </p>
+        </div>
+      </div>
+      {#snippet actions()}
+        <form action="?/claimHousehold" method="post" use:enhance>
+          <Button type="submit" variant="filled">Claim household</Button>
+        </form>
+      {/snippet}
+    </Alert>
+  {/if}
+
   <header class="flex justify-between gap-4 items-center mb-4">
     <h1 class="h1">{household.name}</h1>
     <div class="actions flex gap-2">
@@ -204,6 +234,9 @@
                 {/if}
               </section>
             </div>
+          {:else}
+            This household currently does not have any bills. Please use the
+            &quot;Add&quot; button above
           {/each}
         </div>
       {/await}
