@@ -2,7 +2,7 @@ import { db } from '$lib/server/db/client.js';
 import { formDataValidObject, validateFormData } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { exportedSchema as schema } from '@sungmanito/db';
-import { error, redirect } from '@sveltejs/kit';
+import { error, redirect, fail } from '@sveltejs/kit';
 import { type } from 'arktype';
 import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
 
@@ -256,6 +256,39 @@ export const actions = {
     if (!row) error(500);
     return {
       deleted: row,
+    };
+  },
+  claimHousehold: async ({ locals, params }) => {
+    // Get the session
+    const session = await locals.getSession();
+    // Get the household id
+    const householdId = params.id;
+
+    // Fail if the household id is not a string or is not defined
+    if (typeof householdId !== 'string' || householdId === undefined) {
+      return fail(400);
+    }
+
+    // Fail if we do not have a valid session
+    if (!validateUserSession(session)) {
+      return fail(401);
+    }
+
+    // Grab the session user Id
+    const userId = session.user.id;
+
+    // Run the DB query
+    const [returned] = await db
+      .update(schema.households)
+      .set({
+        ownerId: userId,
+        updatedAt: null,
+      })
+      .where(eq(schema.households.id, householdId))
+      .returning();
+
+    return {
+      household: returned,
     };
   },
 };

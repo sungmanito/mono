@@ -7,8 +7,8 @@
   import Drawerify from '$components/drawerify/drawerify.svelte';
   import { CheckIcon, XIcon } from 'lucide-svelte';
   import { pushState } from '$app/navigation';
-  export let data;
-  let showCreateHousehold = false;
+  let { data } = $props();
+  let showCreateHousehold = $state(false);
   const createHouseholdUrl = '/dashboard/household/create';
 </script>
 
