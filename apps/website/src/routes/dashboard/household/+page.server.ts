@@ -12,18 +12,7 @@ export const load = async ({ locals }) => {
   const session = await locals.getSession();
   if (!validateUserSession(session)) redirect(303, '/login');
 
-  return {
-    streamed: {
-      invites: db
-        .select()
-        .from(schema.invites)
-        .innerJoin(
-          schema.households,
-          eq(schema.households.id, schema.invites.householdId),
-        )
-        .where(eq(schema.invites.toId, session.user.id)),
-    },
-  };
+  return {};
 };
 
 export const actions = {

@@ -69,7 +69,7 @@
 
 <Modal
   {open}
-  on:close={() => {
+  onclose={() => {
     open = false;
     onclose();
   }}
@@ -90,7 +90,7 @@
     {:else}
       {@const Component = component}
       <Component
-        data={$query.data || {}}
+        data={$query.data || { payments: { bill: {} } }}
         onclose={closeModal}
         component={true}
       />

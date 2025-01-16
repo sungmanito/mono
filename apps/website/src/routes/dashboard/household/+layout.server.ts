@@ -1,5 +1,5 @@
 import { householdsToUsersMap } from '$lib/server/actions/households.actions';
-import { sql, eq, inArray } from 'drizzle-orm';
+import { sql, eq, inArray, getTableColumns, count } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { exportedSchema as schema } from '@sungmanito/db';
 import { validateUserSession } from '$lib/util/session.js';
@@ -40,5 +40,30 @@ export const load = async ({ locals, depends }) => {
         locals.userHouseholds.map((h) => h.households.id),
       ),
     },
+    invites: db
+      .select({
+        ...getTableColumns(schema.invites),
+        household: {
+          id: schema.households.id,
+          name: schema.households.name,
+          bills: count(schema.bills.id),
+          members: count(schema.usersToHouseholds.id),
+        },
+      })
+      .from(schema.invites)
+      .innerJoin(
+        schema.households,
+        eq(schema.households.id, schema.invites.householdId),
+      )
+      .leftJoin(
+        schema.bills,
+        eq(schema.bills.householdId, schema.households.id),
+      )
+      .leftJoin(
+        schema.usersToHouseholds,
+        eq(schema.usersToHouseholds.householdId, schema.households.id),
+      )
+      .groupBy(schema.invites.id, schema.households.id)
+      .where(eq(schema.invites.toId, session.user.id)),
   };
 };

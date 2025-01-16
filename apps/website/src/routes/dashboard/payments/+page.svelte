@@ -8,18 +8,18 @@
   import PaymentDetails from './[id=ulid]/+page.svelte';
   import CreatePaymentPage from './create/[id=ulid]/+page.svelte';
 
-  export let data;
+  let { data } = $props();
 
   async function showModal(paymentId: string) {
     showMakePaymentModal = true;
     showModalOpenUrl = `/dashboard/payments/create/${paymentId}`;
   }
 
-  let showMakePaymentModal = false;
-  let showModalOpenUrl = '';
+  let showMakePaymentModal = $state(false);
+  let showModalOpenUrl = $state('');
 
-  let detailsModalOpen = false;
-  let detailsModalUrl = '/dashboard/payments/create/';
+  let detailsModalOpen = $state(false);
+  let detailsModalUrl = $state('/dashboard/payments/create/');
 </script>
 
 <svelte:head>
@@ -27,16 +27,16 @@
 </svelte:head>
 
 <Drawerify
-  on:open={() => pushState(showModalOpenUrl, {})}
-  on:close={() => replaceState('/dashboard/payments', {})}
+  onopen={() => pushState(showModalOpenUrl, {})}
+  onclose={() => replaceState('/dashboard/payments', {})}
   bind:open={showMakePaymentModal}
   url={showModalOpenUrl}
   component={CreatePaymentPage}
 />
 
 <Drawerify
-  on:open={() => pushState(detailsModalUrl, {})}
-  on:close={() => replaceState('/dashboard/payments', {})}
+  onopen={() => pushState(detailsModalUrl, {})}
+  onclose={() => replaceState('/dashboard/payments', {})}
   bind:open={detailsModalOpen}
   component={PaymentDetails}
   url={detailsModalUrl}
@@ -65,8 +65,7 @@
     {#each data.payments as payment}
       <div
         role="listitem"
-        class="card"
-        class:variant-outline-success={payment.paidAt !== null}
+        class={['card', { 'variant-ghost-success': payment.paidAt !== null }]}
       >
         <header class="card-header">
           <Header tag="h5" color="secondary">
@@ -77,7 +76,7 @@
               <div>
                 <a
                   href={`/dashboard/payments/${payment.id}`}
-                  on:click={(e) => {
+                  onclick={(e) => {
                     e.preventDefault();
                     detailsModalUrl = `/dashboard/payments/${payment.id}`;
                     detailsModalOpen = true;
@@ -92,7 +91,7 @@
                 <button
                   class="btn btn-sm variant-outline-primary"
                   type="button"
-                  on:click={() => {
+                  onclick={() => {
                     showModal(payment.id);
                   }}
                 >

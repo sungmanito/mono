@@ -7,8 +7,6 @@
   import { XCircleIcon, XIcon } from 'lucide-svelte';
   import { onMount } from 'svelte';
 
-  // export let households: Pick<Household, 'id' | 'name'>[] = [];
-
   export let data;
   $: households = data.households;
 
@@ -46,9 +44,7 @@
 <form
   action="/dashboard/bills?/addBill"
   method="post"
-  class="p-4"
-  class:border={hasDrag}
-  class:border-dashed={hasDrag}
+  class={['p-4', hasDrag && 'border border-dashed']}
   ondrop={async (e) => {
     e.preventDefault();
     if (e.dataTransfer && e.dataTransfer.items) {
@@ -83,7 +79,7 @@
     Create new bill
     {#snippet actions()}
       {#if component}
-        <button type="button" onclick={() => console.info('hold')}>
+        <button type="button" onclick={() => onclose()}>
           <XIcon size="1em" />
         </button>
       {/if}

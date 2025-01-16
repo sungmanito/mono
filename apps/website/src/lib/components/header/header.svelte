@@ -25,9 +25,13 @@
 
   type VariantValues = VariantProps<typeof headers>;
   export interface HeaderProps {
+    /** @description the HTML tag you want rendered for this item */
     tag?: VariantValues['tag'];
     color?: VariantValues['color'];
+    /** @description gets appended to the values for the wrapping header element */
     class?: string;
+    /** @description applies to element rendered by the tag property */
+    tagClasses?: string;
     children: Snippet<[]>;
     actions?: Snippet<[]>;
   }
@@ -40,13 +44,14 @@
     class: className,
     children,
     actions,
+    tagClasses = '',
   }: HeaderProps = $props();
 
   const classes = headers({ tag, color, class: className });
 </script>
 
-<div class="flex justify-between items-baseline">
-  <svelte:element this={tag} class={classes}>
+<div class={['flex justify-between items-baseline', classes]}>
+  <svelte:element this={tag} class={tagClasses}>
     {@render children()}
   </svelte:element>
   <section class="actions inline-flex gap-2">
