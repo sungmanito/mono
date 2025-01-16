@@ -6,23 +6,35 @@ import { validateUserSession } from '$lib/util/session.js';
 import { exportedSchema as schema } from '@sungmanito/db';
 import { error, redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, sql, inArray, asc } from 'drizzle-orm';
 
 export const load = async ({ locals }) => {
   const session = await locals.getSession();
   if (!validateUserSession(session)) redirect(303, '/login');
 
+  // We're gonna grab a lot of data
+
   return {
-    streamed: {
-      invites: db
-        .select()
-        .from(schema.invites)
-        .innerJoin(
-          schema.households,
-          eq(schema.households.id, schema.invites.householdId),
-        )
-        .where(eq(schema.invites.toId, session.user.id)),
-    },
+    bills: db
+      .select()
+      .from(schema.bills)
+      .where(
+        inArray(
+          schema.bills.householdId,
+          locals.userHouseholds.map((h) => h.households.id),
+        ),
+      )
+      .orderBy(asc(schema.bills.dueDate), asc(schema.bills.billName))
+      .then((raw) => {
+        return raw.reduce(
+          (all, cur) => {
+            if (!all[cur.householdId]) all[cur.householdId] = [cur];
+            else all[cur.householdId].push(cur);
+            return all;
+          },
+          {} as Record<string, (typeof raw)[number][]>,
+        );
+      }),
   };
 };
 

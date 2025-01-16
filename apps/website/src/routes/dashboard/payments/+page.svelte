@@ -1,6 +1,5 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import { pushState, replaceState } from '$app/navigation';
   import Drawerify from '$components/drawerify/drawerify.svelte';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import Header from '$lib/components/header/header.svelte';
@@ -8,35 +7,54 @@
   import PaymentDetails from './[id=ulid]/+page.svelte';
   import CreatePaymentPage from './create/[id=ulid]/+page.svelte';
 
-  export let data;
+  let { data } = $props();
 
   async function showModal(paymentId: string) {
     showMakePaymentModal = true;
     showModalOpenUrl = `/dashboard/payments/create/${paymentId}`;
   }
 
-  let showMakePaymentModal = false;
-  let showModalOpenUrl = '';
+  let showMakePaymentModal = $state(false);
+  let showModalOpenUrl = $state('');
 
-  let detailsModalOpen = false;
-  let detailsModalUrl = '/dashboard/payments/create/';
+  let detailsModalOpen = $state(false);
+  let detailsModalUrl = $state('');
+
+  function makePaymentOpen() {
+    history.pushState(undefined, '', showModalOpenUrl);
+  }
+
+  const paymentDetailsOpen = () => {
+    // Using history.pushState because using pushState from sveltekit makes this whole
+    // thing blow tf up
+    history.pushState(undefined, '', detailsModalUrl);
+  };
+
+  $effect(() => {
+    if (detailsModalOpen) {
+      paymentDetailsOpen();
+    }
+  });
+
+  $effect(() => {
+    if (showMakePaymentModal) {
+      makePaymentOpen();
+    }
+  });
 </script>
 
 <svelte:head>
   <title>Dashboard &ndash; Payments</title>
 </svelte:head>
-
 <Drawerify
-  on:open={() => pushState(showModalOpenUrl, {})}
-  on:close={() => replaceState('/dashboard/payments', {})}
+  onclose={() => history.back()}
   bind:open={showMakePaymentModal}
   url={showModalOpenUrl}
   component={CreatePaymentPage}
 />
 
 <Drawerify
-  on:open={() => pushState(detailsModalUrl, {})}
-  on:close={() => replaceState('/dashboard/payments', {})}
+  onclose={() => history.back()}
   bind:open={detailsModalOpen}
   component={PaymentDetails}
   url={detailsModalUrl}
@@ -77,7 +95,7 @@
               <div>
                 <a
                   href={`/dashboard/payments/${payment.id}`}
-                  on:click={(e) => {
+                  onclick={(e) => {
                     e.preventDefault();
                     detailsModalUrl = `/dashboard/payments/${payment.id}`;
                     detailsModalOpen = true;
@@ -92,7 +110,7 @@
                 <button
                   class="btn btn-sm variant-outline-primary"
                   type="button"
-                  on:click={() => {
+                  onclick={() => {
                     showModal(payment.id);
                   }}
                 >

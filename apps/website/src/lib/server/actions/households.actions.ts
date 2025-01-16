@@ -13,7 +13,7 @@ export async function getUserHouseholds(userId: string) {
       .from(schema.households)
       .innerJoin(
         schema.usersToHouseholds,
-        and(eq(schema.households.id, schema.usersToHouseholds.householdId)),
+        eq(schema.households.id, schema.usersToHouseholds.householdId),
       )
       .where(eq(schema.usersToHouseholds.userId, userId))
   );

@@ -8,11 +8,16 @@
   import Dropzone from '$lib/components/dropzone/dropzone.svelte';
   import { enhance } from '$app/forms';
   import { goto, invalidate } from '$app/navigation';
+  import type { PageData } from './$types';
+  import type { ModalifyPage } from '$lib/util/page';
 
-  export let data;
-  export let component = false;
-  export let onclose: () => void = () => void 0;
-  let file: File | null = null;
+  let {
+    data,
+    component = false,
+    onclose = () => void 0,
+  }: ModalifyPage<PageData> = $props();
+
+  let file: File | null = $state(null);
   const toastStore = getToastStore();
 </script>
 

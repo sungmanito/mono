@@ -69,11 +69,10 @@
 
 <Modal
   {open}
-  on:close={() => {
+  onclose={() => {
     open = false;
     onclose();
   }}
-  {footer}
 >
   {#snippet header({ close: closeModal })}
     {#if modalifyHeader}
@@ -90,7 +89,7 @@
     {:else}
       {@const Component = component}
       <Component
-        data={$query.data || {}}
+        data={$query.data || { payments: { bill: {} } }}
         onclose={closeModal}
         component={true}
       />

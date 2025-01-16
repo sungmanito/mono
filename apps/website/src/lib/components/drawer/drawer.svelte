@@ -4,6 +4,8 @@
     open: boolean;
     onclose: () => void;
     children: Snippet<[{ close: () => void }]>;
+    from?: 'left' | 'right' | 'top' | 'bottm';
+    onopen?: () => void;
   }
 </script>
 
@@ -16,6 +18,7 @@
   let {
     open = $bindable(false),
     onclose,
+    onopen = () => void 0,
     children,
     class: propClass,
     ...rest
@@ -29,6 +32,13 @@
     'drawer bg-surface-100-800-token shadow-xl rounded-r-xl h-full w-5/6 overflow-auto',
     propClass,
   );
+
+  // $effect(() => {
+  //   if (open) {
+  //     console.info('running');
+  // onopen();
+  //   }
+  // });
 </script>
 
 <svelte:window
@@ -41,8 +51,10 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   onclick={(e) => (e.currentTarget === e.target ? dispatchCloseEvent() : null)}
-  class="drawer-backdrop flex fixed top-0 bottom-0 left-0 right-0 bg-surface-backdrop-token z-50"
-  class:hidden={!open}
+  class={[
+    'drawer-backdrop flex fixed top-0 bottom-0 left-0 right-0 bg-surface-backdrop-token z-50',
+    { hidden: !open },
+  ]}
   use:focusTrap={true}
 >
   <div role="dialog" class={classNames} {...rest}>
