@@ -1,11 +1,12 @@
 <script lang="ts">
   import HouseholdSidebar from './_components/householdSidebar.svelte';
-  export let data;
+  let { data, children } = $props();
 </script>
 
 <HouseholdSidebar
   households={data.households}
   userMap={data.streamable.userHouseholds}
+  invites={data.invites}
 />
 
-<slot />
+{@render children?.()}

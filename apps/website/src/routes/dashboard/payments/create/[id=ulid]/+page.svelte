@@ -8,11 +8,16 @@
   import Dropzone from '$lib/components/dropzone/dropzone.svelte';
   import { enhance } from '$app/forms';
   import { goto, invalidate } from '$app/navigation';
+  import type { PageData } from './$types';
+  import type { ModalifyPage } from '$lib/util/page';
 
-  export let data;
-  export let component = false;
-  export let onclose: () => void = () => void 0;
-  let file: File | null = null;
+  let {
+    data,
+    component = false,
+    onclose = () => void 0,
+  }: ModalifyPage<PageData> = $props();
+
+  let file: File | null = $state(null);
   const toastStore = getToastStore();
 </script>
 
@@ -45,13 +50,13 @@
 >
   <Header>
     Add payment info
-    <svelte:fragment slot="actions">
+    {#snippet actions()}
       {#if component}
-        <button type="button" on:click={() => onclose()}
-          ><XIcon size="1.5em" /></button
-        >
+        <button type="button" onclick={() => onclose()}>
+          <XIcon size="1.5em" />
+        </button>
       {/if}
-    </svelte:fragment>
+    {/snippet}
   </Header>
   <div class="form-layout mt-8">
     <input type="hidden" name="payment-id" value={data.payment.id} />
@@ -96,11 +101,11 @@
             file = f.getAsFile();
           }}
         >
-          <svelte:fragment slot="drag-over">
+          {#snippet dragover()}
             <p>
               You can drop <strong>image</strong> files here
             </p>
-          </svelte:fragment>
+          {/snippet}
           {#if file === null}
             <div class="flex gap-2 items-center">
               <FileDownIcon size="1.25em" />
@@ -110,7 +115,7 @@
             {@const blobUrl = URL.createObjectURL(file)}
             <div class="relative">
               <div class="absolute top-0 right-0">
-                <button on:click={() => (file = null)}>
+                <button onclick={() => (file = null)}>
                   <XIcon size="1em" />
                 </button>
               </div>

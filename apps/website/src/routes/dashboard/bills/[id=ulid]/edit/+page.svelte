@@ -4,31 +4,40 @@
   import Button from '$lib/components/button/button.svelte';
   import FormLabel from '$lib/components/formLabel/formLabel.svelte';
   import Header from '$lib/components/header/header.svelte';
+  import type { DrawerifyPage } from '$lib/util/page.js';
   import type { SubmitFunction } from '@sveltejs/kit';
   import { XIcon } from 'lucide-svelte';
+  import type { PageData } from './$types.js';
+  import Currency from '$lib/components/currency/currency.svelte';
 
-  export let data;
-  export let component = false;
-  export let onclose: () => void = () => void 0;
+  let {
+    data,
+    component = false,
+    onclose = () => void 0,
+    submit = () => {
+      saving = true;
+      return async ({ update, formElement }) => {
+        formElement.reset();
+        await update();
+        await invalidate('user:bills');
+        if (component) {
+          onclose();
+        } else {
+          goto('/dashboard/bills');
+        }
+      };
+    },
+  }: DrawerifyPage<PageData> & {
+    submit: SubmitFunction;
+  } = $props();
 
-  $: bill = data.bill;
+  console.info('BILL DATA', data);
 
-  $: households = data.households;
+  let bill = $derived(data.bill);
 
-  export let submit: SubmitFunction = () => {
-    saving = true;
-    return async ({ update, formElement }) => {
-      formElement.reset();
-      await update();
-      await invalidate('user:bills');
-      if (component) {
-        onclose();
-      } else {
-        goto('/dashboard/bills');
-      }
-    };
-  };
-  let saving = false;
+  let households = $derived(data.households);
+
+  let saving = $state(false);
 </script>
 
 <form
@@ -42,13 +51,13 @@
     Update {bill.billName}
     {#snippet actions()}
       {#if component}
-        <button on:click={() => onclose}>
+        <button onclick={() => onclose()}>
           <XIcon size="1em" />
         </button>
       {/if}
     {/snippet}
   </Header>
-  <section class="grid grid-cols-3 gap-3">
+  <section class="grid grid-cols-5 gap-3">
     <div>
       <FormLabel label="Bill name">
         <input
@@ -88,6 +97,22 @@
           max="28"
           value={bill?.dueDate}
         />
+      </FormLabel>
+    </div>
+    <div>
+      <FormLabel label="Amount">
+        <input
+          class="input"
+          name="amount"
+          placeholder="Monthly amount"
+          type="number"
+          value={bill.amount}
+        />
+      </FormLabel>
+    </div>
+    <div>
+      <FormLabel label="Currency">
+        <Currency selected={bill.currency} name="currency" />
       </FormLabel>
     </div>
     <div class="col-span-3 flex justify-end gap-3">

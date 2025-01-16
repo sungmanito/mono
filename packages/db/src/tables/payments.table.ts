@@ -1,19 +1,18 @@
 import { sql } from 'drizzle-orm';
 import {
   date,
+  index,
+  numeric,
   pgTable,
-  smallint,
   text,
   timestamp,
   uniqueIndex,
   uuid,
-  numeric,
 } from 'drizzle-orm/pg-core';
+import { users } from '.';
 import { bills } from './bills.table';
 import { households } from './households.table';
 import { objects } from './objects.table';
-import { index } from 'drizzle-orm/pg-core';
-import { users } from '.';
 
 export const payments = pgTable(
   'payments',

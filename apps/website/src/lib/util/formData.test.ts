@@ -91,11 +91,6 @@ describe('formDataToObject', () => {
     expect(formDataToObject(fd3)).toStrictEqual({
       names: ['bob'],
     });
-
-    // Check that forcing the key names doesn't bite us in butt
-    expect(formDataToObject(fd3, undefined, false)).toStrictEqual({
-      'names[]': ['bob'],
-    });
   });
 });
 

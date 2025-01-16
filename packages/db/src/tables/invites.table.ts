@@ -1,6 +1,6 @@
 import { pgTable, text, uuid, timestamp, index } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
-import { households } from '.';
+import { households, users } from '.';
 
 // I either need this, or i need to add information to the users_to_households table
 export const invites = pgTable(
@@ -10,9 +10,13 @@ export const invites = pgTable(
       .primaryKey()
       .default(sql`generate_ulid()`),
     toEmail: text('to_email').notNull(),
-    toId: uuid('to_id').notNull(),
+    toId: uuid('to_id')
+      .notNull()
+      .references(() => users.id),
     fromEmail: text('from_email').notNull(),
-    fromId: uuid('from_id').notNull(),
+    fromId: uuid('from_id')
+      .notNull()
+      .references(() => users.id),
     householdId: text('household_id')
       .notNull()
       .references(() => households.id, { onDelete: 'cascade' }),

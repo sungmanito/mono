@@ -7,6 +7,7 @@ export const load = async ({ locals, params }) => {
 
   if (!validateUserSession(session)) error(401);
 
+  console.info('GETTING BILL');
   const bill = await getBill(params.id);
 
   return {

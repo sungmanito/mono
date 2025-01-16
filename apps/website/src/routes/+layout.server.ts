@@ -1,4 +1,5 @@
-export const load = async ({ locals }) => {
+export const load = async ({ locals, depends }) => {
+  depends('user');
   const {
     data: { user },
     error,

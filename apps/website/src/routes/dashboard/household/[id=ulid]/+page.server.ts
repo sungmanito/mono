@@ -4,7 +4,16 @@ import { validateUserSession } from '$lib/util/session.js';
 import { exportedSchema as schema } from '@sungmanito/db';
 import { error, redirect, fail } from '@sveltejs/kit';
 import { type } from 'arktype';
-import { and, eq, inArray, like, or, sql } from 'drizzle-orm';
+import {
+  and,
+  eq,
+  getTableColumns,
+  inArray,
+  like,
+  or,
+  sql,
+  desc,
+} from 'drizzle-orm';
 
 const formDataValidator = type({
   user: 'email | string',
@@ -13,6 +22,7 @@ const formDataValidator = type({
 export const load = async ({ params, locals, depends }) => {
   const session = await locals.getSession();
   depends('user:households');
+  depends('user:payments');
 
   if (!validateUserSession(session)) redirect(300, '/login');
 
@@ -34,29 +44,28 @@ export const load = async ({ params, locals, depends }) => {
   return {
     // Current household info
     household,
-    // Not 100% i need this anymore, but we'll leave it in for now.
-    // user: session.user,
-    streamed: {
-      // The bills for the current household
-      bills: db.query.bills.findMany({
-        with: {
-          payments: {
-            orderBy(fields, operators) {
-              return operators.desc(fields.createdAt);
-            },
-            limit: 1,
-          },
-        },
-        where(fields, operators) {
-          return operators.eq(fields.householdId, household.id);
-        },
-      }),
-      // Invites for the current household
-      invites: db
-        .select()
-        .from(schema.invites)
-        .where(eq(schema.invites.householdId, household.id)),
-    },
+    // The bills for the current household
+    bills: db
+      .select({
+        ...getTableColumns(schema.bills),
+        isPaid: sql<boolean>`${schema.payments.paidAt} is not null`,
+        paymentId: schema.payments.id,
+        paidAt: schema.payments.paidAt,
+      })
+      .from(schema.bills)
+      .innerJoin(
+        schema.payments,
+        and(
+          eq(schema.payments.billId, schema.bills.id),
+          sql`extract(month from ${schema.payments.forMonthD}) = extract(month from now())`,
+        ),
+      )
+      .where(eq(schema.bills.householdId, params.id)),
+    // Invites for the current household
+    invites: db
+      .select()
+      .from(schema.invites)
+      .where(eq(schema.invites.householdId, household.id)),
   };
 };
 

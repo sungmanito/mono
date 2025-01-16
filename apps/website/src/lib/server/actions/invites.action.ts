@@ -12,29 +12,6 @@ export const emailsValidator = type('email[]');
 export type Invite = typeof schema.invites.$inferSelect;
 export type InviteInsertArgs = typeof schema.invites.$inferInsert;
 
-// export async function inviteMemberByEmail(
-//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//   supabase: SupabaseClient<any, 'public', any>,
-//   email: string,
-// ) {
-//   // Validate the email
-//   const validEmail = validate(email, emailValidator);
-
-//   // Invite the user by their email
-//   const {
-//     data: { user },
-//     error,
-//   } = await supabase.auth.admin.inviteUserByEmail(validEmail);
-
-//   // If we receive an error, throw it.
-//   if (error) throw error;
-
-//   // If we don't get a user back, somehow, throw nope
-//   if (!user) throw 'nope';
-
-//   return user;
-// }
-
 export async function inviteMembersByEmail(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: SupabaseClient<any, 'public', any>,

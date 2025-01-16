@@ -3,7 +3,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   export interface FormLabelProps
     extends Omit<HTMLAttributes<HTMLLabelElement>, 'children'> {
-    label: string;
+    label: string | Snippet<[]>;
     description?: string;
     required?: boolean;
     error?: Snippet<[]>;
@@ -23,9 +23,13 @@
 </script>
 
 <label {...rest} class="flex flex-col gap-2">
-  <span class="font-bold"
-    >{label}{#if required}&nbsp;*{/if}</span
-  >
+  {#if typeof label === 'string'}
+    <span class="font-bold">
+      {label}{#if required}&nbsp;*{/if}
+    </span>
+  {:else}
+    {@render label()}
+  {/if}
   {@render children?.()}
   {#if description}
     <span class="text-sm">{description}</span>

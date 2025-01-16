@@ -12,6 +12,8 @@
         surface: 'variant-filled-surface',
         warning: 'variant-filled-warning',
         success: 'variant-filled-success',
+        info: 'variant-filled-secondary',
+        'info:ghost': 'variant-ghost-secondary',
         'primary:ghost': 'variant-ghost-primary',
         'error:ghost': 'variant-ghost-error',
         'surface:ghost': 'variant-ghost-surface',
@@ -41,7 +43,7 @@
     class: className,
     ...rest
   }: AlertProps & VariantTypes = $props();
-  let classes = $derived(variants({ type }));
+  let classes = $derived(variants({ type, className }));
 </script>
 
 <div class={classes} {...rest}>
