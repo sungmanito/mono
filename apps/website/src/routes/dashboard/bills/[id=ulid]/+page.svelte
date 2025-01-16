@@ -27,19 +27,20 @@
 {#if paymentDetailData !== null}
   <Drawer
     open={paymentDetailData !== null}
-    on:close={() => {
+    onclose={() => {
       paymentDetailData = null;
       pushState(`/dashboard/bills/${data.bill.id}`, {});
     }}
-    let:close={closeDrawer}
   >
-    <div class="px-4">
-      <PaymentDetails
-        data={paymentDetailData}
-        component
-        onclose={closeDrawer}
-      />
-    </div>
+    {#snippet children({ close: closeDrawer })}
+      <div class="px-4">
+        <PaymentDetails
+          data={paymentDetailData}
+          component
+          onclose={closeDrawer}
+        />
+      </div>
+    {/snippet}
   </Drawer>
 {/if}
 
