@@ -2,12 +2,16 @@
   import Image from '$components/image/image.svelte';
   import UserInfo from '$components/userInfo/userInfo.svelte';
   import Header from '$lib/components/header/header.svelte';
+  import type { ModalifyPage } from '$lib/util/page';
   import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
   import { CheckIcon, XIcon } from 'lucide-svelte';
+  import type { PageData } from './$types';
 
-  export let data;
-  export let component = false;
-  export let onclose: () => void = () => void 0;
+  let {
+    data,
+    component = false,
+    onclose = () => void 0,
+  }: ModalifyPage<PageData> = $props();
 
   const monthYear = data.payment.forMonthD.toLocaleDateString(undefined, {
     month: 'long',
@@ -25,7 +29,7 @@
     ({monthYear})
     {#snippet actions()}
       {#if component}
-        <button on:click={() => onclose()}>
+        <button onclick={() => onclose()}>
           <XIcon size="1em" />
         </button>
       {/if}

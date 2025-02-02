@@ -47,22 +47,11 @@
       enabled: open,
     }),
   );
-
-  $effect(() => {
-    if (onopen && open && Object.keys($query.data || {}).length === 0) {
-      onopen();
-    }
-  });
-
-  $effect(() => {
-    if (onopen && open && url) {
-      onopen();
-    }
-  });
 </script>
 
 <Drawer
   bind:open
+  {onopen}
   onclose={() => {
     open = false;
     onclose();

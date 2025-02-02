@@ -1,17 +1,26 @@
+<script lang="ts" module>
+  export interface HouseholdSidebarProps {
+    households: PageData['households'];
+    userMap: PageData['streamable']['userHouseholds'];
+    invites: PageData['invites'];
+  }
+</script>
+
 <script lang="ts">
   import { pushState } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import Drawerify from '$components/drawerify/drawerify.svelte';
+  import Header from '$components/header/header.svelte';
   import Button from '$lib/components/button/button.svelte';
   import { PlusIcon } from 'lucide-svelte';
   import type { PageData } from '../$types';
   import CreateHouseholdComponent from '../create/+page.svelte';
+  import HouseholdSidebarInvite from './householdSidebarInvite.svelte';
   import HouseholdSideItem from './householdSideItem.svelte';
 
-  export let households: PageData['households'];
-  export let userMap: PageData['streamable']['userHouseholds'];
+  let { households, userMap, invites }: HouseholdSidebarProps = $props();
 
-  let createDrawerOpen = false;
+  let createDrawerOpen = $state(false);
 
   async function loadCreate() {
     createDrawerOpen = true;
@@ -22,22 +31,22 @@
   component={CreateHouseholdComponent}
   bind:open={createDrawerOpen}
   url="/dashboard/household/create"
-  on:close={() => {
+  onclose={() => {
     pushState('/dashboard/household', {});
   }}
-  on:open={() => {
+  onopen={() => {
     pushState('/dashboard/household/create', {});
   }}
 />
 
 <aside
   data-testid="sidebar-household"
-  class="bg-surface-50-900-token p-4 overflow-auto min-w-max"
+  class="bg-surface-100-800-token p-4 overflow-auto min-w-max"
 >
   <div class="flex flex-col gap-2">
-    <header class="flex justify-between gap-4 mb-4">
-      <h3 class="h3">Households</h3>
-      <section class="actions">
+    <Header tag="h3" color="secondary" class="gap-4">
+      Households
+      {#snippet actions()}
         <Button
           variant="primary"
           class="inline-flex gap-2 items-baseline"
@@ -46,14 +55,18 @@
           <PlusIcon size="1em" />
           Add
         </Button>
-      </section>
-    </header>
+      {/snippet}
+    </Header>
+
     {#each households as household (household.id)}
       <HouseholdSideItem
         {household}
         {userMap}
-        selected={$page.params.id === household.id}
+        selected={page.params.id === household.id}
       />
     {/each}
+
+    <Header tag="h3" color="secondary" class="gap-4">Invites</Header>
+    <HouseholdSidebarInvite {invites} />
   </div>
 </aside>

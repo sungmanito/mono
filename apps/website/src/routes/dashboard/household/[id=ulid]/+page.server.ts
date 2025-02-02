@@ -36,27 +36,28 @@ export const load = async ({ params, locals, depends }) => {
     household,
     // Not 100% i need this anymore, but we'll leave it in for now.
     // user: session.user,
-    streamed: {
-      // The bills for the current household
-      bills: db.query.bills.findMany({
-        with: {
-          payments: {
-            orderBy(fields, operators) {
-              return operators.desc(fields.createdAt);
-            },
-            limit: 1,
+    // The bills for the current household
+    bills: db.query.bills.findMany({
+      with: {
+        payments: {
+          orderBy(fields, operators) {
+            return operators.desc(fields.createdAt);
           },
+          limit: 1,
         },
-        where(fields, operators) {
-          return operators.eq(fields.householdId, household.id);
-        },
-      }),
-      // Invites for the current household
-      invites: db
-        .select()
-        .from(schema.invites)
-        .where(eq(schema.invites.householdId, household.id)),
-    },
+      },
+      where(fields, operators) {
+        return operators.eq(fields.householdId, household.id);
+      },
+      orderBy(fields, operators) {
+        return operators.asc(fields.dueDate);
+      },
+    }),
+    // Invites for the current household
+    invites: db
+      .select()
+      .from(schema.invites)
+      .where(eq(schema.invites.householdId, household.id)),
   };
 };
 
