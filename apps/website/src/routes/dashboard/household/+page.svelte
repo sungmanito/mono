@@ -152,9 +152,7 @@
             {#if userHouseholds[household.id].users}
               {#each userHouseholds[household.id].users as member}
                 <div class="kv">
-                  <div>
-                    {member.userMetadata?.name || member.email}
-                  </div>
+                  <div></div>
                   <div></div>
                 </div>
               {/each}

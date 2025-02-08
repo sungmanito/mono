@@ -1,5 +1,5 @@
 import { dev } from '$app/environment';
-import { validateFormData } from '$lib/util/formData';
+import { validateFormData } from '@jhecht/arktype-utils';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
 import type { Actions } from './$types';

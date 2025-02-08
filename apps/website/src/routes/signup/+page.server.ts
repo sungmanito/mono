@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { allowedImageTypes } from '$lib/util/images';
 import { type } from 'arktype';
-import { validateFormData } from '$lib/util/formData.js';
+import { validateFormData } from '@jhecht/arktype-utils';
 import { dev } from '$app/environment';
 
 export const load = async ({ locals: { config } }) => {
@@ -19,10 +19,11 @@ export const actions = {
       return fail(400, {
         message: 'Signup disabled',
       });
+    const fd = await request.formData();
     const data = validateFormData(
-      await request.formData(),
+      fd,
       type({
-        email: 'email',
+        email: 'string.email',
         password: 'string>=8',
         password_confirm: 'string>=8',
         'avatar_url?': 'string',

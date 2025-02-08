@@ -1,22 +1,13 @@
 import { db } from '$lib/server/db/client.js';
-import { formDataValidObject, validateFormData } from '$lib/util/formData.js';
+import { validateFormData } from '@jhecht/arktype-utils';
 import { validateUserSession } from '$lib/util/session.js';
 import { exportedSchema as schema } from '@sungmanito/db';
 import { error, redirect, fail } from '@sveltejs/kit';
 import { type } from 'arktype';
-import {
-  and,
-  eq,
-  getTableColumns,
-  inArray,
-  like,
-  or,
-  sql,
-  desc,
-} from 'drizzle-orm';
+import { and, eq, getTableColumns, inArray, like, or, sql } from 'drizzle-orm';
 
 const formDataValidator = type({
-  user: 'email | string',
+  user: 'string.email | string',
 });
 
 export const load = async ({ params, locals, depends }) => {
@@ -76,7 +67,7 @@ export const actions = {
     if (!validateUserSession(session)) error(401, 'Not logged in');
 
     try {
-      const formData = formDataValidObject(
+      const formData = validateFormData(
         await request.formData(),
         formDataValidator,
       );
@@ -109,7 +100,7 @@ export const actions = {
     const session = await locals.getSession();
     if (!validateUserSession(session)) error(401);
 
-    const formData = formDataValidObject(
+    const formData = validateFormData(
       await request.formData(),
       type({
         userId: 'string',
@@ -242,7 +233,7 @@ export const actions = {
   deleteInvite: async ({ request, locals }) => {
     const session = await locals.getSession();
     if (!validateUserSession(session)) error(401);
-    const { 'invite-id': inviteId } = formDataValidObject(
+    const { 'invite-id': inviteId } = validateFormData(
       await request.formData(),
       type({ 'invite-id': 'string' }),
     );

@@ -13,3 +13,7 @@ export async function userExists(email: string) {
     .where(eq(schema.users.email, email));
   return user.exists;
 }
+
+export function usersForHousehold(householdId: string) {
+  return db.select({});
+}

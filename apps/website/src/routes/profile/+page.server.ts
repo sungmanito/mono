@@ -1,4 +1,4 @@
-import { formDataValidObject } from '$lib/util/formData.js';
+import { validateFormData } from '@jhecht/arktype-utils';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
@@ -9,12 +9,12 @@ export const actions = {
     const session = await locals.getSession();
     if (!validateUserSession(session)) redirect(304, '/login');
 
-    const data = formDataValidObject(
+    const data = validateFormData(
       await request.formData(),
       type({
         'avatar-url': 'string',
         name: 'string',
-        email: 'email',
+        email: 'string.email',
         'password?': 'string',
       }),
     );

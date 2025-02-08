@@ -4,7 +4,7 @@ import {
 } from '$lib/server/actions/bills.actions.js';
 import { db } from '$lib/server/db';
 import { exportedSchema } from '@sungmanito/db';
-import { formDataValidObject, validateFormData } from '$lib/util/formData.js';
+import { validateFormData } from '@jhecht/arktype-utils';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { scope, type } from 'arktype';
@@ -39,25 +39,25 @@ export const actions = {
         'household-id': 'string[]',
         'due-date': 'DueDate[]',
       },
-    }).compile();
+    }).type('formData');
 
-    const formData = validateFormData(
-      await request.formData(),
-      validator.formData,
-    );
+    let formData: typeof validator.infer;
+
+    try {
+      formData = validateFormData(await request.formData(), validator);
+    } catch (e) {
+      if (e instanceof type.errors)
+        return fail(400, {
+          message: e.issues,
+        });
+      console.error(e);
+      return fail(500);
+    }
 
     // convert the households to a set to thin out repeated entries.
     // convert back to array to utilize the .every method
     const submittedHouseholds = Array.from(
       new Set<string>(formData['household-id']),
-    );
-
-    console.info(
-      'TESTING',
-      submittedHouseholds.every(
-        (id) =>
-          locals.userHouseholds.findIndex((h) => h.households.id === id) !== -1,
-      ),
     );
 
     // If the user is not a member of the household, yeet an error
@@ -98,7 +98,7 @@ export const actions = {
 
     if (!session || !session?.user) error(401, 'nope');
 
-    const data = formDataValidObject(
+    const data = validateFormData(
       await request.formData(),
       type({
         'bill-id': 'string',
@@ -106,7 +106,7 @@ export const actions = {
         'household-id': 'string',
         'due-date': '1<=number<=28',
         'amount?': 'number>=0',
-        'currency?': 'string',
+        'currency?': 'string>=3 & /[A-Z]{3}/',
       }),
     );
 
@@ -143,10 +143,9 @@ export const actions = {
   deleteBill: async ({ request, locals }) => {
     const session = await locals.getSession();
 
-    if (!session || !session.user) error(401, 'Not logged in');
     if (!validateUserSession(session)) error(401);
 
-    const data = formDataValidObject(
+    const data = validateFormData(
       await request.formData(),
       type({
         'bill-id': 'string',

@@ -1,13 +1,13 @@
+import { PAYMENT_BUCKET_NAME } from '$env/static/private';
 import { db } from '$lib/server/db';
-import { formDataToObject, validate } from '$lib/util/formData';
+import { formDataToObject } from '@jhecht/arktype-utils';
 import { exportedSchema as schema } from '@sungmanito/db';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import { error } from '@sveltejs/kit';
-import { instanceOf, type } from 'arktype';
+import { type } from 'arktype';
 import { and, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import { getUserHouseholds } from './households.actions';
-import { uploadImage, getImageId } from './images.actions';
-import { PAYMENT_BUCKET_NAME } from '$env/static/private';
+import { getImageId, uploadImage } from './images.actions';
 
 export type Payment = typeof schema.payments.$inferSelect;
 export type PaymentInsertArgs = Omit<typeof schema.payments.$inferInsert, 'id'>;
@@ -16,7 +16,7 @@ export type PaymentUpdateArgs = Partial<
 >;
 
 export const updatePaymentValidator = type({
-  'proof?': instanceOf(File),
+  'proof?': 'File',
   'notes?': 'string',
   'amount?': "number | ''",
 });
@@ -150,20 +150,20 @@ export async function makePayments(
   households: string[],
 ) {
   const rawData = formDataToObject(fd);
-  const { data: ids, problems: errs } = type({
+  const ids = type({
     id: 'string[]',
     'household-id': 'string',
   })(rawData);
 
   const userId = session.user.id;
 
-  if (errs) {
+  if (ids instanceof type.errors) {
     throw new Error('Invalid IDS');
   }
 
   const all = await Promise.allSettled(
     ids.id.map(async (id) => {
-      const validatedData = validate(rawData[id], updatePaymentValidator);
+      const validatedData = updatePaymentValidator.assert(rawData[id]);
 
       const updateArgs: PaymentUpdateArgs = {
         id,

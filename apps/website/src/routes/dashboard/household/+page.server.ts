@@ -1,7 +1,7 @@
 import { addHousehold } from '$lib/server/actions/households.actions.js';
 import { inviteMembersByEmail } from '$lib/server/actions/invites.action.js';
 import { db } from '$lib/server/db';
-import { formDataValidObject } from '$lib/util/formData.js';
+import { validateFormData } from '@jhecht/arktype-utils';
 import { validateUserSession } from '$lib/util/session.js';
 import { exportedSchema as schema } from '@sungmanito/db';
 import { error, redirect } from '@sveltejs/kit';
@@ -42,7 +42,7 @@ export const actions = {
   updateInvite: async ({ request, locals }) => {
     const session = await locals.getSession();
     if (!validateUserSession(session)) error(401);
-    const formData = formDataValidObject(
+    const formData = validateFormData(
       await request.formData(),
       // eslint-disable-next-line quotes
       type({ 'invite-id': 'string', action: "'accept'|'delete'" }),
@@ -99,11 +99,11 @@ export const actions = {
     const session = await locals.getSession();
     if (!validateUserSession(session)) throw error(400);
 
-    const data = formDataValidObject(
+    const data = validateFormData(
       await request.formData(),
       type({
         'household-name': 'string',
-        'members?': 'email[]',
+        'members?': 'string.email[]',
       }),
     );
 
@@ -140,7 +140,7 @@ export const actions = {
 
     if (!validateUserSession(session)) error(401);
 
-    const data = formDataValidObject(
+    const data = validateFormData(
       await request.formData(),
       type({
         'household-id': 'string',
@@ -181,7 +181,7 @@ export const actions = {
 
     if (!validateUserSession(session)) error(401, 'nope');
 
-    const data = formDataValidObject(
+    const data = validateFormData(
       await request.formData(),
       type({
         'household-id': 'string',

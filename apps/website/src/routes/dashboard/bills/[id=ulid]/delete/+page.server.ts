@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db/client.js';
-import { validateFormData } from '$lib/util/formData.js';
+import { validateFormData } from '@jhecht/arktype-utils';
 import { validateUserSession } from '$lib/util/session.js';
 import { error } from '@sveltejs/kit';
 import { type } from 'arktype';

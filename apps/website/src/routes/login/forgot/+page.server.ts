@@ -1,4 +1,4 @@
-import { validateFormData } from '$lib/util/formData.js';
+import { validateFormData } from '@jhecht/arktype-utils';
 import { fail } from '@sveltejs/kit';
 import { type } from 'arktype';
 
@@ -7,7 +7,7 @@ export const actions = {
     const fd = validateFormData(
       await request.formData(),
       type({
-        email: 'email',
+        email: 'string.email',
       }),
     );
 
@@ -18,13 +18,10 @@ export const actions = {
 
     if (err) return fail(400);
 
-    console.info(data);
-
     return fail(400);
   },
   code: async ({ url }) => {
     console.info(url.searchParams.get('code'));
-    console.info('hi you');
     return fail(400);
   },
 };
