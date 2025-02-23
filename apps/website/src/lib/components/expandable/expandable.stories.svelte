@@ -89,7 +89,7 @@
           </div>
         </div>
       {/snippet}
-      {#snippet children({ open })}
+      {#snippet children()}
         <div class="p-4 flex flex-col gap-4">
           <hr />
           <div>

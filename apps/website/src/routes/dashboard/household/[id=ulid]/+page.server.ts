@@ -42,6 +42,8 @@ export const load = async ({ params, locals, depends }) => {
         isPaid: sql<boolean>`${schema.payments.paidAt} is not null`,
         paymentId: schema.payments.id,
         paidAt: schema.payments.paidAt,
+        pastDue: sql<boolean>`${schema.payments.paidAt} is null and ${schema.bills.dueDate} < extract(day from now())`,
+        hasProof: sql<boolean>`${schema.payments.paidAt} is not null and ${schema.payments.proofImage} is not null`,
       })
       .from(schema.bills)
       .innerJoin(

@@ -14,6 +14,6 @@ export async function userExists(email: string) {
   return user.exists;
 }
 
-export function usersForHousehold(householdId: string) {
+export function usersForHousehold() {
   return db.select({});
 }

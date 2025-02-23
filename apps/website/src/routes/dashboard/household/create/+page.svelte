@@ -22,6 +22,8 @@
       }
     }
 
+    console.info(formData);
+
     return async ({ update }) => {
       await update();
       onclose();

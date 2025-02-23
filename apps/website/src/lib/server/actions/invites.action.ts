@@ -1,4 +1,3 @@
-import { validate } from '$lib/util/ark-utils';
 import { exportedSchema as schema } from '@sungmanito/db';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { type } from 'arktype';
@@ -23,7 +22,7 @@ export async function inviteMembersByEmail(
   },
 ) {
   // 1. Validate emails
-  const validEmails = validate(emails, emailsValidator);
+  const validEmails = emailsValidator.assert(emails);
 
   if (validEmails.length === 0) return [];
 

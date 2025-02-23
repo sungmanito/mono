@@ -105,9 +105,19 @@
         {#snippet header({ open, toggle })}
           <div class="flex flex-col gap-4">
             <Header tag="h5" color="secondary">
-              <strong>{household.name}</strong>
+              <button
+                type="button"
+                onclick={() => toggle()}
+                role="switch"
+                aria-checked={open}
+              >
+                <strong>{household.name}</strong>
+              </button>
               {#snippet actions()}
-                <a href={`/dashboard/household/${household.id}`} class="btn-sm">
+                <a
+                  href={`/dashboard/household/${household.id}`}
+                  class="btn-sm variant-outline"
+                >
                   Go to details
                 </a>
                 <Button variant="custom" class="pb-2" onclick={toggle}>
@@ -152,8 +162,8 @@
             {#if userHouseholds[household.id].users}
               {#each userHouseholds[household.id].users as member}
                 <div class="kv">
-                  <div></div>
-                  <div></div>
+                  <div>Name</div>
+                  <div>{member.userMetadata?.name || member.email}</div>
                 </div>
               {/each}
             {/if}
