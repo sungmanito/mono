@@ -2,7 +2,8 @@
   export interface DrawerProps
     extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
     open: boolean;
-    onclose: () => void;
+    onclose?: () => void;
+    onopen?: () => void;
     children: Snippet<[{ close: () => void }]>;
     from?: 'left' | 'right' | 'top' | 'bottom';
   }
@@ -11,25 +12,38 @@
 <script lang="ts">
   import { focusTrap } from '@skeletonlabs/skeleton';
   import { cx } from 'class-variance-authority';
-  import { type Snippet } from 'svelte';
+  import { type Snippet, untrack } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
 
   let {
     open = $bindable(false),
-    onclose,
+    onclose = () => void 0,
+    onopen = () => void 0,
     children,
     class: propClass,
     ...rest
   }: DrawerProps = $props();
 
   function dispatchCloseEvent() {
+    open = false;
     onclose();
+  }
+
+  function dispatchOpenEvent() {
+    open = true;
+    onopen();
   }
 
   let classNames = cx(
     'drawer bg-surface-100-800-token shadow-xl rounded-r-xl h-full w-5/6 overflow-auto',
     propClass,
   );
+
+  $effect(() => {
+    if (open) {
+      untrack(() => dispatchOpenEvent());
+    }
+  });
 </script>
 
 <svelte:window

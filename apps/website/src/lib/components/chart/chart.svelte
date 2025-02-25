@@ -1,29 +1,65 @@
-<script lang="ts">
+<script lang="ts" module>
+  export type ChartProps<
+    TType extends ChartType = ChartType,
+    TData = DefaultDataPoint<TType>,
+    TLabel = unknown,
+  > = {
+    type: TType;
+    labels: TLabel[];
+    datasets: ChartDataset<TType, TData>[];
+    options?: ChartOptions<TType>;
+    plugins?: Plugin<TType>[];
+  };
+</script>
+
+<script
+  lang="ts"
+  generics="TType extends ChartType = ChartType,
+  TData = DefaultDataPoint<TType>,
+  TLabel = unknown"
+>
+  import Chart, {
+    Colors,
+    type ChartDataset,
+    type ChartOptions,
+    type ChartType,
+    type DefaultDataPoint,
+    type Plugin,
+  } from 'chart.js/auto';
   import { onMount } from 'svelte';
+
+  let {
+    type,
+    labels,
+    datasets,
+    options,
+    plugins,
+  }: ChartProps<TType, TData, TLabel> = $props();
+
   let canvas: HTMLCanvasElement | null = $state(null);
+  let chartInstance: Chart<TType, TData, TLabel> | null = $state(null);
+
   onMount(() => {
-    // @ts-expect-error included globally
-    new Chart(canvas!, {
-      type: 'line',
+    Chart.register(Colors);
+    chartInstance = new Chart<TType, TData, TLabel>(canvas!, {
+      type,
       data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-        datasets: [
-          {
-            label: '# of Votes',
-            data: [150, 150, 170, 150, 200, 250],
-            borderWidth: 1,
-          },
-        ],
+        labels,
+        datasets,
       },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
+      options,
+      plugins,
     });
+
+    return () => {
+      if (chartInstance) {
+        chartInstance.destroy();
+        chartInstance = null;
+      }
+    };
   });
+
+  $inspect(chartInstance);
 </script>
 
 <div>

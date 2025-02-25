@@ -18,7 +18,8 @@ export const load = async ({ locals, params }) => {
       orderBy(fields, operators) {
         return operators.desc(fields.forMonthD);
       },
-      limit: 10,
+      // Full year's worth
+      limit: 12,
     }),
   };
 };
