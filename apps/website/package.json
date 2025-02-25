@@ -68,7 +68,7 @@
   "type": "module",
   "dependencies": {
     "@floating-ui/dom": "^1.6.13",
-    "@jhecht/arktype-utils": "^1.0.2",
+    "@jhecht/arktype-utils": "^1.0.3",
     "@js-temporal/polyfill": "^0.4.4",
     "@sentry/sveltekit": "^8.51.0",
     "@sungmanito/db": "workspace:*",
@@ -78,6 +78,7 @@
     "@tanstack/svelte-query": "^5.64.2",
     "@vercel/edge-config": "^0.4.1",
     "arktype": "2.0.4",
+    "chart.js": "^4.4.8",
     "class-variance-authority": "^0.7.1",
     "drizzle-orm": "^0.38.4",
     "lucide-svelte": "^0.469.0",
