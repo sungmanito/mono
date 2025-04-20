@@ -17,5 +17,9 @@
     "$website/": "${workspaceRoot}/apps/website/",
     "$packages/": "${workspaceRoot}/packages/"
   },
-  "explorer.sortOrder": "filesFirst"
+  "explorer.sortOrder": "filesFirst",
+  "deno.enable": true,
+  "deno.enablePaths": [
+    "./apps/reminders/src"
+  ]
 }
