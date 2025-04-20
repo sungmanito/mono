@@ -24,8 +24,8 @@ importers:
         specifier: ^1.6.13
         version: 1.6.13
       '@jhecht/arktype-utils':
-        specifier: ^1.0.2
-        version: 1.0.2(arktype@2.0.4)
+        specifier: ^1.0.3
+        version: 1.0.3(arktype@2.0.4)
       '@js-temporal/polyfill':
         specifier: ^0.4.4
         version: 0.4.4
@@ -53,6 +53,9 @@ importers:
       arktype:
         specifier: 2.0.4
         version: 2.0.4
+      chart.js:
+        specifier: ^4.4.8
+        version: 4.4.8
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1026,15 +1029,15 @@ packages:
     resolution: {integrity: sha512-u3UPsIilWKOM3F9CXtrG8LEJmNxwoCQC/XVj4IKYXvvpx7QIi/Kg1LI5uDmDpKlac62NUtX7eLjRh+jVZcLOzw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
 
-  '@jridgewell/gen-mapping@0.3.3':
-    resolution: {integrity: sha512-HLhSWOLRi875zjjMG/r+Nv0oCW8umGb0BgEhyX3dDX3egwZtB8PqLnjz3yedt8R5StBrzcg4aBpnh8UA9D1BoQ==}
-    engines: {node: '>=6.0.0'}
-
-  '@jhecht/arktype-utils@1.0.2':
-    resolution: {integrity: sha512-aCEqXlN0RFbECys+Ks4tMruXlkekCqfhoOBM03+yMxzOAgoMtOFUPBt3SjShBqnnE9s8Rv0qw3Mkax+AC3U7mA==}
+  '@jhecht/arktype-utils@1.0.3':
+    resolution: {integrity: sha512-FgZCgTnnk+QHFrkBqpR/XPX5TzjW0wVxQkJ6x9vLmBhtV1jZv6qS6gJN1RNad7omTPuI9+fPKhAMewgwar14xg==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       arktype: ^2.0.4
+
+  '@jridgewell/gen-mapping@0.3.3':
+    resolution: {integrity: sha512-HLhSWOLRi875zjjMG/r+Nv0oCW8umGb0BgEhyX3dDX3egwZtB8PqLnjz3yedt8R5StBrzcg4aBpnh8UA9D1BoQ==}
+    engines: {node: '>=6.0.0'}
 
   '@jridgewell/gen-mapping@0.3.8':
     resolution: {integrity: sha512-imAbBGkb+ebQyxKgzv5Hu2nmROxoDOXHh80evxdoXNOrvAnVx7zimzc1Oo5h9RlfV4vPXaE2iM5pOFbvOCClWA==}
@@ -1057,6 +1060,9 @@ packages:
   '@js-temporal/polyfill@0.4.4':
     resolution: {integrity: sha512-2X6bvghJ/JAoZO52lbgyAPFj8uCflhTo2g7nkFzEQdXd/D8rEeD4HtmTEpmtGCva260fcd66YNXBOYdnmHqSOg==}
     engines: {node: '>=12'}
+
+  '@kurkle/color@0.3.4':
+    resolution: {integrity: sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==}
 
   '@lezer/common@1.2.0':
     resolution: {integrity: sha512-Wmvlm4q6tRpwiy20TnB3yyLTZim38Tkc50dPY8biQRwqE+ati/wD84rm3N15hikvdT4uSg9phs9ubjvcLmkpKg==}
@@ -2683,6 +2689,10 @@ packages:
   char-regex@2.0.2:
     resolution: {integrity: sha512-cbGOjAptfM2LVmWhwRFHEKTPkLwNddVmuqYZQt895yXwAsWsXObCG+YN4DGQ/JBtT4GP1a1lPPdio2z413LmTg==}
     engines: {node: '>=12.20'}
+
+  chart.js@4.4.8:
+    resolution: {integrity: sha512-IkGZlVpXP+83QpMm4uxEiGqSI7jFizwVtF3+n5Pc3k7sMO+tkd0qxh2OzLhenM0K80xtmAONWGBn082EiBQSDA==}
+    engines: {pnpm: '>=8'}
 
   check-error@1.0.3:
     resolution: {integrity: sha512-iKEoDYaRmd1mxM90a2OEfWhjsjPpYPuQ+lMYsoxB126+t8fw7ySEO48nmDg5COTjxDI65/Y2OWpeEHk3ZOe8zg==}
@@ -6691,7 +6701,7 @@ snapshots:
       '@types/yargs': 17.0.33
       chalk: 4.1.2
 
-  '@jhecht/arktype-utils@1.0.2(arktype@2.0.4)':
+  '@jhecht/arktype-utils@1.0.3(arktype@2.0.4)':
     dependencies:
       arktype: 2.0.4
 
@@ -6722,6 +6732,8 @@ snapshots:
     dependencies:
       jsbi: 4.3.0
       tslib: 2.8.1
+
+  '@kurkle/color@0.3.4': {}
 
   '@lezer/common@1.2.0': {}
 
@@ -8688,6 +8700,10 @@ snapshots:
   char-regex@1.0.2: {}
 
   char-regex@2.0.2: {}
+
+  chart.js@4.4.8:
+    dependencies:
+      '@kurkle/color': 0.3.4
 
   check-error@1.0.3:
     dependencies:

@@ -1,40 +1,39 @@
 <script lang="ts">
-  import { invalidateAll, pushState } from '$app/navigation';
+  import { invalidateAll } from '$app/navigation';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import Button from '$lib/components/button/button.svelte';
   import Drawerify from '$lib/components/drawerify/drawerify.svelte';
   import Header from '$lib/components/header/header.svelte';
+  import { makeShowDrawerUtil } from '$lib/util/drawer.svelte';
   import { getToastStore } from '@skeletonlabs/skeleton';
   import type { ActionResult } from '@sveltejs/kit';
   import { PencilIcon, PlusIcon, TrashIcon } from 'lucide-svelte';
   import EditBillComponent from './[id=ulid]/edit/+page.svelte';
   import CreateBillComponent from './create/+page.svelte';
 
-  export let data;
+  let { data } = $props();
 
-  let editModal: HTMLDialogElement;
-  let deleteModal: HTMLDialogElement;
+  let editModal: HTMLDialogElement = $state();
+  let deleteModal: HTMLDialogElement = $state();
 
-  let selectedBill: (typeof data.bills)[number] | null = null;
-  let validation = '';
+  let selectedBill: (typeof data.bills)[number] | null = $state(null);
+  let validation = $state('');
 
   const toastStore = getToastStore();
 
-  let createBillUrl = '/dashboard/bills/create';
-  let showCreatebill = false;
-  let editBillUrl = '/dasahboard/bills';
-  let showEditBill = false;
+  let createBillStore = makeShowDrawerUtil('/dashboard/bills/create');
+  let editBillStore = makeShowDrawerUtil('/dashboard/bills');
 
   /**
    * @description Fetches and loads the data for creating new bills for the given householdIds
    * @param householdIds
    */
   async function fetchCreateBillData(householdIds?: string[]) {
-    showCreatebill = true;
+    createBillStore.show = true;
     const params =
       householdIds?.map((h) => `household-id[]=${h}`).join('&') || '';
 
-    createBillUrl = `/dashboard/bills/create${params ? '?' + params : ''}`;
+    createBillStore.url = `/dashboard/bills/create${params ? '?' + params : ''}`;
   }
 
   /**
@@ -43,8 +42,8 @@
    */
   async function fetchEditBillData(bill: (typeof data.bills)[number]) {
     if (bill.id === undefined) return;
-    showEditBill = true;
-    editBillUrl = `/dashboard/bills/${bill.id}/edit`;
+    editBillStore.show = true;
+    editBillStore.url = `/dashboard/bills/${bill.id}/edit`;
   }
 
   async function submitForm(
@@ -89,26 +88,20 @@
 </svelte:head>
 
 <Drawerify
-  bind:open={showCreatebill}
-  on:close={() => {
+  bind:open={createBillStore.show}
+  onclose={() => {
     createBillUrl = '/dashboard/bills/create';
   }}
-  on:open={() => {
-    pushState('/dashboard/bills/create', {});
-  }}
-  url={createBillUrl}
+  url={createBillStore.url}
   component={CreateBillComponent}
 />
 
 <Drawerify
-  bind:open={showEditBill}
-  on:close={() => {
-    pushState('/dashboard/bills', {});
+  bind:open={editBillStore.show}
+  onclose={() => {
+    // history.back();
   }}
-  on:open={() => {
-    pushState(editBillUrl, {});
-  }}
-  url={editBillUrl}
+  url={editBillStore.url}
   component={EditBillComponent}
 />
 
@@ -120,7 +113,7 @@
     class="flex flex-col gap-2"
     method="dialog"
     action="?/deleteBill"
-    on:submit={submitForm}
+    onsubmit={submitForm}
   >
     <input type="hidden" name="bill-id" value={selectedBill?.id} />
     <header class="h4 border-b pb-2">
@@ -134,7 +127,7 @@
     <footer class="border-t pt-3 flex justify-end gap-2">
       <button
         type="button"
-        on:click={() => deleteModal.close()}
+        onclick={() => deleteModal.close()}
         class="btn variant-outline btn-sm"
       >
         Close
@@ -149,83 +142,84 @@
   </form>
 </dialog>
 
-<div class="container mx-auto px-3">
-  <Breadcrumb
-    class="my-4"
-    crumbs={[
-      {
-        link: 'Dashboard',
-        href: '/dashboard',
-      },
-      {
-        link: 'Bills',
-        href: '/dashboard/bills',
-      },
-    ]}
-  />
+<div class="@container mx-auto px-3 flex-grow">
+  <div class="@3xl:max-w-[75vw] mx-auto">
+    <Breadcrumb
+      class="my-4"
+      crumbs={[
+        {
+          link: 'Dashboard',
+          href: '/dashboard',
+        },
+        {
+          link: 'Bills',
+          href: '/dashboard/bills',
+        },
+      ]}
+    />
 
-  <Header class="mb-6">
-    Bills
-    {#snippet actions()}
-      <Button
-        class="flex gap-2 items-center"
-        onclick={() => fetchCreateBillData()}
-      >
-        <PlusIcon size="0.9em" />
-        Add
-      </Button>
-    {/snippet}
-  </Header>
+    <Header class="mb-6">
+      Bills
+      {#snippet actions()}
+        <Button
+          class="flex gap-2 items-center"
+          onclick={() => fetchCreateBillData()}
+        >
+          <PlusIcon size="0.9em" />
+          Add
+        </Button>
+      {/snippet}
+    </Header>
 
-  <!-- TODO: Fancy todo table -->
-  <table class="table table-compact table-hover">
-    <thead>
-      <tr>
-        <th> Bill name </th>
-        <th> Due date </th>
-        <th> Household </th>
-        <th> Actions </th>
-      </tr>
-    </thead>
-    <tbody>
-      {#each data.bills as bill}
+    <!-- TODO: Fancy todo table -->
+    <table class="table table-compact table-hover">
+      <thead>
         <tr>
-          <td>
-            {bill.billName} &ndash; <small>({bill.id})</small>
-          </td>
-          <td>
-            {bill.dueDate}
-          </td>
-          <td>
-            {bill.householdName}
-          </td>
-          <td>
-            <div class="flex gap-2">
-              <button
-                class="btn-icon btn-icon-sm variant-filled-secondary"
-                title={`Edit Bill ${bill.billName}`}
-                on:click={() => {
-                  console.info('BILL', bill);
-                  fetchEditBillData(bill);
-                }}
-              >
-                <PencilIcon size="1em" />
-              </button>
-
-              <button
-                class="btn-icon btn-icon-sm variant-filled-secondary"
-                title={`Delete bill ${bill.billName}`}
-                on:click={() => {
-                  selectedBill = bill;
-                  deleteModal.showModal();
-                }}
-              >
-                <TrashIcon size="1em" />
-              </button>
-            </div>
-          </td>
+          <th> Bill name </th>
+          <th> Due date </th>
+          <th> Household </th>
+          <th> Actions </th>
         </tr>
-      {/each}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {#each data.bills as bill}
+          <tr>
+            <td>
+              {bill.billName} &ndash; <small>({bill.id})</small>
+            </td>
+            <td>
+              {bill.dueDate}
+            </td>
+            <td>
+              {bill.householdName}
+            </td>
+            <td>
+              <div class="flex gap-2">
+                <button
+                  class="btn-icon btn-icon-sm variant-filled-secondary"
+                  title={`Edit Bill ${bill.billName}`}
+                  onclick={() => {
+                    fetchEditBillData(bill);
+                  }}
+                >
+                  <PencilIcon size="1em" />
+                </button>
+
+                <button
+                  class="btn-icon btn-icon-sm variant-filled-secondary"
+                  title={`Delete bill ${bill.billName}`}
+                  onclick={() => {
+                    selectedBill = bill;
+                    deleteModal.showModal();
+                  }}
+                >
+                  <TrashIcon size="1em" />
+                </button>
+              </div>
+            </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
 </div>
