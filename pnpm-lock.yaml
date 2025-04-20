@@ -76,14 +76,17 @@ importers:
         version: 2.4.1
     devDependencies:
       '@histoire/plugin-svelte':
-        specifier: ^0.17.17
+        specifier: ^0.17.6
         version: 0.17.17(histoire@0.17.17(@types/node@20.14.8)(sass@1.86.3)(vite@5.4.18(@types/node@20.14.8)(sass@1.86.3)))(svelte@5.28.1)(vite@5.4.18(@types/node@20.14.8)(sass@1.86.3))
       '@playwright/test':
         specifier: ^1.49.1
         version: 1.52.0
       '@skeletonlabs/skeleton':
-        specifier: ^2.10.4
-        version: 2.11.0(svelte@5.28.1)
+        specifier: 3.0.0-next.0
+        version: 3.0.0-next.0(postcss@8.5.3)(tailwindcss@3.4.17)
+      '@skeletonlabs/skeleton-svelte':
+        specifier: 1.0.0-next.1
+        version: 1.0.0-next.1(svelte@5.28.1)
       '@skeletonlabs/tw-plugin':
         specifier: ^0.2.4
         version: 0.2.4(tailwindcss@3.4.17)
@@ -1026,15 +1029,15 @@ packages:
     resolution: {integrity: sha512-u3UPsIilWKOM3F9CXtrG8LEJmNxwoCQC/XVj4IKYXvvpx7QIi/Kg1LI5uDmDpKlac62NUtX7eLjRh+jVZcLOzw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
 
-  '@jridgewell/gen-mapping@0.3.3':
-    resolution: {integrity: sha512-HLhSWOLRi875zjjMG/r+Nv0oCW8umGb0BgEhyX3dDX3egwZtB8PqLnjz3yedt8R5StBrzcg4aBpnh8UA9D1BoQ==}
-    engines: {node: '>=6.0.0'}
-
   '@jhecht/arktype-utils@1.0.2':
     resolution: {integrity: sha512-aCEqXlN0RFbECys+Ks4tMruXlkekCqfhoOBM03+yMxzOAgoMtOFUPBt3SjShBqnnE9s8Rv0qw3Mkax+AC3U7mA==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       arktype: ^2.0.4
+
+  '@jridgewell/gen-mapping@0.3.3':
+    resolution: {integrity: sha512-HLhSWOLRi875zjjMG/r+Nv0oCW8umGb0BgEhyX3dDX3egwZtB8PqLnjz3yedt8R5StBrzcg4aBpnh8UA9D1BoQ==}
+    engines: {node: '>=6.0.0'}
 
   '@jridgewell/gen-mapping@0.3.8':
     resolution: {integrity: sha512-imAbBGkb+ebQyxKgzv5Hu2nmROxoDOXHh80evxdoXNOrvAnVx7zimzc1Oo5h9RlfV4vPXaE2iM5pOFbvOCClWA==}
@@ -1707,10 +1710,15 @@ packages:
   '@sinonjs/fake-timers@10.3.0':
     resolution: {integrity: sha512-V4BG07kuYSUkTCSBHG8G8TNhM+F19jXFWnQtzj+we8DrkpSBCee9Z3Ms8yiGer/dlmhe35/Xdgyo3/0rQKg7YA==}
 
-  '@skeletonlabs/skeleton@2.11.0':
-    resolution: {integrity: sha512-ORMZYACsIlfKyBx2ZIHBy7zE877t99fxU7LzcY1dveVmn2//+OeqnbQb5RryNILsMR62Tuu1VLnCu01/ByHlbQ==}
+  '@skeletonlabs/skeleton-svelte@1.0.0-next.1':
+    resolution: {integrity: sha512-z4+ZdZmkyAgIR6hkGe9N09rxyuw2UbiEgPP48ix/taJkNVBB/vybG5rcT+TjuFhDBl7YLx6rVUAkKx66KghXDg==}
     peerDependencies:
-      svelte: ^3.56.0 || ^4.0.0 || ^5.0.0
+      svelte: ^5.0.0-next.136
+
+  '@skeletonlabs/skeleton@3.0.0-next.0':
+    resolution: {integrity: sha512-KMlDtJzJ4d4JQoJUgiFVBw4tgEqEX05YzK9zoJMrEea0xaIQJeBLTsvTMRmoZ/OQH4hX4xPzWY+Lywm+zfsBSQ==}
+    peerDependencies:
+      tailwindcss: '>=3.0.0'
 
   '@skeletonlabs/tw-plugin@0.2.4':
     resolution: {integrity: sha512-DmOFMV6jhhvnub/TANB62nJJqxfMBby5Kxwe/Mn3DTxHuJLZj8B47Ta2K5sl/or2B8MaMfny8ocvPAzd6lrMtQ==}
@@ -3296,9 +3304,6 @@ packages:
     deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
-  esm-env@1.0.0:
-    resolution: {integrity: sha512-Cf6VksWPsTuW01vU9Mk/3vRue91Zevka5SjyNf3nEpokFRuqt/KjUQoGAwq9qMmhpLTHmXzSIrFRw8zxWzmFBA==}
-
   esm-env@1.2.1:
     resolution: {integrity: sha512-U9JedYYjCnadUlXk7e1Kr+aENQhtUaoaV9+gZm1T8LC/YBAPJx3NSPIAurFOC0U5vrdSevnUJS2/wUVxGwPhng==}
 
@@ -4675,9 +4680,6 @@ packages:
   pgpass@1.0.5:
     resolution: {integrity: sha512-FdW9r/jQZhSeohs1Z3sI1yxFQNFvMcnmfuj4WBMUTxOrAyLMaTcE1aAMBiTlbMNaXvBCQuVi0R7hd8udDSP7ug==}
 
-  picocolors@1.0.1:
-    resolution: {integrity: sha512-anP1Z8qwhkbmu7MFP5iTt+wQKXgwzf7zTyGlcdzabySa9vd0Xt392U0rVmz9poOaBj0uHJKyyo9/upk0HrEQew==}
-
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
@@ -5930,7 +5932,7 @@ snapshots:
     dependencies:
       '@babel/helper-validator-identifier': 7.25.9
       js-tokens: 4.0.0
-      picocolors: 1.0.1
+      picocolors: 1.1.1
 
   '@babel/compat-data@7.26.3': {}
 
@@ -7435,10 +7437,17 @@ snapshots:
     dependencies:
       '@sinonjs/commons': 3.0.1
 
-  '@skeletonlabs/skeleton@2.11.0(svelte@5.28.1)':
+  '@skeletonlabs/skeleton-svelte@1.0.0-next.1(svelte@5.28.1)':
     dependencies:
-      esm-env: 1.0.0
       svelte: 5.28.1
+
+  '@skeletonlabs/skeleton@3.0.0-next.0(postcss@8.5.3)(tailwindcss@3.4.17)':
+    dependencies:
+      postcss-js: 4.0.1(postcss@8.5.3)
+      postcss-selector-parser: 6.1.2
+      tailwindcss: 3.4.17
+    transitivePeerDependencies:
+      - postcss
 
   '@skeletonlabs/tw-plugin@0.2.4(tailwindcss@3.4.17)':
     dependencies:
@@ -9311,8 +9320,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  esm-env@1.0.0: {}
-
   esm-env@1.2.1: {}
 
   esm-env@1.2.2: {}
@@ -10968,8 +10975,6 @@ snapshots:
   pgpass@1.0.5:
     dependencies:
       split2: 4.2.0
-
-  picocolors@1.0.1: {}
 
   picocolors@1.1.1: {}
 

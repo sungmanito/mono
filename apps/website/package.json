@@ -20,9 +20,10 @@
     "build-storybook": "storybook build"
   },
   "devDependencies": {
-    "@histoire/plugin-svelte": "^0.17.17",
     "@playwright/test": "^1.49.1",
-    "@skeletonlabs/skeleton": "^2.10.4",
+    "@histoire/plugin-svelte": "^0.17.6",
+    "@skeletonlabs/skeleton": "3.0.0-next.0",
+    "@skeletonlabs/skeleton-svelte": "1.0.0-next.1",
     "@skeletonlabs/tw-plugin": "^0.2.4",
     "@storybook/addon-essentials": "8.4.7",
     "@storybook/addon-interactions": "8.4.7",
