@@ -343,3 +343,12 @@
     </section>
   </div>
 </div>
+
+<style>
+  dt {
+    font-weight: bold;
+  }
+  dd {
+    margin-left: 1.5em;
+  }
+</style>

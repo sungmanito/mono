@@ -79,7 +79,9 @@
     "class-variance-authority": "^0.7.0",
     "drizzle-orm": "^0.38.3",
     "lucide-svelte": "^0.469.0",
-    "pg": "^8.11.3",
-    "ulidx": "^2.2.1"
+    "pg": "^8.13.1",
+    "posthog-js": "^1.225.1",
+    "posthog-node": "^4.8.1",
+    "ulidx": "^2.4.1"
   }
 }

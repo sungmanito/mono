@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { page } from '$app/state';
+  import { queryClient } from '$lib/client/svelte-query';
   import { AppRail, AppRailAnchor } from '@skeletonlabs/skeleton';
+  import { QueryClientProvider } from '@tanstack/svelte-query';
   import {
     CreditCardIcon,
     LayoutDashboardIcon,
@@ -7,9 +10,6 @@
     ReceiptIcon,
     Users2Icon,
   } from 'lucide-svelte';
-  import { page } from '$app/stores';
-  import { queryClient } from '$lib/client/svelte-query';
-  import { QueryClientProvider } from '@tanstack/svelte-query';
 </script>
 
 <QueryClientProvider client={queryClient}>
@@ -24,7 +24,7 @@
         <!-- --- -->
         <AppRailAnchor
           href="/dashboard"
-          selected={$page.url.pathname === '/dashboard'}
+          selected={page.url.pathname === '/dashboard'}
         >
           <svelte:fragment slot="lead"
             ><LayoutDashboardIcon class="mx-auto" size={32} /></svelte:fragment
@@ -33,7 +33,7 @@
         </AppRailAnchor>
         <AppRailAnchor
           href="/dashboard/bills"
-          selected={$page.url.pathname === '/dashboard/bills'}
+          selected={page.url.pathname === '/dashboard/bills'}
         >
           <svelte:fragment slot="lead">
             <ReceiptIcon class="mx-auto" size={32} />
@@ -42,7 +42,7 @@
         </AppRailAnchor>
         <AppRailAnchor
           href="/dashboard/household"
-          selected={$page.url.pathname.startsWith('/dashboard/household')}
+          selected={page.url.pathname.startsWith('/dashboard/household')}
         >
           <svelte:fragment slot="lead">
             <Users2Icon class="mx-auto" size={32} />
@@ -51,7 +51,7 @@
         </AppRailAnchor>
         <AppRailAnchor
           href="/dashboard/payments"
-          selected={$page.url.pathname.startsWith('/dashboard/payments')}
+          selected={page.url.pathname.startsWith('/dashboard/payments')}
         >
           <svelte:fragment slot="lead">
             <CreditCardIcon size={32} class="mx-auto" />
