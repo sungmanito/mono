@@ -1,8 +1,9 @@
-import { join } from 'path';
-import type { Config } from 'tailwindcss';
 import { skeleton } from '@skeletonlabs/tw-plugin';
-import forms from '@tailwindcss/forms';
 import { SungmanitoTheme } from '@sungmanito/skeleton-plugin';
+import containerQueries from '@tailwindcss/container-queries';
+import forms from '@tailwindcss/forms';
+import { join } from 'node:path';
+import type { Config } from 'tailwindcss';
 
 export default {
   darkMode: 'class',
@@ -18,6 +19,7 @@ export default {
   },
   plugins: [
     forms,
+    containerQueries,
     skeleton({
       themes: {
         custom: [SungmanitoTheme],

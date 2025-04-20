@@ -3,52 +3,59 @@
   import Button from '$lib/components/button/button.svelte';
   import FormLabel from '$lib/components/formLabel/formLabel.svelte';
   import Header from '$lib/components/header/header.svelte';
+  import type { ModalifyPage } from '$lib/util/page';
   import type { SubmitFunction } from '@sveltejs/kit';
+  import { type } from 'arktype';
   import { XCircleIcon, XIcon } from 'lucide-svelte';
   import { onMount } from 'svelte';
+  import type { PageData } from './$types';
+  import Currency from '$components/currency/currency.svelte';
 
-  // export let households: Pick<Household, 'id' | 'name'>[] = [];
+  const tmpBillValidator = type({
+    name: 'string',
+    dueDate: '1<=number<=28',
+    household: 'string',
+    'amount?': 'number>0',
+    'currency?': 'string>=3',
+  });
 
-  export let data;
-  $: households = data.households;
+  let {
+    data,
+    component = false,
+    onclose = () => void 0,
+    submit = () => {
+      return async ({ update, formElement }) => {
+        onclose();
+        formElement.reset();
+        await update();
+      };
+    },
+  }: ModalifyPage<PageData> & { submit: SubmitFunction } = $props();
+  let households = $derived(data.households);
 
-  let hasDrag = false;
+  let hasDrag = $state(false);
 
-  type BillTmp = {
-    name: string;
-    dueDate: number;
-    household: string;
-  };
+  type BillTmp = (typeof tmpBillValidator)['infer'];
 
-  let bills: BillTmp[] = [
+  let bills: BillTmp[] = $state([
     {
       name: '',
       dueDate: 1,
       household: '',
+      amount: 0,
+      currency: 'USD',
     },
-  ];
+  ]);
 
   onMount(() => {
     if (data.initialBills.length > 0) bills = data.initialBills;
   });
-  export let component = false;
-  export let onclose: () => void = () => void 0;
-
-  export let submit: SubmitFunction = () => {
-    return async ({ update, formElement }) => {
-      onclose();
-      formElement.reset();
-      await update();
-    };
-  };
 </script>
 
 <form
   action="/dashboard/bills?/addBill"
   method="post"
-  class="p-4"
-  class:border={hasDrag}
-  class:border-dashed={hasDrag}
+  class={['p-4', hasDrag && 'border border-dashed']}
   ondrop={async (e) => {
     e.preventDefault();
     if (e.dataTransfer && e.dataTransfer.items) {
@@ -83,14 +90,14 @@
     Create new bill
     {#snippet actions()}
       {#if component}
-        <button type="button" onclick={() => console.info('hold')}>
+        <button type="button" onclick={() => onclose()}>
           <XIcon size="1em" />
         </button>
       {/if}
     {/snippet}
   </Header>
   <section
-    class="grid grid-cols-[repeat(3,1fr)_minmax(20px,min-content)] gap-3"
+    class="grid grid-cols-[repeat(5,1fr)_minmax(20px,min-content)] gap-3"
   >
     {#each bills as bill, i}
       <div class="col-start-1">
@@ -137,6 +144,22 @@
           />
         </FormLabel>
       </div>
+      <div>
+        <FormLabel label="Amount">
+          <input
+            class="input"
+            name="amount[]"
+            placeholder="Monthly amount"
+            type="number"
+            value={bill.amount}
+          />
+        </FormLabel>
+      </div>
+      <div>
+        <FormLabel label="Currency">
+          <Currency selected={bill.currency} />
+        </FormLabel>
+      </div>
       <div class="flex flex-col justify-end items-center">
         <div class="flex gap-2">
           {#if i === bills.length - 1}
@@ -147,9 +170,13 @@
                   name: '',
                   household: '',
                   dueDate: 1,
+                  amount: 0,
+                  currency: bills[bills.length - 1].currency,
                 });
-              }}>New Bill</Button
+              }}
             >
+              New Bill
+            </Button>
           {/if}
           {#if bills.length > 1}
             <button

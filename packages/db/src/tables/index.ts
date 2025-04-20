@@ -1,6 +1,3 @@
-import { uuid } from 'drizzle-orm/pg-core';
-import { pgTable } from 'drizzle-orm/pg-core';
-
 export * from './users.table';
 export * from './identities.table';
 export * from './households.table';

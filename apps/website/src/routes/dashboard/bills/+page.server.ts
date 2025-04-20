@@ -4,7 +4,6 @@ import {
 } from '$lib/server/actions/bills.actions.js';
 import { db } from '$lib/server/db';
 import { exportedSchema } from '@sungmanito/db';
-// import { bills as billsTable } from '$lib/server/db/schema';
 import { formDataValidObject, validateFormData } from '$lib/util/formData.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { error, fail, redirect } from '@sveltejs/kit';
@@ -106,6 +105,8 @@ export const actions = {
         'bill-name': 'string',
         'household-id': 'string',
         'due-date': '1<=number<=28',
+        'amount?': 'number>=0',
+        'currency?': 'string',
       }),
     );
 
@@ -124,6 +125,10 @@ export const actions = {
         billName: data['bill-name'],
         dueDate: data['due-date'],
         householdId: data['household-id'],
+        amount: data['amount']
+          ? Math.max(0, Number(data['amount'])).toString()
+          : undefined,
+        currency: data['currency'] ? data['currency'].toUpperCase() : undefined,
       })
       .where(eq(exportedSchema.bills.id, data['bill-id']))
       .returning();

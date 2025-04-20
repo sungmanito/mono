@@ -1,6 +1,14 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { queryClient } from '$lib/client/svelte-query';
+  import {
+    arrow,
+    autoUpdate,
+    computePosition,
+    flip,
+    offset,
+    shift,
+  } from '@floating-ui/dom';
   import { AppRail, AppRailAnchor } from '@skeletonlabs/skeleton';
   import { QueryClientProvider } from '@tanstack/svelte-query';
   import {
@@ -10,6 +18,9 @@
     ReceiptIcon,
     Users2Icon,
   } from 'lucide-svelte';
+
+  import { storePopup } from '@skeletonlabs/skeleton';
+  storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 </script>
 
 <QueryClientProvider client={queryClient}>

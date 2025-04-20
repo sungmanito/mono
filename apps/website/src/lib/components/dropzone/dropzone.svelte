@@ -1,12 +1,15 @@
 <script lang="ts" module>
   import type { Snippet } from 'svelte';
-  import type { HTMLAttributes } from 'svelte/elements';
+  import type { HTMLAttributes, HTMLInputAttributes } from 'svelte/elements';
   export interface DropzoneProps
-    extends Omit<HTMLAttributes<HTMLDivElement>, 'ondrop'> {
+    extends Omit<HTMLAttributes<HTMLDivElement>, 'ondrop' | 'onchange'> {
     name?: string;
     accept?: string;
     dragover?: Snippet<[DataTransferItemList | null]>;
     ondrop?: (e: DragEvent, items: DataTransferItemList) => void;
+    /** @description This is for the generated input elements based on file selections. */
+    onchange?: HTMLInputAttributes['onchange'];
+    files?: FileList;
   }
 </script>
 
@@ -15,6 +18,7 @@
   let {
     name = 'dropped',
     accept = 'image/*',
+    files = $bindable(),
     ...rest
   }: DropzoneProps = $props();
 
@@ -70,7 +74,14 @@
   {/if}
   <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
   {#each arr as _}
-    <input type="file" {name} class="hidden" {accept} />
+    <input
+      type="file"
+      bind:files
+      {name}
+      class="hidden"
+      {accept}
+      onchange={rest?.onchange}
+    />
   {/each}
   {#if rest.children}
     {@render rest.children()}

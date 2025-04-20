@@ -1,15 +1,25 @@
 import { db } from '$lib/server/db';
+import { formDataToObject, validate } from '$lib/util/formData';
 import { exportedSchema as schema } from '@sungmanito/db';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import { error } from '@sveltejs/kit';
-import { and, eq, getTableColumns, inArray } from 'drizzle-orm';
+import { instanceOf, type } from 'arktype';
+import { and, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import { getUserHouseholds } from './households.actions';
+import { uploadImage, getImageId } from './images.actions';
+import { PAYMENT_BUCKET_NAME } from '$env/static/private';
 
 export type Payment = typeof schema.payments.$inferSelect;
 export type PaymentInsertArgs = Omit<typeof schema.payments.$inferInsert, 'id'>;
 export type PaymentUpdateArgs = Partial<
   PaymentInsertArgs & Pick<Payment, 'id'>
 >;
+
+export const updatePaymentValidator = type({
+  'proof?': instanceOf(File),
+  'notes?': 'string',
+  'amount?': "number | ''",
+});
 
 export async function getPaymentsForUserHouseholds(
   userId: string,
@@ -29,7 +39,7 @@ export async function getPaymentsForUserHouseholds(
         ),
       ),
     )
-    .where(eq(schema.payments.forMonth, month))
+    .where(eq(sql`extract('month' from ${schema.payments.forMonthD})`, month))
     .orderBy(schema.payments.paidAt);
 }
 
@@ -70,6 +80,8 @@ export async function getPayment(paymentId: Payment['id'], session: Session) {
     .select({
       ...getTableColumns(schema.payments),
       billName: schema.bills.billName,
+      billAmount: schema.bills.amount,
+      billCurrency: schema.bills.currency,
     })
     .from(schema.payments)
     .innerJoin(schema.bills, eq(schema.bills.id, schema.payments.billId))
@@ -114,7 +126,7 @@ export async function addImageProofToPayment(
 
 export async function addProofToPayment(
   paymentId: Payment['id'],
-  proof: Payment['proof'],
+  proof: Payment['proofImage'],
   updatedBy: string,
 ) {
   if (proof === '' || updatedBy === '') error(400);
@@ -122,11 +134,106 @@ export async function addProofToPayment(
   return db
     .update(schema.payments)
     .set({
-      proof,
+      proofImage: proof,
       updatedBy,
       paidAt: new Date(),
     })
     .where(eq(schema.payments.id, paymentId))
     .returning()
     .then((r) => r[0]);
+}
+
+export async function makePayments(
+  fd: FormData,
+  supabase: SupabaseClient,
+  session: Session,
+  households: string[],
+) {
+  const rawData = formDataToObject(fd);
+  const { data: ids, problems: errs } = type({
+    id: 'string[]',
+    'household-id': 'string',
+  })(rawData);
+
+  const userId = session.user.id;
+
+  if (errs) {
+    throw new Error('Invalid IDS');
+  }
+
+  const all = await Promise.allSettled(
+    ids.id.map(async (id) => {
+      const validatedData = validate(rawData[id], updatePaymentValidator);
+
+      const updateArgs: PaymentUpdateArgs = {
+        id,
+        paidAt: new Date(),
+        updatedBy: userId,
+      };
+
+      if (typeof validatedData.amount === 'number') {
+        updateArgs.amount = validatedData.amount.toString();
+      }
+
+      if (validatedData.notes && validatedData.notes.length > 0) {
+        updateArgs.notes = validatedData.notes;
+      }
+
+      if (validatedData['proof'] && validatedData.proof.size > 0) {
+        const proof = validatedData['proof'];
+        const fileName = proof.name;
+        const ext = fileName.split('.').at(-1);
+
+        if (!ext) throw { reason: 'No extension' };
+
+        if (proof.size > 1024 * 1024)
+          throw new Error(`File size for image ${proof.name} too large`);
+
+        const uploadName = `${ids['household-id']}/${id}.${ext}`;
+        let result: Awaited<ReturnType<typeof uploadImage>>;
+
+        try {
+          result = await uploadImage(
+            supabase,
+            PAYMENT_BUCKET_NAME,
+            proof,
+            uploadName,
+          );
+        } catch (e) {
+          throw new Error(`Something bad happened ${id}`);
+        }
+
+        if (result) {
+          const imageId = await getImageId(PAYMENT_BUCKET_NAME, uploadName);
+          updateArgs.proofImage = imageId;
+        }
+      }
+
+      const [row] = await db
+        .update(schema.payments)
+        .set(updateArgs)
+        .where(
+          and(
+            eq(schema.payments.id, id),
+            inArray(schema.payments.householdId, households),
+          ),
+        )
+        .returning();
+
+      return {
+        householdId: ids['household-id'],
+        data: updateArgs,
+      };
+    }),
+  );
+
+  console.info(
+    'ALL',
+    all.map((f) => f.status === 'fulfilled' && f.value),
+  );
+
+  return {
+    success: all.filter((f) => f.status === 'fulfilled'),
+    failed: all.filter((f) => f.status === 'rejected'),
+  };
 }

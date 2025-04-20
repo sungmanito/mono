@@ -7,6 +7,7 @@ import {
 } from '$lib/server/actions/images.actions.js';
 import {
   getPayment,
+  makePayments,
   type PaymentUpdateArgs,
 } from '$lib/server/actions/payments.actions.js';
 import { db } from '$lib/server/db/client.js';
@@ -188,6 +189,24 @@ export const actions = {
     return {
       success: true,
       payment: payment,
+    };
+  },
+  bulkPay: async function ({ locals, request }) {
+    const session = await locals.getSession();
+
+    if (!validateUserSession(session)) {
+      return fail(401);
+    }
+
+    const results = await makePayments(
+      await request.formData(),
+      locals.supabase,
+      session,
+      locals.userHouseholds.map((h) => h.households.id),
+    );
+
+    return {
+      results,
     };
   },
 };

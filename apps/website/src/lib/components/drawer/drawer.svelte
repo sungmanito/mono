@@ -4,6 +4,7 @@
     open: boolean;
     onclose: () => void;
     children: Snippet<[{ close: () => void }]>;
+    from?: 'left' | 'right' | 'top' | 'bottom';
   }
 </script>
 
@@ -41,8 +42,10 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   onclick={(e) => (e.currentTarget === e.target ? dispatchCloseEvent() : null)}
-  class="drawer-backdrop flex fixed top-0 bottom-0 left-0 right-0 bg-surface-backdrop-token z-50"
-  class:hidden={!open}
+  class={[
+    'drawer-backdrop flex fixed top-0 bottom-0 left-0 right-0 bg-surface-backdrop-token z-50',
+    { hidden: !open },
+  ]}
   use:focusTrap={true}
 >
   <div role="dialog" class={classNames} {...rest}>

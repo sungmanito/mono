@@ -24,6 +24,6 @@ jobs:
             ${{ runner.os }}-pnpm-store
       - uses: actions/setup-node@v3
         with:
-          node-version: '18.x'
+          node-version: '20.x'
       - run: pnpm i --frozen-lockfile
       - run: cd packages/db && pnpm db:push

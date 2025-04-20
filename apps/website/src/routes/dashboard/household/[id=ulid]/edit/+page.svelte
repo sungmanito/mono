@@ -4,7 +4,7 @@
   import Button from '$lib/components/button/button.svelte';
   import FormLabel from '$lib/components/formLabel/formLabel.svelte';
   import { page } from '$app/stores';
-  import { Loader2 } from 'lucide-svelte';
+  import { Loader2Icon } from 'lucide-svelte';
 
   export let data;
 
@@ -44,7 +44,7 @@
 
   <h2 class="h2 flex gap-2">
     {#if sending}
-      <Loader2 size={'1.5em'} spin />
+      <Loader2Icon size={'1.5em'} />
     {/if}
     Edit {household.name}
   </h2>

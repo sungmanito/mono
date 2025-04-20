@@ -1,6 +1,12 @@
-import { index, integer, pgTable, text } from 'drizzle-orm/pg-core';
-import { households } from './households.table';
 import { sql } from 'drizzle-orm';
+import {
+  doublePrecision,
+  index,
+  integer,
+  pgTable,
+  text,
+} from 'drizzle-orm/pg-core';
+import { households } from './households.table';
 
 export const bills = pgTable(
   'bills',
@@ -14,6 +20,8 @@ export const bills = pgTable(
       .notNull()
       .references(() => households.id, { onDelete: 'cascade' }),
     notes: text('notes'),
+    amount: doublePrecision('amount').notNull().default(0),
+    currency: text('currency').notNull().default('USD'),
   },
   ({ householdId }) => ({
     householdIndex: index('household_idx').on(householdId),
