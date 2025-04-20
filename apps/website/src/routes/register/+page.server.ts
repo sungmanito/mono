@@ -1,5 +1,5 @@
 import { dev } from '$app/environment';
-import { formDataValidObject } from '$lib/util/formData.js';
+import { validateFormData } from '@jhecht/arktype-utils';
 import { fail, redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
 import { notNull } from '$lib/util/validation';
@@ -7,14 +7,14 @@ import { notNull } from '$lib/util/validation';
 export const actions = {
   register: async ({ locals, request }) => {
     const validator = type({
-      email: 'email',
+      email: 'string.email',
       password: 'string>=8',
       'password-confirm': 'string>=8',
       'given?': 'string',
     });
     let data: typeof validator.infer | null = null;
     try {
-      data = formDataValidObject(await request.formData(), validator);
+      data = validateFormData(await request.formData(), validator);
     } catch (problems) {
       if (problems) {
         console.error(problems);

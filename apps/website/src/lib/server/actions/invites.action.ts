@@ -5,9 +5,9 @@ import { type } from 'arktype';
 import { inArray } from 'drizzle-orm';
 import { db } from '../db';
 
-export const emailValidator = type('email');
+export const emailValidator = type('string.email');
 
-export const emailsValidator = type('email[]');
+export const emailsValidator = type('string.email[]');
 
 export type Invite = typeof schema.invites.$inferSelect;
 export type InviteInsertArgs = typeof schema.invites.$inferInsert;

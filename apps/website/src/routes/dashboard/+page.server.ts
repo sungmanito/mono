@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import { exportedSchema } from '@sungmanito/db';
-import { formDataValidObject } from '$lib/util/formData.js';
+import { validateFormData } from '@jhecht/arktype-utils';
 import { redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
 import { and, eq, sql } from 'drizzle-orm';
@@ -126,7 +126,8 @@ export const actions = {
     const session = await locals.getSession();
     const data = await request.formData();
     const today = new Date();
-    const formData = formDataValidObject(
+    console.info(data);
+    const formData = validateFormData(
       data,
       type({
         'bill-name': 'string',

@@ -11,11 +11,11 @@ import {
   type PaymentUpdateArgs,
 } from '$lib/server/actions/payments.actions.js';
 import { db } from '$lib/server/db/client.js';
-import { validateFormData } from '$lib/util/formData.js';
+import { validateFormData } from '@jhecht/arktype-utils';
 import { validateUserSession } from '$lib/util/session.js';
 import { exportedSchema as schema } from '@sungmanito/db';
 import { error, fail, redirect } from '@sveltejs/kit';
-import { instanceOf, type } from 'arktype';
+import { type } from 'arktype';
 import { and, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 
 export const load = async ({ locals, depends }) => {
@@ -70,7 +70,7 @@ export const actions = {
     const formValidator = type({
       'payment-id': 'string',
       'household-id': 'string',
-      'proof-file?': instanceOf(File),
+      'proof-file?': 'File',
       'notes?': 'string',
       'amount?': "number | ''",
     });
