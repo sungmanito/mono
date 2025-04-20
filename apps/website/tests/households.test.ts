@@ -15,12 +15,10 @@ test('Navigating and logging in redirection works', async ({ page }) => {
 });
 
 test('User can create household through dialog', async ({ page }) => {
-  await page.goto('/');
-  await page.goto('/dashboard/household');
-  await login(page);
+  await navigateAndLoginTo('/dashboard/household', page);
   await page
     .locator('section')
-    .filter({ hasText: /^Add$/ })
+    .filter({ hasText: 'Add household' })
     .getByRole('button')
     .click();
   await expect(
@@ -38,9 +36,6 @@ test('User can create household through dialog', async ({ page }) => {
 
 test('User can view household details', async ({ page }) => {
   await navigateAndLoginTo('/dashboard/household', page);
-  // await page.goto('/');
-  // await page.goto('/dashboard/household');
-  // await login(page);
 
   await page.getByRole('complementary').getByText('Default').click();
   await expect(page.getByRole('heading', { name: 'Default' })).toBeInViewport();
@@ -68,7 +63,7 @@ test('User can view household details', async ({ page }) => {
 
   expect(page.url()).toMatch(/\/dashboard\/bills\/[A-Z0-9]+$/);
   await page.keyboard.press('Escape');
-  expect(page.url()).toMatch('/dashboard/household/');
+  expect(page.url()).toMatch(/\/dashboard\/household\/?$/);
 });
 
 test('User can edit', async ({ page }) => {
@@ -104,4 +99,21 @@ test('User can delete household', async ({ page }) => {
   await expect(
     page.getByTestId('sidebar-household').getByText('Edited Household 1'),
   ).not.toBeVisible();
+});
+
+test('User can view bill details', async ({ page }) => {
+  await navigateAndLoginTo('/dashboard/household', page);
+  await page.getByTestId('sidebar-household').getByText('Default').click();
+  await expect(page.getByRole('button', { name: 'Unpaid' })).toBeVisible();
+  await page.getByRole('button', { name: 'Unpaid' }).click();
+
+  await expect(
+    await page.getByTestId('bill-list').getByRole('listitem').count(),
+  ).toBeGreaterThan(0);
+
+  await page.getByRole('button', { name: 'Paid', exact: true }).click();
+  await expect(
+    await page.getByTestId('bill-list').getByRole('listitem').count(),
+  ).toBeLessThan(3);
+  await expect(page.getByText('No bills match this filter')).toBeVisible();
 });

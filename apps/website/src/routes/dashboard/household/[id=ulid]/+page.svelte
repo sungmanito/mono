@@ -493,11 +493,9 @@
         </div>
       {:else if st.isSuccess}
         {#snippet displayBill(bill: ResItem)}
-          {@const today = new Date()}
-          {@const pastDue = bill.dueDate < today.getDate() && !bill.isPaid}
           <div
             role="listitem"
-            class={['bill card', pastDue && 'variant-ghost-error']}
+            class={['bill card mb-4', bill.pastDue && 'variant-ghost-error']}
             in:fade
             out:slide
           >
@@ -584,36 +582,38 @@
           },
           {} as Record<number, (typeof bills)[number][]>,
         )}
-        {#each Object.entries(groupedByDate) as [date, bills]}
-          {@const dateTotal = bills.reduce((all, cur) => {
-            if (cur.amount) all = all + cur.amount;
-            return all;
-          }, 0)}
-          <Expandable open>
-            {#snippet header()}
-              <Header
-                tag="h4"
-                color="secondary"
-                class="font-bold"
-                tagClasses="gap-4"
-              >
-                Due on {date}{ordinalSuffix(Number(date))}
-                {#snippet actions()}
-                  Total due: {formatNumber(dateTotal)}
-                {/snippet}
-              </Header>
-            {/snippet}
-            <div class="ml-8 flex flex-col gap-4">
-              {#each bills as bill (bill.id)}
-                {@render displayBill(bill)}
-              {/each}
+        <div role="list" data-testid="bill-list">
+          {#each Object.entries(groupedByDate) as [date, bills]}
+            {@const dateTotal = bills.reduce((all, cur) => {
+              if (cur.amount) all = all + cur.amount;
+              return all;
+            }, 0)}
+            <Expandable open>
+              {#snippet header()}
+                <Header
+                  tag="h4"
+                  color="secondary"
+                  class="font-bold"
+                  tagClasses="gap-4"
+                >
+                  Due on {date}{ordinalSuffix(Number(date))}
+                  {#snippet actions()}
+                    Total due: {formatNumber(dateTotal)}
+                  {/snippet}
+                </Header>
+              {/snippet}
+              <div class="ml-8 flex flex-col gap-4">
+                {#each bills as bill (bill.id)}
+                  {@render displayBill(bill)}
+                {/each}
+              </div>
+            </Expandable>
+          {:else}
+            <div class="flex justify-center">
+              <em>No bills match this filter</em>
             </div>
-          </Expandable>
-        {:else}
-          <div class="flex justify-center">
-            <em>No bills match this filter</em>
-          </div>
-        {/each}
+          {/each}
+        </div>
       {/if}
     </main>
   </div>

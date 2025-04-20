@@ -11,10 +11,12 @@ export const actions = {
       }),
     );
 
-    const { data, error: err } =
-      await locals.supabase.auth.resetPasswordForEmail(fd.email, {
+    const { error: err } = await locals.supabase.auth.resetPasswordForEmail(
+      fd.email,
+      {
         redirectTo: `${url.protocol}//${url.host}/login`,
-      });
+      },
+    );
 
     if (err) return fail(400);
 

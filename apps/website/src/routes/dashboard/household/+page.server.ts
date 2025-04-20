@@ -112,6 +112,7 @@ export const actions = {
       : !data.members
         ? []
         : [data.members];
+    console.info('MEMBERS', members);
 
     const household = await addHousehold({
       name: data['household-name'],

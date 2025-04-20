@@ -34,7 +34,6 @@
     url,
     loading,
     header: modalifyHeader,
-    footer,
   }: ModalifyProps<Data, T> = $props();
 
   let data = {} as Data;
