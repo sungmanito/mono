@@ -209,7 +209,7 @@ export async function makePayments(
         }
       }
 
-      const [row] = await db
+      await db
         .update(schema.payments)
         .set(updateArgs)
         .where(
