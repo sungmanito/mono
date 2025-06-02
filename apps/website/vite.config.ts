@@ -2,6 +2,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vitest/config';
 import { sentrySvelteKit } from '@sentry/sveltekit';
 import { svelteTesting } from '@testing-library/svelte/vite';
+import telefunc from 'telefunc/vite';
 
 export default defineConfig({
   plugins: [
@@ -13,6 +14,7 @@ export default defineConfig({
     }),
     sveltekit(),
     svelteTesting(),
+    telefunc(),
   ],
   test: {
     environment: 'jsdom',
