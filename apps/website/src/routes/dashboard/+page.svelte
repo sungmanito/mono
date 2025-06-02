@@ -9,6 +9,7 @@
   import CreateBillComponent from './bills/create/+page.svelte';
   import CreateHousehold from './household/create/+page.svelte';
   import CreatePayment from './payments/create/[id=ulid]/+page.svelte';
+  import { onStream } from '$lib/telefunctions/test.telefunc';
 
   let { data } = $props();
 
@@ -28,11 +29,21 @@
   async function showCreateHouseholdDrawer() {
     showCreateHousehold = true;
   }
+
+  $effect(() => {
+    onStream().then((data) => console.log('done', data));
+  });
 </script>
 
 <svelte:head>
   <title>Dashboard &ndash; Home</title>
 </svelte:head>
+
+<button
+  onclick={async () => {
+    const d = await onStream();
+  }}>Button!</button
+>
 
 <Drawerify
   bind:open={showCreateBillModal}
