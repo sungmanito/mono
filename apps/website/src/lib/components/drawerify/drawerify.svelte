@@ -3,11 +3,8 @@
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     Data,
     T extends { data: unknown; component: boolean; onclose: () => void },
-  > {
+  > extends Omit<DrawerProps, 'children'> {
     component: Component<T>;
-    open: boolean;
-    onopen?: () => void;
-    onclose?: () => void;
     url: string;
     loading?: Snippet<[]>;
   }
@@ -19,7 +16,7 @@
 >
   import { preloadData } from '$app/navigation';
 
-  import Drawer from '$components/drawer/drawer.svelte';
+  import Drawer, { type DrawerProps } from '$components/drawer/drawer.svelte';
   import { createQuery } from '@tanstack/svelte-query';
   import { LoaderIcon } from 'lucide-svelte';
 
