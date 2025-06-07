@@ -1,0 +1,36 @@
+name: Deploy Reminder
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - uses: pnpm/action-setup@v4
+      name: Install PNPM
+      with:
+        version: 9.0.5
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18 # Specify your Node.js version
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      run: |
+        pnpm install --frozen-lockfile
+
+    - name: Build project
+      run: |
+        pnpm run build 
+
+    - name: Deploy
+      run: |
+        pnpm run deploy 
