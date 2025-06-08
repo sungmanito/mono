@@ -15,6 +15,7 @@
       color: {
         primary: 'dark:text-emerald-400 text-emerald-800',
         secondary: 'dark:text-slate-200 text-slate-700',
+        custom: '',
       },
     },
     defaultVariants: {

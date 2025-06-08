@@ -51,9 +51,10 @@
 </script>
 
 <div
-  class="dropzone p-2 border rounded relative"
-  class:border-dashed={hasDragOver}
-  class:border-blue-500={hasDragOver}
+  class={[
+    'dropzone p-2 border rounded relative',
+    { 'border-dashed border-blue-500': hasDragOver },
+  ]}
   aria-dropeffect="copy"
   role="form"
   ondrop={onDrop}

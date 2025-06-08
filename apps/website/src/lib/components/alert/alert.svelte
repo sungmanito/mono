@@ -39,10 +39,10 @@
     children,
     actions,
     type = 'default',
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     class: className,
     ...rest
   }: AlertProps & VariantTypes = $props();
+
   let classes = $derived(variants({ type, className }));
 </script>
 
