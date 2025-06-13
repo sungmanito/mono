@@ -23,7 +23,5 @@ export const bills = pgTable(
     amount: doublePrecision('amount').notNull().default(0),
     currency: text('currency').notNull().default('USD'),
   },
-  ({ householdId }) => ({
-    householdIndex: index('household_idx').on(householdId),
-  }),
+  ({ householdId }) => [index('household_idx').on(householdId)],
 );

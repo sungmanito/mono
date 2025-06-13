@@ -4,22 +4,42 @@
   import Drawerify from '$components/drawerify/drawerify.svelte';
   import Button from '$lib/components/button/button.svelte';
   import Header from '$lib/components/header/header.svelte';
-  import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
   import { HomeIcon, PlusIcon } from 'lucide-svelte';
   import CreateBillComponent from './bills/create/+page.svelte';
+  import BillDetailsComponent from './bills/[id=ulid]/+page.svelte';
   import CreateHousehold from './household/create/+page.svelte';
   import CreatePayment from './payments/create/[id=ulid]/+page.svelte';
+  import {
+    WatchIcon,
+    HourglassIcon,
+    CheckIcon,
+    TriangleAlertIcon,
+  } from 'lucide-svelte';
+  import Pill from '$lib/components/pill/pill.svelte';
+  import { makeShowDrawerUtil } from '$utils/drawer.svelte';
+  import type { Attachment, Component } from 'svelte';
+  import { createQuery } from '@tanstack/svelte-query';
 
   let { data } = $props();
 
-  let showCreateBillModal = $state(false);
+  let createBillDrawer = makeShowDrawerUtil('/dashboard/bills/create');
+  let createBillDetailsDrawer = makeShowDrawerUtil('/dashboard/bills/');
+
   let createPaymentDrawerUrl = $state('/');
-  let showCreatePaymentDrawer = $state(createPaymentDrawerUrl !== '/');
   let showCreateHousehold = $state(false);
 
-  $effect(() => {
-    showCreatePaymentDrawer = createPaymentDrawerUrl !== '/';
-  });
+  const hijackNav: Attachment = (el: HTMLAnchorElement) => {
+    function listener(e: MouseEvent) {
+      e.preventDefault();
+      createBillDetailsDrawer.url = el.href;
+      createBillDetailsDrawer.show = true;
+    }
+    el.addEventListener('click', listener, false);
+
+    return () => {
+      el.removeEventListener('click', listener, false);
+    };
+  };
 
   async function showPaymentDrawer(paymentId: string) {
     createPaymentDrawerUrl = `/dashboard/payments/create/${paymentId}`;
@@ -28,6 +48,69 @@
   async function showCreateHouseholdDrawer() {
     showCreateHousehold = true;
   }
+
+  // Dummy data for UI mockup (replace with real data as needed)
+  const summary = [
+    {
+      label: 'Paid This Month',
+      value: data.groupings.paid.length,
+      icon: CheckIcon,
+      color: 'bg-green-100',
+      iconBg: 'bg-green-500',
+      iconText: 'text-green-700',
+    },
+    {
+      label: 'Overdue',
+      value: data.groupings.past.length,
+      icon: TriangleAlertIcon,
+      color: 'bg-red-100',
+      iconBg: 'bg-red-500',
+      iconText: 'text-red-700',
+    },
+    {
+      label: 'Due This Week',
+      value: data.bills.filter((bill) => {
+        const dueDate = bill.payments?.forMonthD || new Date();
+        const now = new Date();
+        const oneWeekFromNow = new Date();
+        oneWeekFromNow.setDate(now.getDate() + 7);
+        return dueDate >= now && dueDate <= oneWeekFromNow;
+      }).length,
+      icon: WatchIcon,
+      color: 'bg-blue-100',
+      iconBg: 'bg-blue-500',
+      iconText: 'text-blue-500',
+    },
+  ];
+
+  const totalOutstanding = $derived(
+    data.bills
+      .filter((p) => p.payments === null || p.payments?.paidAt === null)
+      .reduce((acc, bill) => acc + bill.bills.amount, 0),
+  );
+
+  const unpaid = $derived(
+    data.bills.filter((p) => p.payments?.paidAt === null),
+  );
+
+  let rBills = $derived(data.bills.slice(0, 10));
+
+  const bob = $derived(
+    createQuery({
+      queryKey: ['fuckers'],
+      queryFn: async () => {
+        // Simulate fetching data
+        const da = await data.fuckers;
+        return da;
+      },
+    }),
+  );
+
+  const upcoming = [
+    { name: 'Netflix', amount: 15.99, due: '6/9/2025' },
+    { name: 'Electric Bill', amount: 125.5, due: '6/14/2025' },
+    { name: 'Car Insurance', amount: 145.0, due: '6/19/2025' },
+  ];
 </script>
 
 <svelte:head>
@@ -35,199 +118,182 @@
 </svelte:head>
 
 <Drawerify
-  bind:open={showCreateBillModal}
-  component={CreateBillComponent}
-  url="/dashboard/bills/create"
-  onopen={() => pushState('/dashboard/bills/create', {})}
-  onclose={() => replaceState('/dashboard', {})}
+  bind:open={createBillDrawer.show}
+  url={createBillDrawer.url}
+  component={CreateBillComponent as Component<{
+    data: unknown;
+    component: boolean;
+    onclose: () => void;
+  }>}
 />
 
 <Drawerify
-  bind:open={showCreateHousehold}
-  url="/dashboard/household/create"
-  onopen={() => pushState('/dashboard/household/create', {})}
-  onclose={() => replaceState('/dashboard', {})}
-  component={CreateHousehold}
+  bind:open={createBillDetailsDrawer.show}
+  url={createBillDetailsDrawer.url}
+  component={BillDetailsComponent as Component<{
+    data: unknown;
+    component: boolean;
+    onclose: () => void;
+  }>}
 />
 
-<Drawerify
-  bind:open={showCreatePaymentDrawer}
-  onclose={() => replaceState('/dashboard', {})}
-  onopen={() => pushState(createPaymentDrawerUrl, {})}
-  component={CreatePayment}
-  url={createPaymentDrawerUrl}
-/>
+<div class="min-h-screen container mx-auto mt-6">
+  <!-- Header -->
+  <div
+    class="flex items-center justify-between rounded-2xl bg-surface-100-800-token p-6 mb-6 shadow"
+  >
+    <div class="flex items-center gap-3">
+      <div class="text-3xl">🧾</div>
+      <div class="text-3xl font-bold text-on-surface-token">Dashboard</div>
+    </div>
+    <div class="text-right">
+      <div class="text-surface-700-200-token text-sm">Total Outstanding</div>
+      <div class="text-3xl font-bold text-warning-300-600-token">
+        {totalOutstanding.toLocaleString(undefined, {
+          style: 'currency',
+          currency: 'USD',
+        })}
+      </div>
+    </div>
+  </div>
 
-<div class="container mx-auto p-3">
-  <Header class="mt-4 mb-4">
-    {data.user?.email || ''}
-    Dashboard
-    {#snippet actions()}
-      <Button
-        variant="primary:ghost"
-        onclick={() => (showCreateBillModal = true)}
-        class="flex gap-1"
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+    {#each summary as s}
+      <div
+        class="rounded-xl bg-surface-100-800-token p-5 flex flex-col gap-2 shadow transition-transform duration-200 hover:-translate-y-2"
       >
-        <PlusIcon size="1.1em" />
-        New Bill
-      </Button>
-      <button
-        class="btn variant-ghost-primary btn-sm flex gap-2"
-        type="button"
-        onclick={() => showCreateHouseholdDrawer()}
-      >
-        <HomeIcon size="1.1em" />
-        New Household
-      </button>
-    {/snippet}
-  </Header>
+        <div class="flex items-center justify-between">
+          <span class="text-surface-800-100-token">{s.label}</span>
+          <div
+            class={`rounded-lg text-center inline-block w-[45px] h-[45px] p-2 ${s.iconBg} bg-opacity-20`}
+          >
+            {#if typeof s.icon === 'string'}
+              <span class={`text-2xl ${s.iconText}`}>{s.icon}</span>
+            {:else}
+              <s.icon class={`h-8 ${s.iconText}`} />
+            {/if}
+          </div>
+        </div>
+        <div class="text-3xl font-bold text-primary-600-300-token">
+          {s.value}
+        </div>
+      </div>
+    {/each}
+  </div>
 
-  <div class="">
-    <Accordion class="grid grid-cols-4 gap-2">
-      <AccordionItem open class="card variant-soft-surface col-span-2">
-        <svelte:fragment slot="summary">
-          <Header tag="h3" color="secondary">Past Due</Header>
-        </svelte:fragment>
-        <svelte:fragment slot="content">
-          <section class="p-4">
-            {#each data.groupings.past as { bills, payments }}
-              {bills.billName}
-              <div class="flex gap-3 items-center">
-                <button
-                  class="btn btn-sm variant-filled"
-                  type="button"
-                  onclick={() =>
-                    payments !== null ? showPaymentDrawer(payments.id) : void 0}
-                >
-                  Pay bill
-                </button>
-              </div>
-            {/each}
-          </section>
-        </svelte:fragment>
-      </AccordionItem>
-      <AccordionItem open class="card variant-soft-surface col-span-2">
-        <svelte:fragment slot="summary">
-          <Header tag="h3" color="secondary">Upcoming</Header>
-        </svelte:fragment>
-        <svelte:fragment slot="content">
-          <form action="/dashboard/payments?/payBill" method="post" use:enhance>
-            <div class="flex flex-col gap-4">
-              {#each data.groupings.upcoming as { bills, household, payments }}
-                <div class="card variant-outline-primary">
-                  <Header tag="h4" class="card-header">
-                    {bills.billName} due on {bills.dueDate}
-                  </Header>
-                  <section class="p-4">
-                    {household.name}
-                  </section>
-                  <footer class="card-footer">
-                    <button
-                      class="btn btn-sm variant-filled"
-                      name="pay-bill-id"
-                      onclick={() =>
-                        payments !== null
-                          ? showPaymentDrawer(payments.id)
-                          : void 0}
-                      type="button">Pay bill</button
-                    >
-                  </footer>
+  <!-- Main Content -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Recent Bills -->
+    <div class="lg:col-span-2">
+      <div class="rounded-2xl bg-surface-800 p-6 shadow mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-bold text-surface-800-100">Recent Bills</h2>
+          <div class="btn-group variant-filled">
+            <button class="bg-purple-500 text-white font-semibold">All</button>
+            <button class="px-3 py-1 text-purple-300 hover:bg-purple-100"
+              >Overdue</button
+            >
+            <button class="px-3 py-1 text-purple-300 hover:bg-purple-100"
+              >Paid</button
+            >
+          </div>
+        </div>
+        <div class="flex flex-col gap-4">
+          {#if $bob.isSuccess}
+            {#each $bob.data as bill}
+              <div
+                class="flex items-center justify-between rounded-xl bg-surface-300 p-4 shadow border border-gray-100 transition-transform hover:translate-x-2"
+              >
+                <div class="flex items-center gap-3">
+                  <div>
+                    <div class="font-semibold text-gray-800 text-lg">
+                      {bill.billName}
+                    </div>
+                    <div class="text-gray-700 text-sm">
+                      Due: {bill.dueDate}
+                    </div>
+                    <div class="text-gray-700 text-sm">
+                      {bill.householdName}
+                    </div>
+                  </div>
                 </div>
-              {:else}
-                No Upcoming bills
-              {/each}
-            </div>
-          </form>
-        </svelte:fragment>
-      </AccordionItem>
-      <AccordionItem
-        open={data.groupings.comingSoon.length > 0}
-        class="card variant-soft-surface col-span-2"
-      >
-        <svelte:fragment slot="summary">
-          <Header tag="h3" color="secondary">Coming Soon</Header>
-        </svelte:fragment>
-        <svelte:fragment slot="content">
+                <div class="flex flex-col items-end">
+                  <div class="font-bold text-lg text-gray-800">
+                    ${bill.amount.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <Pill color={bill.status} display="inline" class="mt-1" />
+                    <a
+                      href={`/dashboard/bills/${bill.id}`}
+                      class="btn-sm bg-gradient-to-r variant-gradient-tertiary-secondary rounded-lg"
+                      {@attach hijackNav}
+                    >
+                      Details
+                    </a>
+                  </div>
+                </div>
+              </div>
+            {/each}
+          {/if}
+        </div>
+      </div>
+    </div>
+    <!-- Quick Actions -->
+    <div>
+      <div class="rounded-2xl bg-surface-800 p-6 shadow mb-6">
+        <h2 class="text-xl font-bold text-surface-800-100-token mb-4">
+          Quick Actions
+        </h2>
+        <Button
+          class="w-full mb-3 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-purple-400 text-white font-semibold text-lg flex items-center justify-center gap-2"
+          variant="custom"
+          onclick={() => {
+            createBillDrawer.show = true;
+          }}
+        >
+          ➕ Add New Bill
+        </Button>
+        <button
+          class="w-full mb-3 py-2 rounded-xl bg-yellow-100 text-yellow-800 font-semibold flex items-center gap-2 justify-center"
+        >
+          📁 Pay All Due
+        </button>
+        <div>
+          <h3 class="font-semibold text-surface-800-100-token mb-2">
+            Upcoming
+          </h3>
           <div class="flex flex-col gap-2">
-            {#each data.groupings.comingSoon as { bills, payments }}
-              <div class="flex gap-3 items-center">
-                {bills.billName}
-                <button
-                  class="btn btn-sm variant-filled"
-                  type="button"
-                  onclick={() =>
-                    payments !== null ? showPaymentDrawer(payments.id) : void 0}
+            {#each upcoming as up}
+              <div
+                class="flex items-center justify-between rounded-lg bg-surface-300 px-3 py-2"
+              >
+                <a
+                  href={`/dashboard/payments/${up.id}`}
+                  class="flex items-center gap-3"
                 >
-                  Pay bill
-                </button>
-              </div>
-            {:else}
-              <p>No bills coming soon</p>
-            {/each}
-          </div>
-        </svelte:fragment>
-      </AccordionItem>
-      <AccordionItem
-        open={data.groupings.paid.length > 0}
-        class="card variant-soft-surface col-span-2"
-      >
-        <svelte:fragment slot="summary">
-          <Header tag="h3" color="secondary">Paid</Header>
-        </svelte:fragment>
-        <svelte:fragment slot="content">
-          <div class="grid grid-cols-3 gap-32">
-            {#each data.groupings.paid as { bills, payments }}
-              <div class="card variant-filled-primary">
-                <header class="card-header p-4">
-                  <a href={`/dashboard/payments/${payments?.id}`}>
-                    {bills.billName} - due on {bills.dueDate}
-                  </a>
-                </header>
-                <section class="p-3">
-                  Paid <strong
-                    >{payments?.paidAt?.toLocaleString(undefined, {
-                      timeZoneName: 'shortOffset',
-                    })}</strong
+                  <Header
+                    tag="h6"
+                    color="custom"
+                    class="text-zinc-800 font-medium"
                   >
-                </section>
+                    {up.name}
+                  </Header>
+                  <div class="text-gray-600 text-xs">
+                    ${up.amount.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                    })}
+                  </div>
+                </a>
+                <div class="text-xs text-gray-600">{up.due}</div>
               </div>
-            {:else}
-              <div class="">No paid bills</div>
             {/each}
           </div>
-        </svelte:fragment>
-      </AccordionItem>
-      <AccordionItem open={data.groupings.rest.length > 0} class="col-span-4">
-        <svelte:fragment slot="summary">
-          <Header tag="h3" color="secondary">Other bills</Header>
-        </svelte:fragment>
-        <svelte:fragment slot="content">
-          <table class="table table-interactive">
-            <thead>
-              <tr>
-                <th>Bill Name</th>
-                <th>Due Date</th>
-                <th>Household</th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each data.groupings.rest as { bills, household }}
-                <tr>
-                  <td>
-                    {bills.billName}
-                  </td>
-                  <td>
-                    {bills.dueDate}
-                  </td>
-                  <td>
-                    {household.name}
-                  </td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
-        </svelte:fragment>
-      </AccordionItem>
-    </Accordion>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
