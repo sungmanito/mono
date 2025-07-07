@@ -60,6 +60,7 @@
   </Header>
   <div class="form-layout mt-8">
     <input type="hidden" name="payment-id" value={data.payment.id} />
+    <input type="hidden" name="paymentId" value={data.payment.id} />
     <input type="hidden" name="household-id" value={data.payment.householdId} />
     <div>
       <FormLabel label="Bill:">
@@ -142,6 +143,15 @@
     <div class="col-span-4 flex gap-3 justify-end pt-6">
       {#if component}
         <Button variant="filled" type="button" onclick={onclose}>Close</Button>
+      {/if}
+      {#if data.payment.paidAt !== null}
+        <Button
+          variant="filled"
+          type="submit"
+          formaction="/dashboard/payments?/unpayBill"
+        >
+          Unpay
+        </Button>
       {/if}
       <Button>Save</Button>
     </div>

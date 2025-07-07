@@ -1,12 +1,9 @@
 import { db } from '$lib/server/db';
-import { exportedSchema } from '@sungmanito/db';
+import schema from '@sungmanito/db';
 import { validateFormData } from '@jhecht/arktype-utils';
 import { redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
-import { and, eq, sql } from 'drizzle-orm';
-import { alias } from 'drizzle-orm/pg-core';
-
-const household = alias(exportedSchema.households, 'household');
+import { and, eq, sql, getTableColumns, asc } from 'drizzle-orm';
 
 export const load = async ({ locals, depends }) => {
   const session = await locals.getSession();
@@ -20,104 +17,82 @@ export const load = async ({ locals, depends }) => {
 
   const today = new Date();
 
-  const fullQuery = await db
-    .select()
-    .from(exportedSchema.bills)
+  const fuckers = db
+    .select({
+      ...getTableColumns(schema.bills),
+      householdName: schema.households.name,
+      status: sql<
+        'overdue' | 'upcoming' | 'paid'
+      >`case when ${schema.payments.paidAt} is not null then 'paid'::text when ${schema.bills.dueDate} < ${today.getDate()} then 'overdue'::text else 'upcoming'::text end`,
+      payment: schema.payments,
+    })
+    .from(schema.bills)
     .innerJoin(
-      exportedSchema.usersToHouseholds,
-      eq(exportedSchema.usersToHouseholds.userId, session.user.id),
+      schema.households,
+      eq(schema.bills.householdId, schema.households.id),
     )
     .innerJoin(
-      household,
+      schema.usersToHouseholds,
       and(
-        eq(exportedSchema.bills.householdId, household.id),
-        eq(exportedSchema.usersToHouseholds.householdId, household.id),
+        eq(schema.usersToHouseholds.userId, session.user.id),
+        eq(schema.usersToHouseholds.householdId, schema.households.id),
       ),
     )
     .leftJoin(
-      exportedSchema.payments,
+      schema.payments,
       and(
         eq(
-          sql`extract('month' from ${exportedSchema.payments.forMonthD})`,
+          sql`extract('month' from ${schema.payments.forMonthD})`,
           today.getMonth() + 1,
         ),
-        eq(exportedSchema.payments.billId, exportedSchema.bills.id),
+        eq(schema.payments.billId, schema.bills.id),
       ),
-    );
+    )
+    .orderBy(asc(schema.bills.dueDate));
 
-  const todaysDate = today.getDate();
-
-  const groupings = fullQuery.reduce(
-    (all, cur) => {
-      const diff = today.getDate() - cur.bills.dueDate;
-
-      if (cur.payments !== null && cur.payments.paidAt !== null) {
-        all.paid.push(cur);
-        return all;
-      }
-
-      if (
-        todaysDate > cur.bills.dueDate &&
-        (cur.payments === null ||
-          (cur.payments !== null && cur.payments.paidAt === null))
-      ) {
-        all.past.push(cur);
-        return all;
-      }
-
-      if (diff > -5 && diff < 0) {
-        all.upcoming.push(cur);
-        return all;
-      }
-
-      if (diff >= 5 && diff < 10) {
-        all.comingSoon.push(cur);
-        return all;
-      }
-
-      all.rest.push(cur);
-
-      return all;
-    },
-    {
-      upcoming: [],
-      comingSoon: [],
-      paid: [],
-      past: [],
-      rest: [],
-    } as Record<
-      'upcoming' | 'comingSoon' | 'paid' | 'past' | 'rest',
-      (typeof fullQuery)[number][]
-    >,
-  );
+  console.info('FUCKERS', fuckers.toSQL());
 
   const userHouseholds = await db
     .select({
-      id: exportedSchema.households.id,
-      name: exportedSchema.households.name,
-      createdAt: exportedSchema.households.createdAt,
-      householdCount:
-        sql<number>`count(${exportedSchema.households.id})`.mapWith((value) =>
-          Number(value),
-        ),
+      id: schema.households.id,
+      name: schema.households.name,
+      createdAt: schema.households.createdAt,
+      householdCount: sql<number>`count(${schema.households.id})`.mapWith(
+        (value) => Number(value),
+      ),
     })
-    .from(exportedSchema.households)
+    .from(schema.households)
     .innerJoin(
-      exportedSchema.usersToHouseholds,
+      schema.usersToHouseholds,
       and(
-        eq(exportedSchema.usersToHouseholds.userId, session.user.id),
-        eq(
-          exportedSchema.households.id,
-          exportedSchema.usersToHouseholds.householdId,
-        ),
+        eq(schema.usersToHouseholds.userId, session.user.id),
+        eq(schema.households.id, schema.usersToHouseholds.householdId),
       ),
     )
-    .groupBy(exportedSchema.households.id);
+    .groupBy(schema.households.id);
 
   return {
-    bills: fullQuery,
-    groupings,
     households: userHouseholds,
+    fuckers,
+    groupings: await fuckers.then((bills) =>
+      bills.reduce(
+        (acc, bill) => {
+          if (bill.status === 'paid') {
+            acc.paid.push(bill);
+          } else if (bill.status === 'overdue') {
+            acc.past.push(bill);
+          } else if (bill.status === 'upcoming') {
+            acc.thisWeek.push(bill);
+          }
+          return acc;
+        },
+        {
+          paid: [],
+          past: [],
+          thisWeek: [],
+        } as Record<'paid' | 'past' | 'thisWeek', typeof bills>,
+      ),
+    ),
   };
 };
 
@@ -138,7 +113,7 @@ export const actions = {
 
     if (session && session.user) {
       const [bill] = await db
-        .insert(exportedSchema.bills)
+        .insert(schema.bills)
         .values({
           billName: formData['bill-name'],
           householdId: formData['household-id'],
@@ -148,7 +123,7 @@ export const actions = {
 
       // If the bill is further forward in the month than the current date, we must assume that the user wants to track this bill for this month too
       if (bill.dueDate > today.getDate()) {
-        await db.insert(exportedSchema.payments).values({
+        await db.insert(schema.payments).values({
           billId: bill.id,
           forMonthD: new Date(
             today.getFullYear(),

@@ -1,9 +1,14 @@
-import { EDGE_CONFIG, SUPABASE_SERVICE_ROLE } from '$env/static/private';
+import {
+  EDGE_CONFIG,
+  SUPABASE_SERVICE_ROLE,
+  POSTHOG_API_KEY,
+} from '$env/static/private';
 import { PUBLIC_SUPABASE_URL } from '$env/static/public';
 import { getUserHouseholds } from '$lib/server/actions/households.actions';
 import { validateUserSession } from '$lib/util/session';
 import { createServerClient } from '@supabase/ssr';
 import { redirect, type Handle } from '@sveltejs/kit';
+import { PostHog } from 'posthog-node';
 import { getAll } from '@vercel/edge-config';
 
 // Little bit of tricksy shenanigans since we don't use .env around these parts,
@@ -38,6 +43,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   // Passes this on to the locals so that load functions can use it later
   event.locals.supabase = supabase;
+
+  event.locals.posthog = new PostHog(POSTHOG_API_KEY, {
+    host: 'https://us.i.posthog.com',
+  });
 
   // Wrapper function to make getting the user session easier
   event.locals.getSession = async () => {

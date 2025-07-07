@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db/client.js';
 import schema from '@sungmanito/db';
 import { json } from '@sveltejs/kit';
-import { and, between, eq, getTableColumns, lt, sql } from 'drizzle-orm';
+import { and, eq, getTableColumns, sql } from 'drizzle-orm';
 import type { RequestHandler } from './$types';
 
 // Temporary thing to create a thing for the payments.
@@ -21,17 +21,10 @@ export const GET: RequestHandler = async () => {
       schema.payments,
       and(
         eq(schema.payments.billId, schema.bills.id),
-        between(
-          schema.payments.forMonthD,
-          sql`now()`,
-          sql`now() + interval '5 days'`,
+        eq(
+          sql`extract('month' from ${schema.payments.forMonthD})`,
+          sql`extract('month' from now())`,
         ),
-      ),
-    )
-    .where(
-      lt(
-        schema.bills.dueDate,
-        sql`extract('day' from now() + interval '5 days')`,
       ),
     );
 

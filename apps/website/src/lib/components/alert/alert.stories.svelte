@@ -9,6 +9,14 @@
     args: {
       type: 'default',
     },
+    argTypes: {
+      type: {
+        control: {
+          type: 'radio',
+          options: ['primary'],
+        },
+      },
+    },
   });
 </script>
 
