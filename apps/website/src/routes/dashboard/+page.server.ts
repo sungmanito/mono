@@ -50,8 +50,6 @@ export const load = async ({ locals, depends }) => {
     )
     .orderBy(asc(schema.bills.dueDate));
 
-  console.info('FUCKERS', fuckers.toSQL());
-
   const userHouseholds = await db
     .select({
       id: schema.households.id,
