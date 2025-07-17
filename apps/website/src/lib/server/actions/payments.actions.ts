@@ -191,7 +191,7 @@ export async function makePayments(
             proof,
             uploadName,
           );
-        } catch (e) {
+        } catch {
           throw new Error(`Something bad happened ${id}`);
         }
 
