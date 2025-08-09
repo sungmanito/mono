@@ -9,4 +9,7 @@ const client = new Pg.Pool({
 
 await client.connect();
 
-export const db = drizzle(client, { schema: exportedSchema, logger: true });
+export const db = drizzle(client, {
+  logger: true,
+  schema: exportedSchema,
+});

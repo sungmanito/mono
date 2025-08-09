@@ -1,6 +1,6 @@
-import { getBill } from '$lib/server/actions/bills.actions.js';
-import { db } from '$lib/server/db/client.js';
-import { validateUserSession } from '$lib/util/session.js';
+import { getBill } from '$lib/server/actions/bills.actions';
+import { db } from '$lib/server/db/client';
+import { validateUserSession } from '$lib/util/session';
 import { error } from '@sveltejs/kit';
 
 export const load = async ({ locals, params }) => {
