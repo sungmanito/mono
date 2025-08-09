@@ -1,6 +1,8 @@
 import { PAYMENT_BUCKET_NAME } from '$env/static/private';
 import { db } from '$lib/server/db';
-import { formDataToObject } from '@jhecht/arktype-utils';
+import type { TransactionContext } from '$utils/drizzle';
+import { allowedImageTypes } from '$utils/images';
+import { validateFormData } from '@jhecht/arktype-utils';
 import { exportedSchema as schema } from '@sungmanito/db';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import { error } from '@sveltejs/kit';
@@ -115,15 +117,6 @@ export async function createPayment(data: PaymentInsertArgs) {
     .then(([f]) => f);
 }
 
-export async function addImageProofToPayment(
-  paymentId: Payment['id'],
-  image: File,
-  supabase: SupabaseClient['storage'],
-) {
-  console.info(paymentId, image, supabase);
-  return false;
-}
-
 export async function addProofToPayment(
   paymentId: Payment['id'],
   proof: Payment['proofImage'],
@@ -149,17 +142,16 @@ export async function makePayments(
   session: Session,
   households: string[],
 ) {
-  const rawData = formDataToObject(fd);
-  const ids = type({
-    id: 'string[]',
-    'household-id': 'string',
-  })(rawData);
+  const rawData = validateFormData(
+    fd,
+    type({
+      id: 'string[]',
+      'household-id': 'string',
+    }),
+  );
+  const ids = rawData;
 
   const userId = session.user.id;
-
-  if (ids instanceof type.errors) {
-    throw new Error('Invalid IDS');
-  }
 
   const all = await Promise.allSettled(
     ids.id.map(async (id) => {
@@ -236,4 +228,88 @@ export async function makePayments(
     success: all.filter((f) => f.status === 'fulfilled'),
     failed: all.filter((f) => f.status === 'rejected'),
   };
+}
+
+export type UpdatePaymentWithImage = Pick<Payment, 'id' | 'householdId'> &
+  Omit<PaymentUpdateArgs, 'id' | 'householdId'> & {
+    proof: File;
+  };
+
+/**
+ * @description Making multiple payments, especially if they have
+ * proof images, is a bit of a pain. This function is a placeholder
+ * for now and will be implemented later.
+ */
+export async function makeMultiplePayments(
+  tx: TransactionContext,
+  fd: UpdatePaymentWithImage[],
+  supabase: SupabaseClient,
+  session: Session,
+) {
+  /**
+   * 1. Upload all images to the bucket in parallel using promise.allSettled
+   * 2. Update all payments in the database with the uploaded image URLs
+   * 3. Along with the payment update, update the other fields like amount, notes,
+   * paidAt, updatedBy
+   */
+  const allImageUploads = await Promise.allSettled(
+    fd.map(async (f) => {
+      const fileName = f.proof.name;
+      console.info('File name', fileName);
+      return [
+        f.id,
+        allowedImageTypes.has(f.proof.type)
+          ? await uploadImage(
+              supabase,
+              PAYMENT_BUCKET_NAME,
+              f.proof,
+              `${f.householdId}/${f.id}.${fileName.split('.').at(-1)}`,
+            )
+              .then((r) => getImageId(PAYMENT_BUCKET_NAME, r.path))
+              .catch((e) => {
+                console.error('Error uploading image:', e);
+                console.error(
+                  'filename',
+                  `${f.householdId}/${f.id}.${fileName.split('.').at(-1)}`,
+                );
+                return null;
+              })
+          : null,
+      ] as const;
+    }),
+  );
+
+  const user = session.user;
+
+  console.info(allImageUploads);
+
+  const updatePaymentsArgs: PaymentUpdateArgs[] = allImageUploads
+    .filter((a) => a.status === 'fulfilled')
+    .map(({ value: [id, response] }) => {
+      return {
+        id,
+        updatedBy: user.id,
+        proofImage: response,
+        paidAt: new Date(),
+      } as const;
+    });
+
+  console.info('UPDATE ARGS', updatePaymentsArgs);
+
+  const responses = await db.transaction(async (tx) => {
+    const re = await Promise.allSettled(
+      updatePaymentsArgs.map((args) => {
+        return tx
+          .update(schema.payments)
+          .set(args)
+          .where(eq(schema.payments.id, args.id))
+          .returning();
+      }),
+    );
+    return re;
+  });
+
+  console.info(responses);
+
+  return;
 }

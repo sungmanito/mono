@@ -12,12 +12,16 @@
   import BillDetailsComponent from './bills/[id=ulid]/+page.svelte';
   import CreateBillComponent from './bills/create/+page.svelte';
   import CreatePaymentComponent from './payments/create/[id=ulid]/+page.svelte';
+  import CreatePaymentsComponent from './payments/create/+page.svelte';
   import { hijack } from '$lib/attachments/hijack.svelte';
+  import { ClockAlertIcon } from 'lucide-svelte';
+
   let { data } = $props();
 
   let createBillDrawer = makeShowDrawerUtil('/dashboard/bills/create');
   let createBillDetailsDrawer = makeShowDrawerUtil('/dashboard/bills/');
   let makeOrUpdatePayment = makeShowDrawerUtil('/dashbaord/payments/create');
+  let makeMultiplePayments = makeShowDrawerUtil('/dashboard/payments/create');
 
   /** @description Hijacks nav on Anchor Elements, opening up the details modal */
   const hijackNav: Attachment<HTMLAnchorElement> = (el) => {
@@ -96,6 +100,12 @@
 <svelte:head>
   <title>Dashboard &ndash; Home</title>
 </svelte:head>
+
+<Drawerify
+  bind:open={makeMultiplePayments.show}
+  component={CreatePaymentsComponent}
+  url={makeMultiplePayments.url}
+/>
 
 <Drawerify
   bind:open={makeOrUpdatePayment.show}
@@ -304,6 +314,8 @@
                 </div>
               </div>
             {/each}
+          {:else if $billsWithStatus.isLoading}
+            <div class="placeholder">&nbsp;</div>
           {/if}
         </div>
       </div>
@@ -323,20 +335,35 @@
         >
           ➕ Add New Bill
         </Button>
-        <button
-          class="w-full mb-3 py-2 rounded-xl bg-yellow-100 text-yellow-800 font-semibold flex items-center gap-2 justify-center"
-          onclick={() => {
-            console.info('Pay all due bills this week');
-            console.info(
-              data.groupings.thisWeek
+        <div class="flex gap-3">
+          <button
+            class="w-full mb-3 py-2 rounded-xl bg-yellow-100 text-yellow-800 font-semibold flex items-center gap-2 justify-center"
+            onclick={() => {
+              const ids = data.groupings.thisWeek
                 .filter((bill) => bill.payment !== null)
                 .map((b) => `payments[]=${b.payment.id}`)
-                .join('&'),
-            );
-          }}
-        >
-          📁 Pay All Due This Week
-        </button>
+                .join('&');
+              makeMultiplePayments.url = `/dashboard/payments/create?${ids}`;
+              makeMultiplePayments.show = true;
+            }}
+          >
+            📁 Pay This Week
+          </button>
+          <button
+            class="w-full mb-3 py-2 rounded-xl bg-red-100 text-red-700 font-semibold flex items-center gap-2 justify-center"
+            onclick={() => {
+              const ids = data.groupings.past
+                .map((bill) => `payments[]=${bill.payment.id}`)
+                .join('&');
+              console.info(ids);
+              makeMultiplePayments.url = `/dashboard/payments/create?${ids}`;
+              makeMultiplePayments.show = true;
+            }}
+          >
+            <ClockAlertIcon size="1em" />
+            Pay Overdue
+          </button>
+        </div>
       </div>
     </div>
   </div>

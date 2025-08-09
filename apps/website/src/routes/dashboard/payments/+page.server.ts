@@ -7,12 +7,14 @@ import {
 } from '$lib/server/actions/images.actions.js';
 import {
   getPayment,
+  makeMultiplePayments,
   makePayments,
   type PaymentUpdateArgs,
+  type UpdatePaymentWithImage,
 } from '$lib/server/actions/payments.actions.js';
 import { db } from '$lib/server/db/client.js';
-import { validateFormData } from '@jhecht/arktype-utils';
 import { validateUserSession } from '$lib/util/session.js';
+import { validateFormData } from '@jhecht/arktype-utils';
 import { exportedSchema as schema } from '@sungmanito/db';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
@@ -208,5 +210,50 @@ export const actions = {
     return {
       results,
     };
+  },
+  massPay: async ({ locals, request }) => {
+    const session = await locals.getSession();
+
+    if (!validateUserSession(session)) {
+      return fail(401);
+    }
+
+    const fileObjValid = type({
+      '[string]': {
+        householdId: 'string',
+        receipt: 'File',
+        amountPaid: 'number >= 0 = 0',
+      },
+    });
+
+    // TODO: figure out a way to get the form validation helpers
+    // to make objects with.
+    const data = validateFormData(await request.formData(), fileObjValid);
+
+    const args = Object.entries(data).map(([id, obj]) => {
+      const ret: UpdatePaymentWithImage = {
+        id,
+        amount: `${obj.amountPaid}` || null,
+        proof: obj.receipt,
+        householdId: obj.householdId,
+      };
+      return ret;
+    });
+
+    db.transaction(async (tx) => {
+      try {
+        const res = await makeMultiplePayments(
+          tx,
+          args,
+          locals.supabase,
+          session,
+        );
+        console.info(res);
+      } catch (e) {
+        tx.rollback();
+      }
+    });
+
+    return {};
   },
 };
