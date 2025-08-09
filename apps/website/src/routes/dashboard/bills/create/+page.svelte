@@ -10,6 +10,7 @@
   import { onMount } from 'svelte';
   import type { PageData } from './$types';
   import Currency from '$components/currency/currency.svelte';
+  import { invalidate } from '$app/navigation';
 
   const tmpBillValidator = type({
     name: 'string',
@@ -24,13 +25,14 @@
     component = false,
     onclose = () => void 0,
     submit = () => {
-      return async ({ update, formElement }) => {
+      return async ({ formElement }) => {
         onclose();
         formElement.reset();
-        await update();
+        await invalidate('user:bills');
       };
     },
   }: ModalifyPage<PageData> & { submit: SubmitFunction } = $props();
+
   let households = $derived(data.households);
 
   let hasDrag = $state(false);

@@ -99,7 +99,6 @@ export const actions = {
     const session = await locals.getSession();
     const data = await request.formData();
     const today = new Date();
-    console.info(data);
     const formData = validateFormData(
       data,
       type({

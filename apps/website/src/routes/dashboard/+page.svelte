@@ -155,10 +155,10 @@
   <div
     class="flex items-center justify-between rounded-2xl bg-surface-100-800-token p-6 mb-6 shadow"
   >
-    <div class="flex items-center gap-3">
+    <h1 class="flex items-center gap-3">
       <div class="text-3xl">🧾</div>
       <div class="text-3xl font-bold text-on-surface-token">Dashboard</div>
-    </div>
+    </h1>
     <div class="text-right">
       <div class="text-surface-700-200-token text-sm">Total Outstanding</div>
       <div class="text-3xl font-bold text-warning-300-600-token">
@@ -176,7 +176,7 @@
       <div
         class="rounded-xl bg-surface-100-800-token p-5 flex flex-col gap-2 shadow transition-transform duration-200 hover:-translate-y-2"
       >
-        <div class="flex items-center justify-between">
+        <h3 class="flex items-center justify-between">
           <span class="text-surface-800-100-token">{s.label}</span>
           <div
             class={`rounded-lg text-center inline-block w-[45px] h-[45px] p-2 ${s.iconBg} bg-opacity-20`}
@@ -187,7 +187,7 @@
               <s.icon class={`h-8 ${s.iconText}`} />
             {/if}
           </div>
-        </div>
+        </h3>
         <div class="text-3xl font-bold text-primary-600-300-token">
           {s.value}
         </div>
@@ -258,11 +258,12 @@
             </div>
           </div>
         </div>
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4" role="list">
           {#if $billsWithStatus.isSuccess}
             {#each filteredBills ?? [] as bill}
               <div
                 class="flex items-center justify-between rounded-xl bg-surface-300 p-4 shadow border border-gray-100 transition-transform hover:translate-x-2"
+                role="listitem"
               >
                 <div class="flex items-center gap-3">
                   <div>

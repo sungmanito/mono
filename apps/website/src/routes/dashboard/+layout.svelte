@@ -71,6 +71,27 @@
         </AppRailAnchor>
       </AppRail>
     </aside>
-    <slot />
+    <svelte:boundary>
+      {#snippet pending()}
+        Loading...
+      {/snippet}
+      {#snippet failed(_, reset)}
+        <div class="container mx-auto mt-8">
+          <div class="alert variant-ghost-error">
+            <div class="alert-message">
+              We've encountered an error while switching pages. Please wait a
+              second and click the reset button to try again.
+              <p>We are actively working to resolve this problem.</p>
+            </div>
+            <div class="alert-actions">
+              <button class="btn variant-filled-error" onclick={reset}>
+                Retry
+              </button>
+            </div>
+          </div>
+        </div>
+      {/snippet}
+      <slot />
+    </svelte:boundary>
   </div>
 </QueryClientProvider>

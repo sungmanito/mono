@@ -12,6 +12,7 @@
   async function showModal(paymentId: string) {
     showMakePaymentModal = true;
     showModalOpenUrl = `/dashboard/payments/create/${paymentId}`;
+    makePaymentOpen();
   }
 
   let showMakePaymentModal = $state(false);
@@ -29,18 +30,6 @@
     // thing blow tf up
     history.pushState(undefined, '', detailsModalUrl);
   };
-
-  $effect(() => {
-    if (detailsModalOpen) {
-      paymentDetailsOpen();
-    }
-  });
-
-  $effect(() => {
-    if (showMakePaymentModal) {
-      makePaymentOpen();
-    }
-  });
 </script>
 
 <svelte:head>
@@ -99,6 +88,7 @@
                     e.preventDefault();
                     detailsModalUrl = `/dashboard/payments/${payment.id}`;
                     detailsModalOpen = true;
+                    paymentDetailsOpen();
                   }}
                 >
                   {payment.billName}

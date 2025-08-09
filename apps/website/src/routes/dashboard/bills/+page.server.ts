@@ -10,6 +10,10 @@ import { error, fail, redirect } from '@sveltejs/kit';
 import { scope, type } from 'arktype';
 import { and, eq, inArray } from 'drizzle-orm';
 
+function padCalendar(inp: string | number) {
+  return `0${inp}`.slice(-2);
+}
+
 export const load = async ({ locals, depends }) => {
   const session = await locals.getSession();
 
@@ -80,17 +84,36 @@ export const actions = {
       }),
     );
 
-    const newBills = await db
-      .insert(exportedSchema.bills)
-      .values(insertBills)
-      .returning();
+    const bills = await db.transaction(async (tx) => {
+      const newBills = await tx
+        .insert(exportedSchema.bills)
+        .values(insertBills)
+        .returning();
 
-    if (newBills.length === 0) {
-      error(403, 'Bill(s) could not be created');
-    }
+      const rightNow = new Date();
+
+      const payments = await tx
+        .insert(exportedSchema.payments)
+        .values(
+          newBills.map((bill) => ({
+            billId: bill.id,
+            forMonthD: new Date(
+              `${rightNow.getFullYear()}-${padCalendar(rightNow.getMonth() + 1)}-${padCalendar(bill.dueDate).slice(-2)}T00:00:00Z`,
+            ),
+            householdId: bill.householdId,
+          })),
+        )
+        .returning();
+
+      if (newBills.length === 0 || payments.length === 0) {
+        tx.rollback();
+      }
+
+      return newBills;
+    });
 
     return {
-      bills: newBills,
+      bills,
     };
   },
   updateBill: async ({ request, locals }) => {
@@ -126,7 +149,7 @@ export const actions = {
         dueDate: data['due-date'],
         householdId: data['household-id'],
         amount: data['amount']
-          ? Math.max(0, Number(data['amount'])).toString()
+          ? Math.max(0, Number(data['amount']))
           : undefined,
         currency: data['currency'] ? data['currency'].toUpperCase() : undefined,
       })

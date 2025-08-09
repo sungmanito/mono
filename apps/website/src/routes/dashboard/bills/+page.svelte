@@ -30,6 +30,7 @@
       householdIds?.map((h) => `household-id[]=${h}`).join('&') || '';
 
     createBillStore.url = `/dashboard/bills/create${params ? '?' + params : ''}`;
+    history.pushState(null, '', createBillStore.url);
   }
 
   /**
@@ -40,13 +41,8 @@
     if (bill.id === undefined) return;
     editBillStore.show = true;
     editBillStore.url = `/dashboard/bills/${bill.id}/edit`;
+    history.pushState(null, '', editBillStore.url);
   }
-
-  $effect(() => {
-    if (createBillStore.show) {
-      history.pushState(null, '', createBillStore.url);
-    }
-  });
 
   $effect(() => {
     if (editBillStore.show) {
