@@ -13,7 +13,7 @@ jobs:
           version: 9.0.5
       - uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '22.x'
           cache: 'pnpm'
       - run: pnpm i --frozen-lockfile
       - run: pnpm prettier:check
@@ -28,7 +28,7 @@ jobs:
           version: 9.0.5
       - uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '22.x'
           cache: 'pnpm'
       - run: pnpm i --frozen-lockfile
       - run: pnpm lint
