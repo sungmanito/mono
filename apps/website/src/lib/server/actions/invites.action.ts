@@ -12,7 +12,6 @@ export type Invite = typeof schema.invites.$inferSelect;
 export type InviteInsertArgs = typeof schema.invites.$inferInsert;
 
 export async function inviteMembersByEmail(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: SupabaseClient<any, 'public', any>,
   emails: string[],
   householdId: string,

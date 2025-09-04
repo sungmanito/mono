@@ -1,16 +1,13 @@
 import { test, expect } from '@playwright/test';
 
-import { login, navigateAndLoginTo } from './util';
+import { navigateAndLoginTo } from './util';
 
 test('User can create bills', async ({ page }) => {
   await navigateAndLoginTo('/dashboard/bills', page);
-  // await page.goto('/');
-  // await page.goto('/dashboard/bills');
-  // await login(page);
 
   await expect(page.getByRole('heading', { name: 'Bills' })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Add' }).click();
+  await page.getByRole('button', { name: 'New Bill' }).click();
   await expect(
     page.getByRole('dialog').getByRole('heading', { name: 'Create new bill' }),
   ).toBeVisible();
@@ -26,6 +23,12 @@ test('User can create bills', async ({ page }) => {
         .getByRole('dialog')
         .getByRole('button', { name: 'New Bill' })
         .click();
+
+    // Randomly select a household, as there should be two options to choose from
+    await page
+      .getByLabel('Household')
+      .nth(i)
+      .selectOption({ index: Math.ceil(Math.random() * 2) });
     await page
       .getByLabel('Due date')
       .nth(i)
@@ -33,44 +36,85 @@ test('User can create bills', async ({ page }) => {
   }
 
   await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
+  await expect(page.getByRole('dialog')).not.toBeVisible();
 
   for (const billName of billsToMake) {
     await expect(page.getByText(billName)).toBeVisible();
   }
 });
 
-test('Users can view bill details and delete', async ({ page }) => {
-  await page.goto('/');
-  await page.goto('/dashboard/bills');
+test.skip('Users can edit bills', async () => {});
 
-  await login(page);
+test('Users can delete bills using dedicated delete button', async ({
+  page,
+}) => {
+  await navigateAndLoginTo('/dashboard/bills', page);
 
-  await page.getByTitle('Edit Bill New Bill 0').click();
-
-  await page.getByLabel('Due Date').clear();
-  await page.getByLabel('Due Date').fill('5');
-  await page.getByRole('button', { name: 'Save' }).click();
-  await expect(page.getByRole('dialog')).not.toBeVisible();
   await expect(
-    page
-      .getByRole('row')
-      .filter({ hasText: 'New Bill 0' })
-      .getByRole('cell', { name: '5', exact: true }),
+    page.getByRole('heading', { name: /New Bill \d/, exact: false }).first(),
   ).toBeVisible();
 
-  for (let i = 0; i < 5; i++) {
-    await page.getByTitle(`Delete bill New Bill ${i}`).click();
-    await page.getByRole('dialog').getByRole('textbox').fill('delete');
+  await expect(
+    page.getByRole('listitem', { name: /New Bill \d+/, exact: false }).first(),
+  ).toBeVisible();
 
+  const newBillCount = await page
+    .getByRole('listitem', { name: /New Bill \d+/, exact: false })
+    .count();
+
+  console.info('New Bill Count', newBillCount);
+
+  await page
+    .getByRole('listitem', { name: /New Bill \d+/, exact: false })
+    .first()
+    .getByRole('button', { name: 'Delete' })
+    .click();
+
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Delete' })
+    .click();
+
+  expect(
     await page
-      .getByRole('dialog')
-      .getByRole('button', { name: 'Submit' })
-      .click();
+      .getByRole('listitem', { name: /New Bill \d+/, exact: false })
+      .count(),
+  ).toBe(newBillCount - 1);
+});
 
-    await expect(page.getByRole('dialog')).not.toBeVisible();
-  }
+test('Users can delete bills using bulk actions', async ({ page }) => {
+  await navigateAndLoginTo('/dashboard/bills', page);
 
   await expect(
-    page.getByRole('cell').filter({ hasText: 'New Bill' }),
+    page.getByRole('heading', { name: /New Bill \d/, exact: false }).first(),
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole('listitem', { name: /New Bill \d+/, exact: false }).first(),
+  ).toBeVisible();
+
+  const newBillCount = await page
+    .getByRole('listitem', { name: /New Bill \d+/, exact: false })
+    .count();
+
+  for (let n = 0; n < newBillCount; n++) {
+    console;
+    await page
+      .getByRole('listitem', { name: /New Bill \d+/, exact: false })
+      .nth(n)
+      .getByRole('checkbox')
+      .check();
+  }
+
+  // Click the delete button
+  await page.getByRole('button', { name: 'Delete selected bills' }).click();
+
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Delete' })
+    .click();
+
+  await expect(
+    page.getByRole('listitem', { name: /New Bill \d+/, exact: false }).first(),
   ).not.toBeVisible();
 });

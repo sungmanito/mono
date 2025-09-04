@@ -44,7 +44,7 @@ export const actions = {
     if (!validateUserSession(session)) error(401);
     const formData = validateFormData(
       await request.formData(),
-      // eslint-disable-next-line quotes
+
       type({ 'invite-id': 'string', action: "'accept'|'delete'" }),
     );
 

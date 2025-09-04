@@ -3,22 +3,28 @@
   import Button from '$lib/components/button/button.svelte';
   import Drawerify from '$lib/components/drawerify/drawerify.svelte';
   import Header from '$lib/components/header/header.svelte';
-  import { makeShowDrawerUtil } from '$lib/util/drawer.svelte';
-  import { PencilIcon, PlusIcon, TrashIcon } from 'lucide-svelte';
-  import EditBillComponent from './[id=ulid]/edit/+page.svelte';
-  import CreateBillComponent from './create/+page.svelte';
   import Modal from '$lib/components/modal/modal.svelte';
+  import { makeShowDrawerUtil } from '$lib/util/drawer.svelte';
+  import { ordinalSuffix } from '$utils/numbers';
+  import { PencilIcon, PlusIcon, TrashIcon } from 'lucide-svelte';
   import type { Component } from 'svelte';
+  import CreateBillComponent from './create/+page.svelte';
+  import { hijackNav } from '$lib/attachments/hijack.svelte';
+  import ShowBillDetailsComponent from './edit/[ids=ulids]/+page.svelte';
+  import { invalidateAll, replaceState } from '$app/navigation';
+  import { useQueryClient } from '@tanstack/svelte-query';
 
   let { data } = $props();
 
   let deleteModalOpen = $state(false);
 
-  let selectedBill: (typeof data.bills)[number] | null = $state(null);
-  let validation = $state('');
+  let selectedBills: typeof data.bills = $state.raw([]);
 
   let createBillStore = makeShowDrawerUtil('/dashboard/bills/create');
   let editBillStore = makeShowDrawerUtil('/dashboard/bills');
+  let showBillDetailsStore = makeShowDrawerUtil('/dashboard/bills/:billId');
+
+  const queryClient = useQueryClient();
 
   /**
    * @description Fetches and loads the data for creating new bills for the given householdIds
@@ -35,20 +41,27 @@
 
   /**
    * @description Updates the edit bill data to show the editing drawer
-   * @param bill
+   * @param bills
    */
-  async function fetchEditBillData(bill: (typeof data.bills)[number]) {
-    if (bill.id === undefined) return;
+  async function fetchEditBillData(bills: typeof data.bills) {
+    if (bills.length === 0) return;
     editBillStore.show = true;
-    editBillStore.url = `/dashboard/bills/${bill.id}/edit`;
+    editBillStore.url = `/dashboard/bills/edit/${bills.map((b) => b.id).join(',')}`;
     history.pushState(null, '', editBillStore.url);
   }
 
-  $effect(() => {
-    if (editBillStore.show) {
-      history.pushState(null, '', editBillStore.url);
-    }
-  });
+  let byHousehold = $derived(
+    data.bills.reduce(
+      (acc, bill) => {
+        if (!acc[bill.householdName]) {
+          acc[bill.householdName] = [];
+        }
+        acc[bill.householdName].push(bill);
+        return acc;
+      },
+      {} as Record<string, (typeof data.bills)[number][]>,
+    ),
+  );
 </script>
 
 <svelte:head>
@@ -57,11 +70,11 @@
 
 <Drawerify
   bind:open={createBillStore.show}
-  onclose={() => {
-    createBillStore.url = '/dashboard/bills/create';
-    history.back();
-  }}
   url={createBillStore.url}
+  onclose={() => {
+    createBillStore.show = false;
+    replaceState('/dashboard/bills', {});
+  }}
   component={CreateBillComponent as Component<{
     data: unknown;
     component: boolean;
@@ -71,137 +84,212 @@
 
 <Drawerify
   bind:open={editBillStore.show}
-  onclose={() => {
-    history.back();
-  }}
   url={editBillStore.url}
-  component={EditBillComponent as Component<{
+  onclose={async () => {
+    editBillStore.show = false;
+    replaceState('/dashboard/bills', {});
+    selectedBills = [];
+    await queryClient.invalidateQueries({
+      queryKey: ['drawerify', editBillStore.url],
+    });
+    await invalidateAll();
+  }}
+  component={ShowBillDetailsComponent as Component<{
     data: unknown;
     component: boolean;
     onclose: () => void;
   }>}
 />
 
+<!-- We're using thisch instead of Modalify as I need to figure out a way to have the 
+ buttons on the page show up in the correct slots when used in component mode. -->
 <Modal
-  open={deleteModalOpen}
+  bind:open={deleteModalOpen}
   onclose={() => {
     deleteModalOpen = false;
-    validation = '';
-    selectedBill = null;
+    selectedBills = [];
   }}
   action="?/deleteBill"
-  submitFn={async () => {
-    // You can add custom logic here if needed after successful submit
-  }}
 >
   {#snippet header()}
-    Delete "{selectedBill?.billName}"?
+    Delete Bills?
   {/snippet}
-  {#snippet children({ close })}
-    <input type="hidden" name="bill-id" value={selectedBill?.id} />
-    <section>
-      <p>Are you sure you want to delete {selectedBill?.billName}?</p>
-      <p>Please type in &quot;delete&quot;</p>
-      <input type="text" class="input px-3 py-1 mt-3" bind:value={validation} />
-    </section>
-    <footer class="border-t pt-3 flex justify-end gap-2">
-      <button type="button" onclick={close} class="btn variant-outline btn-sm">
-        Close
-      </button>
-      <button
-        class="btn btn-sm variant-filled-primary"
-        disabled={validation !== 'delete'}
-      >
-        Submit
-      </button>
-    </footer>
+  {#snippet footer()}
+    <Button type="submit">Delete</Button>
   {/snippet}
+  {#each selectedBills as bill (bill.id)}
+    <input type="hidden" name="bill-id[]" value={bill.id} />
+  {/each}
+  <div class="max-w-72">
+    <p>
+      Are you sure you want to delete <strong>{selectedBills.length}</strong> bills?
+    </p>
+    <p>
+      This action cannot be undone, and will delete all payment history
+      associated with this bill.
+    </p>
+  </div>
 </Modal>
 
-<div class="@container mx-auto px-3 flex-grow">
-  <div class="@3xl:max-w-[75vw] mx-auto">
-    <Breadcrumb
-      class="my-4"
-      crumbs={[
-        {
-          link: 'Dashboard',
-          href: '/dashboard',
-        },
-        {
-          link: 'Bills',
-          href: '/dashboard/bills',
-        },
-      ]}
-    />
+<Drawerify
+  bind:open={showBillDetailsStore.show}
+  url={showBillDetailsStore.url}
+  onclose={() => {
+    showBillDetailsStore.show = false;
+    history.replaceState(null, '', '/dashboard/bills');
+  }}
+  component={ShowBillDetailsComponent as Component<{
+    data: unknown;
+    component: boolean;
+    onclose: () => void;
+  }>}
+/>
 
-    <Header class="mb-6">
-      Bills
-      {#snippet actions()}
-        <Button
-          class="flex gap-2 items-center"
-          onclick={() => fetchCreateBillData()}
+<div class="container mx-auto">
+  <Breadcrumb
+    class="mt-6 mb-4"
+    crumbs={[
+      { href: '/dashboard', link: 'Dashboard' },
+      { href: '/dashboard/bills', link: 'Bills' },
+    ]}
+  />
+  <Header tagClasses="mb-6">
+    Bills
+    {#snippet actions()}
+      <Button
+        variant="destructive"
+        disabled={selectedBills.length === 0}
+        onclick={() => {
+          // Open the delete modal and set the selected bills to be deleted
+          deleteModalOpen = true;
+        }}
+        aria-label="Delete selected bills"
+      >
+        <TrashIcon size="1rem" />
+      </Button>
+      <Button
+        variant="secondary"
+        size="sm"
+        onclick={() => fetchEditBillData(selectedBills)}
+        disabled={selectedBills.length === 0}
+        aria-label="Edit selected bills"
+      >
+        <PencilIcon size="1rem" />
+      </Button>
+      <Button variant="primary" size="sm" onclick={() => fetchCreateBillData()}>
+        <PlusIcon size="1rem" class="mr-2" />
+        New Bill
+      </Button>
+    {/snippet}
+  </Header>
+  <div>
+    {#each Object.entries(byHousehold) as [householdName, bills]}
+      <Header tag="h3" class="mt-8 mb-4">
+        {#snippet actions()}
+          {@const isIndeterminate = (() => {
+            const selectedBillsSet = new Set(selectedBills);
+            const theseBills = new Set(bills);
+            const difference = theseBills.difference(selectedBillsSet);
+            const intersection = selectedBillsSet.intersection(theseBills);
+            return (
+              intersection.size > 0 &&
+              selectedBillsSet.size > 0 &&
+              difference.size > 0
+            );
+          })()}
+          {@const checked = bills.every((bill) => selectedBills.includes(bill))}
+          <input
+            type="checkbox"
+            class="checkbox"
+            onchange={() => {
+              const selectedBillsSet = new Set(selectedBills);
+              const theseBills = new Set(bills);
+              const diff = theseBills.difference(selectedBillsSet);
+              if (diff.size === 0) {
+                // All bills are selected, so we need to deselect them
+                bills.forEach((bill) => selectedBillsSet.delete(bill));
+              } else {
+                // Some or none of the bills are selected, so we need to select them
+                diff.forEach((bill) => selectedBillsSet.add(bill));
+              }
+              selectedBills = Array.from(selectedBillsSet);
+            }}
+            indeterminate={isIndeterminate}
+            {checked}
+          />
+        {/snippet}
+
+        {householdName}
+      </Header>
+      {#each bills as bill (bill.id)}
+        <div
+          class="p-5 ml-8 mt-6 rounded-lg variant-filled-surface outline-orange-400"
+          role="listitem"
+          aria-label={bill.billName}
         >
-          <PlusIcon size="0.9em" />
-          Add
-        </Button>
-      {/snippet}
-    </Header>
+          <Header tag="h4" color="secondary">
+            <a
+              href={`/dashboard/bills/${bill.id}`}
+              {@attach hijackNav({
+                store: showBillDetailsStore,
+                onclick: (e) => e.preventDefault(),
+              })}
+            >
+              {bill.billName}
+            </a>
 
-    <!-- TODO: Fancy todo table -->
-    <table class="table table-compact table-hover">
-      <thead>
-        <tr>
-          <th> Bill name </th>
-          <th> Due date </th>
-          <th> Household </th>
-          <th> Actions </th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each data.bills as bill}
-          <tr>
-            <td>
-              <a
-                href={`/dashboard/bills/${bill.id}`}
-                class="link link-primary underline"
-              >
-                {bill.billName}
-              </a>
-              &ndash; <small>({bill.id})</small>
-            </td>
-            <td>
-              {bill.dueDate}
-            </td>
-            <td>
-              {bill.householdName}
-            </td>
-            <td>
-              <div class="flex gap-2">
-                <button
-                  class="btn-icon btn-icon-sm variant-filled-secondary"
-                  title={`Edit Bill ${bill.billName}`}
-                  onclick={() => {
-                    fetchEditBillData(bill);
-                  }}
-                >
-                  <PencilIcon size="1em" />
-                </button>
-
-                <button
-                  class="btn-icon btn-icon-sm variant-filled-secondary"
-                  title={`Delete bill ${bill.billName}`}
-                  onclick={() => {
-                    selectedBill = bill;
-                    deleteModalOpen = true;
-                  }}
-                >
-                  <TrashIcon size="1em" />
-                </button>
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
+            {#snippet actions()}
+              <input
+                class="checkbox"
+                type="checkbox"
+                value={bill.id}
+                onchange={() => {
+                  const set = new Set(selectedBills);
+                  if (set.has(bill)) {
+                    set.delete(bill);
+                  } else {
+                    set.add(bill);
+                  }
+                  selectedBills = Array.from(set);
+                }}
+                checked={selectedBills.includes(bill)}
+                aria-label={`Select ${bill.billName}`}
+              />
+            {/snippet}
+          </Header>
+          <p class="text-sm text-secondary-foreground">
+            {bill.householdName} &ndash; {bill.dueDate}{ordinalSuffix(
+              bill.dueDate,
+            )}
+          </p>
+          <footer class="mt-4">
+            <Button
+              variant="destructive:ghost"
+              size="sm"
+              onclick={() => {
+                selectedBills = [bill];
+                deleteModalOpen = true;
+              }}
+              aria-label="Delete"
+            >
+              <TrashIcon size="1rem" />
+            </Button>
+            <Button
+              variant="custom"
+              class="variant-ghost-tertiary"
+              size="sm"
+              aria-label="Edit"
+              type="button"
+              onclick={() => {
+                selectedBills = [bill];
+                fetchEditBillData(selectedBills);
+              }}
+            >
+              <PencilIcon size="1rem" />
+            </Button>
+          </footer>
+        </div>
+      {/each}
+    {/each}
   </div>
 </div>

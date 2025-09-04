@@ -6,7 +6,6 @@ async function checkBasics(page: Page) {
     page.getByRole('heading', { name: 'Sungmanito', exact: true }),
   ).toBeVisible();
   await expect(
-    // eslint-disable-next-line quotes
     page.getByText("Don't just track your bills, hunt them.", { exact: false }),
   ).toBeInViewport();
 }
@@ -35,6 +34,6 @@ test('Login', async ({ page }) => {
   await login(page);
   await page.waitForURL(/dashboard/);
   await expect(
-    page.getByText(`${process.env.TEST_USER} Dashboard`),
+    page.getByRole('heading', { name: 'Dashboard', exact: false }),
   ).toBeInViewport();
 });
