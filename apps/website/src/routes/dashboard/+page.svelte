@@ -354,7 +354,7 @@
             class="w-full mb-3 py-2 rounded-xl bg-red-100 text-red-700 font-semibold flex items-center gap-2 justify-center"
             onclick={() => {
               const ids = data.groupings.past
-                .map((bill) => `payments[]=${bill.payment.id}`)
+                .map((bill) => `payments[]=${bill.payment?.id}`)
                 .join('&');
               console.info(ids);
               makeMultiplePayments.url = `/dashboard/payments/create?${ids}`;

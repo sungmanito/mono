@@ -25,7 +25,6 @@
   import Dropzone from '$components/dropzone/dropzone.svelte';
   import FormLabel from '$components/formLabel/formLabel.svelte';
   import Header from '$components/header/header.svelte';
-  import Modalify from '$components/modalify/modalify.svelte';
   import Button from '$lib/components/button/button.svelte';
   import Drawer from '$lib/components/drawer/drawer.svelte';
   import Expandable from '$lib/components/expandable/expandable.svelte';
@@ -35,7 +34,6 @@
   import { createQueries } from '@tanstack/svelte-query';
   import { SvelteMap } from 'svelte/reactivity';
   import BillDetails from '../../bills/[id=ulid]/+page.svelte';
-  import DeleteBillPage from '../../bills/[id=ulid]/delete/+page.svelte';
   import CreateBillPage from '../../bills/create/+page.svelte';
   import EditBillPage from '../../bills/[id=ulid]/edit/+page.svelte';
   import type { PageData as CreatePaymentData } from '../../payments/create/[id=ulid]/$types';
@@ -65,9 +63,6 @@
     editHousehold.url = `/dashboard/household/${householdId}/edit`;
     editHousehold.show = true;
   }
-
-  let showDeleteBill = $state(false);
-  let deleteBillId = $state('');
 
   let showDelete = $state(false);
 
@@ -281,27 +276,6 @@
     </form>
   {/snippet}
 </Drawer>
-
-<Modalify
-  bind:open={showDeleteBill}
-  url={`/dashboard/bills/${deleteBillId}/delete`}
-  component={DeleteBillPage}
-  onclose={() => (showDeleteBill = false)}
->
-  {#snippet header({ data })}
-    Delete Bill
-    {#await data?.bill}
-      <Loader2 size="1em" />
-    {:then billData}
-      {#if billData}
-        &ndash; {billData.billName}
-      {/if}
-    {/await}
-  {/snippet}
-  {#snippet footer()}
-    &nbsp;
-  {/snippet}
-</Modalify>
 
 <Drawerify
   bind:open={showCreateBill}

@@ -89,6 +89,6 @@ export async function getUserBills(userId: string) {
         ),
       )
       // Some ordering to more normalize the results.
-      .orderBy(schema.households.name, schema.bills.dueDate)
+      .orderBy(schema.bills.dueDate)
   );
 }

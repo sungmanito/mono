@@ -176,7 +176,7 @@
                 onclick={(e) => {
                   e.preventDefault();
                   // @ts-expect-error can't turn this shit off rn
-                  // eslint-disable-next-line
+
                   pushState(e.target.href, {});
                   showPaymentDetails(payment.id);
                 }}

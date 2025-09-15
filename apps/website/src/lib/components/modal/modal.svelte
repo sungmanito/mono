@@ -75,7 +75,7 @@
       }
 
       invalidateAll();
-      e.currentTarget.reset();
+      e.currentTarget?.reset();
       onclose();
     }
   }

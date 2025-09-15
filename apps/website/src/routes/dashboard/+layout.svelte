@@ -18,9 +18,10 @@
     ReceiptIcon,
     Users2Icon,
   } from 'lucide-svelte';
-
   import { storePopup } from '@skeletonlabs/skeleton';
+
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
+  let { children } = $props();
 </script>
 
 <QueryClientProvider client={queryClient}>
@@ -91,7 +92,7 @@
           </div>
         </div>
       {/snippet}
-      <slot />
+      {@render children()}
     </svelte:boundary>
   </div>
 </QueryClientProvider>

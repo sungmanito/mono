@@ -249,7 +249,7 @@ export const actions = {
           session,
         );
         console.info(res);
-      } catch (e) {
+      } catch {
         tx.rollback();
       }
     });

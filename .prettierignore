@@ -1,2 +1,4 @@
 **/*.{yaml,yml}
 pnpm-lock.yaml
+*.js
+*.json

@@ -3,9 +3,9 @@ import {
   type BillInsertArgs,
 } from '$lib/server/actions/bills.actions.js';
 import { db } from '$lib/server/db';
-import { exportedSchema } from '@sungmanito/db';
-import { validateFormData } from '@jhecht/arktype-utils';
 import { validateUserSession } from '$lib/util/session.js';
+import { validateFormData } from '@jhecht/arktype-utils';
+import { exportedSchema } from '@sungmanito/db';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { scope, type } from 'arktype';
 import { and, eq, inArray } from 'drizzle-orm';
@@ -171,15 +171,62 @@ export const actions = {
     const data = validateFormData(
       await request.formData(),
       type({
-        'bill-id': 'string',
+        'bill-id': 'string[]',
       }),
     );
+
+    const billIds = [...new Set(data['bill-id'])];
+    if (billIds.length === 0)
+      return fail(400, { message: 'No bill ids provided' });
 
     const [deleted] = await db
       .delete(exportedSchema.bills)
       .where(
         and(
-          eq(exportedSchema.bills.id, data['bill-id']),
+          inArray(exportedSchema.bills.id, billIds),
+          inArray(
+            exportedSchema.bills.householdId,
+            locals.userHouseholds.map((h) => h.households.id),
+          ),
+        ),
+      )
+      .returning();
+    if (!deleted) error(400, 'Bill not found');
+
+    return {
+      bill: deleted,
+    };
+  },
+  deleteMultipleBills: async ({ request, locals }) => {
+    const session = await locals.getSession();
+
+    if (!validateUserSession(session)) error(401);
+
+    const data = validateFormData(
+      await request.formData(),
+      type({
+        'bill-ids': 'string[]',
+      }),
+    );
+
+    // Normalize and validate billIds: ensure array of non-empty strings, dedupe, fail if empty
+    let billIds = data['bill-ids'];
+    if (!Array.isArray(billIds)) billIds = [billIds];
+    billIds = billIds
+      .map((id) => (typeof id === 'string' ? id.trim() : ''))
+      .filter((id) => id.length > 0);
+
+    billIds = Array.from(new Set(billIds));
+
+    if (billIds.length === 0) {
+      return fail(400, { message: 'No valid bill ids provided' });
+    }
+
+    const deletedBills = await db
+      .delete(exportedSchema.bills)
+      .where(
+        and(
+          inArray(exportedSchema.bills.id, billIds),
           inArray(
             exportedSchema.bills.householdId,
             locals.userHouseholds.map((h) => h.households.id),
@@ -188,10 +235,9 @@ export const actions = {
       )
       .returning();
 
-    if (!deleted) error(400, 'Bill not found');
-
     return {
-      bill: deleted,
+      deletedBills,
+      deletedCount: deletedBills.length,
     };
   },
 };

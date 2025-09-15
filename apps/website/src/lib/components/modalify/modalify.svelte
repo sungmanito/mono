@@ -1,6 +1,5 @@
 <script lang="ts" module>
   export interface ModalifyProps<
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     Data,
     T extends { data: unknown; component: boolean; onclose: () => void },
   > {
