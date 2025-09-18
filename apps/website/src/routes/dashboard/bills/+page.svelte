@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { invalidateAll, replaceState } from '$app/navigation';
+  import { hijackNav } from '$lib/attachments/hijack.svelte';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import Button from '$lib/components/button/button.svelte';
   import Drawerify from '$lib/components/drawerify/drawerify.svelte';
@@ -6,13 +8,11 @@
   import Modal from '$lib/components/modal/modal.svelte';
   import { makeShowDrawerUtil } from '$lib/util/drawer.svelte';
   import { ordinalSuffix } from '$utils/numbers';
+  import { useQueryClient } from '@tanstack/svelte-query';
   import { PencilIcon, PlusIcon, TrashIcon } from 'lucide-svelte';
   import type { Component } from 'svelte';
   import CreateBillComponent from './create/+page.svelte';
-  import { hijackNav } from '$lib/attachments/hijack.svelte';
   import ShowBillDetailsComponent from './edit/[ids=ulids]/+page.svelte';
-  import { invalidateAll, replaceState } from '$app/navigation';
-  import { useQueryClient } from '@tanstack/svelte-query';
 
   let { data } = $props();
 

@@ -4,6 +4,7 @@ import { validateFormData } from '@jhecht/arktype-utils';
 import { redirect } from '@sveltejs/kit';
 import { type } from 'arktype';
 import { and, eq, sql, getTableColumns, asc } from 'drizzle-orm';
+import { getUserHouseholdBills } from '$lib/remotes/dashboard.remote.js';
 
 export const load = async ({ locals, depends }) => {
   const session = await locals.getSession();
@@ -14,41 +15,6 @@ export const load = async ({ locals, depends }) => {
 
   depends('household:payments');
   depends('household:bills');
-
-  const today = new Date();
-
-  const fuckers = db
-    .select({
-      ...getTableColumns(schema.bills),
-      householdName: schema.households.name,
-      status: sql<
-        'overdue' | 'upcoming' | 'paid'
-      >`case when ${schema.payments.paidAt} is not null then 'paid'::text when ${schema.bills.dueDate} < ${today.getDate()} then 'overdue'::text else 'upcoming'::text end`,
-      payment: schema.payments,
-    })
-    .from(schema.bills)
-    .innerJoin(
-      schema.households,
-      eq(schema.bills.householdId, schema.households.id),
-    )
-    .innerJoin(
-      schema.usersToHouseholds,
-      and(
-        eq(schema.usersToHouseholds.userId, session.user.id),
-        eq(schema.usersToHouseholds.householdId, schema.households.id),
-      ),
-    )
-    .leftJoin(
-      schema.payments,
-      and(
-        eq(
-          sql`extract('month' from ${schema.payments.forMonthD})`,
-          today.getMonth() + 1,
-        ),
-        eq(schema.payments.billId, schema.bills.id),
-      ),
-    )
-    .orderBy(asc(schema.bills.dueDate));
 
   const userHouseholds = await db
     .select({
@@ -71,8 +37,7 @@ export const load = async ({ locals, depends }) => {
 
   return {
     households: userHouseholds,
-    fuckers,
-    groupings: await fuckers.then((bills) =>
+    groupings: await getUserHouseholdBills().then((bills) =>
       bills.reduce(
         (acc, bill) => {
           if (bill.status === 'paid') {

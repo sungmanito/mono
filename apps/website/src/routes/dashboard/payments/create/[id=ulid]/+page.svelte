@@ -1,15 +1,14 @@
 <script lang="ts">
-  import { getToastStore } from '@skeletonlabs/skeleton';
   import Button from '$lib/components/button/button.svelte';
+  import Dropzone from '$lib/components/dropzone/dropzone.svelte';
   import FormLabel from '$lib/components/formLabel/formLabel.svelte';
   import Header from '$lib/components/header/header.svelte';
   import MonthDropdown from '$lib/components/monthDropdown/monthDropdown.svelte';
-  import { FileDownIcon, XIcon } from 'lucide-svelte';
-  import Dropzone from '$lib/components/dropzone/dropzone.svelte';
-  import { enhance } from '$app/forms';
-  import { goto, invalidate } from '$app/navigation';
-  import type { PageData } from './$types';
+  import { uploadImage } from '$lib/remotes/payments.remote';
   import type { ModalifyPage } from '$lib/util/page';
+  import { getToastStore } from '@skeletonlabs/skeleton';
+  import { FileDownIcon, XIcon } from 'lucide-svelte';
+  import type { PageData } from './$types';
 
   let {
     data,
@@ -27,26 +26,15 @@
 
 <form
   class="p-6"
-  action="/dashboard/payments?/updatePayment"
-  method="post"
   enctype="multipart/form-data"
-  use:enhance={({ formData }) => {
-    if (file !== null) formData.set('proof-file', file);
-
-    return async ({ formElement, result }) => {
-      if (result.type === 'success') {
-        formElement.reset();
-        await invalidate('household:payments');
-        if (component) onclose();
-        else goto('/dashboard/payments');
-      } else {
-        toastStore.trigger({
-          message: 'Error saving payment, please try again later',
-          background: 'variant-filled-error',
-        });
-      }
-    };
-  }}
+  {...uploadImage.enhance(async ({ submit }) => {
+    try {
+      await submit();
+      onclose();
+    } catch (e) {
+      console.error(e);
+    }
+  })}
 >
   <Header>
     Add payment info
@@ -59,15 +47,14 @@
     {/snippet}
   </Header>
   <div class="form-layout mt-8">
-    <input type="hidden" name="payment-id" value={data.payment.id} />
     <input type="hidden" name="paymentId" value={data.payment.id} />
-    <input type="hidden" name="household-id" value={data.payment.householdId} />
+    <input type="hidden" name="householdId" value={data.payment.householdId} />
     <div>
       <FormLabel label="Bill:">
         <input
           class="input"
           type="text"
-          name="bill-name"
+          name="billName"
           readonly
           disabled
           value={data.payment.billName}
@@ -87,7 +74,7 @@
     <div>
       <FormLabel label="Proof (optional):">
         <Dropzone
-          name="proof-file"
+          name="proofFile"
           ondrop={(e, detail) => {
             if (detail.length > 1) {
               toastStore.trigger({

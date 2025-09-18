@@ -31,19 +31,17 @@
     loading,
   }: DrawerifyProps<Data, T> = $props();
 
-  const query = $derived(
-    createQuery({
-      queryKey: ['drawerify', url],
-      queryFn: async () => {
-        const response = await preloadData(url);
-        if (response.type === 'loaded' && response.status === 200) {
-          return response.data as Data;
-        }
-      },
-      staleTime: 5000,
-      enabled: open,
-    }),
-  );
+  const query = createQuery(() => ({
+    queryKey: ['drawerify', url],
+    queryFn: async () => {
+      const response = await preloadData(url);
+      if (response.type === 'loaded' && response.status === 200) {
+        return response.data as Data;
+      }
+    },
+    staleTime: 5000,
+    enabled: open,
+  }));
 </script>
 
 <Drawer
@@ -56,7 +54,7 @@
   aria-atomic="true"
 >
   {#snippet children({ close: closeDrawer })}
-    {#if $query.isLoading || !$query.isSuccess}
+    {#if query.isLoading || !query.isSuccess}
       {#if loading}
         {@render loading()}
       {:else}
@@ -67,7 +65,7 @@
     {:else}
       {@const Component = component}
       <Component
-        data={$query.data || {}}
+        data={query.data || {}}
         onclose={closeDrawer}
         component={true}
       />

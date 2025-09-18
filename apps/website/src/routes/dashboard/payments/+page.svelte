@@ -1,13 +1,14 @@
 <script lang="ts">
-  import { enhance } from '$app/forms';
   import Drawerify from '$components/drawerify/drawerify.svelte';
   import Breadcrumb from '$lib/components/breadcrumb/breadcrumb.svelte';
   import Header from '$lib/components/header/header.svelte';
+  import {
+    getCurrentPayments,
+    togglePayment,
+  } from '$lib/remotes/payments.remote';
   import { CheckIcon } from 'lucide-svelte';
   import PaymentDetails from './[id=ulid]/+page.svelte';
   import CreatePaymentPage from './create/[id=ulid]/+page.svelte';
-
-  let { data } = $props();
 
   async function showModal(paymentId: string) {
     showMakePaymentModal = true;
@@ -69,73 +70,79 @@
   </p>
 
   <div class="flex flex-col gap-3 mt-4" role="list">
-    {#each data.payments as payment}
-      <div
-        role="listitem"
-        class="card"
-        class:variant-outline-success={payment.paidAt !== null}
-      >
-        <header class="card-header">
-          <Header tag="h5" color="secondary">
-            <div class="flex gap-3 items-baseline">
-              {#if payment.paidAt !== null}
-                <CheckIcon size="1em" />
-              {/if}
-              <div>
-                <a
-                  href={`/dashboard/payments/${payment.id}`}
-                  onclick={(e) => {
-                    e.preventDefault();
-                    detailsModalUrl = `/dashboard/payments/${payment.id}`;
-                    detailsModalOpen = true;
-                    paymentDetailsOpen();
-                  }}
-                >
-                  {payment.billName}
-                </a>
-              </div>
-            </div>
-            {#snippet actions()}
-              {#if payment.paidAt === null}
-                <button
-                  class="btn btn-sm variant-outline-primary"
-                  type="button"
-                  onclick={() => {
-                    showModal(payment.id);
-                  }}
-                >
-                  Mark as paid
-                </button>
-              {:else}
-                <form action="?/unpayBill" method="post" use:enhance>
-                  <input name="paymentId" type="hidden" value={payment.id} />
-                  <button class="btn btn-sm variant-outline-secondary">
-                    Unmark as paid
+    <svelte:boundary>
+      {#snippet pending()}
+        {#each Array(5)}
+          <div class="card animate-pulse h-16">&nbsp;</div>
+        {/each}
+      {/snippet}
+      {#each await getCurrentPayments() as payment}
+        {@const paymentForm = togglePayment.for(payment.id)}
+        <form {...paymentForm}>
+          <div class="card" role="listitem">
+            <header class="card-header">
+              <Header tag="h5" color="secondary">
+                <div class="flex gap-3 items-baseline">
+                  {#if payment.paidAt !== null}
+                    <CheckIcon size="1em" />
+                  {/if}
+                  <div>
+                    <a
+                      href={`/dashboard/payments/${payment.id}`}
+                      onclick={(e) => {
+                        e.preventDefault();
+                        detailsModalUrl = `/dashboard/payments/${payment.id}`;
+                        detailsModalOpen = true;
+                        paymentDetailsOpen();
+                      }}
+                    >
+                      {payment.billName}
+                    </a>
+                  </div>
+                </div>
+                {#snippet actions()}
+                  <button
+                    class={[
+                      'btn btn-sm ',
+                      {
+                        'variant-outline-primary': payment.paidAt !== null,
+                        'variant-outline-secondary': payment.paidAt === null,
+                      },
+                    ]}
+                    type="submit"
+                    name="paymentId"
+                    value={payment.id}
+                    disabled={paymentForm.pending > 0}
+                  >
+                    {#if payment.paidAt === null}
+                      Mark as paid
+                    {:else}
+                      Unmark as paid
+                    {/if}
                   </button>
-                </form>
+                {/snippet}
+              </Header>
+            </header>
+            <section class="p-3">
+              {#if payment.paidAt !== null}
+                <strong>
+                  Paid {payment.paidAt.toLocaleString(undefined, {
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    hour12: true,
+                    minute: '2-digit',
+                  })}
+                </strong>
+              {:else}
+                <em>Waiting for payment...</em>
               {/if}
-            {/snippet}
-          </Header>
-        </header>
-
-        <section class="p-3">
-          {#if payment.paidAt !== null}
-            <strong>
-              Paid {payment.paidAt.toLocaleString(undefined, {
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                hour12: true,
-                minute: '2-digit',
-              })}
-            </strong>
-          {:else}
-            <em>Waiting for payment...</em>
-          {/if}
-        </section>
-      </div>
-    {:else}
-      <em>No Payments available</em>
-    {/each}
+            </section>
+          </div>
+        </form>
+      {:else}
+        <em>No Payments available</em>
+      {/each}
+    </svelte:boundary>
   </div>
 </div>

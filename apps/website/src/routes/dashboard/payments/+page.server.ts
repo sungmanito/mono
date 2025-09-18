@@ -1,5 +1,4 @@
 import { PAYMENT_BUCKET_NAME } from '$env/static/private';
-import { getUserHouseholds } from '$lib/server/actions/households.actions.js';
 import {
   getImageId,
   removeImageById,
@@ -16,54 +15,9 @@ import { db } from '$lib/server/db/client.js';
 import { validateUserSession } from '$lib/util/session.js';
 import { validateFormData } from '@jhecht/arktype-utils';
 import { exportedSchema as schema } from '@sungmanito/db';
-import { error, fail, redirect } from '@sveltejs/kit';
+import { error, fail } from '@sveltejs/kit';
 import { type } from 'arktype';
-import { and, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
-
-export const load = async ({ locals, depends }) => {
-  const today = new Date();
-  const session = await locals.getSession();
-  depends('household:payments');
-
-  if (!validateUserSession(session)) {
-    redirect(300, '/login');
-  }
-
-  const households = await getUserHouseholds(session.user.id);
-
-  const payments = await db
-    .select({
-      ...getTableColumns(schema.payments),
-      billName: schema.bills.billName,
-      household: schema.households,
-    })
-    .from(schema.payments)
-    .innerJoin(
-      schema.bills,
-      and(
-        eq(schema.bills.id, schema.payments.billId),
-        inArray(
-          schema.bills.householdId,
-          households.map((h) => h.households.id),
-        ),
-      ),
-    )
-    .innerJoin(
-      schema.households,
-      eq(schema.households.id, schema.payments.householdId),
-    )
-    .where(
-      eq(
-        sql`extract('month' from ${schema.payments.forMonthD})`,
-        today.getMonth() + 1,
-      ),
-    )
-    .orderBy(schema.payments.forMonthD);
-
-  return {
-    payments,
-  };
-};
+import { and, eq, inArray } from 'drizzle-orm';
 
 export const actions = {
   updatePayment: async ({ locals, request }) => {
