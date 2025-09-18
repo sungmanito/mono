@@ -15,6 +15,7 @@
   import CreatePaymentsComponent from './payments/create/+page.svelte';
   import { hijack } from '$lib/attachments/hijack.svelte';
   import { ClockAlertIcon } from 'lucide-svelte';
+  import { getUserHouseholdBills } from '$lib/remotes/dashboard.remote';
 
   let { data } = $props();
 
@@ -36,6 +37,8 @@
       el.removeEventListener('click', listener, false);
     };
   };
+
+  $inspect(data.groupings);
 
   let summary = $derived([
     {
@@ -64,20 +67,17 @@
     },
   ]);
 
-  let billsWithStatus = $derived(
-    createQuery({
-      queryKey: ['fuckers'],
-      queryFn: async () => {
-        // Simulate fetching data
-        const da = await data.fuckers;
-        return da;
-      },
-      staleTime: 1000 * 60 * 5, // 5 minutes
-    }),
-  );
+  let billsWithStatus = createQuery(() => ({
+    queryKey: ['fuckers'],
+    queryFn: async () => {
+      // Simulate fetching data
+      return getUserHouseholdBills();
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  }));
 
   const totalOutstanding = $derived(
-    $billsWithStatus.data
+    billsWithStatus.data
       ?.filter((p) => p.payment === null || p.payment?.paidAt === null)
       .reduce((acc, bill) => acc + bill.amount, 0),
   );
@@ -85,14 +85,14 @@
   let filter: 'all' | 'overdue' | 'paid' = $state('all');
 
   let filteredBills = $derived.by(() => {
-    if (!$billsWithStatus.isSuccess)
-      return [] as NonNullable<typeof $billsWithStatus.data>;
-    if (filter === 'all') return $billsWithStatus.data;
+    if (!billsWithStatus.isSuccess)
+      return [] as NonNullable<typeof billsWithStatus.data>;
+    if (filter === 'all') return billsWithStatus.data;
     if (filter === 'overdue') {
-      return $billsWithStatus.data.filter((bill) => bill.status === 'overdue');
+      return billsWithStatus.data.filter((bill) => bill.status === 'overdue');
     }
     if (filter === 'paid') {
-      return $billsWithStatus.data.filter((bill) => bill.status === 'paid');
+      return billsWithStatus.data.filter((bill) => bill.status === 'paid');
     }
   });
 </script>
@@ -203,12 +203,12 @@
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-2xl font-bold text-surface-800-100">Recent Bills</h2>
           <div class="flex gap-3">
-            {#if $billsWithStatus.isStale}
+            {#if billsWithStatus.isStale}
               <Button
                 class="btn-sm bg-gradient-to-r variant-gradient-tertiary-secondary rounded-lg"
                 onclick={async () => {
                   await invalidateAll();
-                  $billsWithStatus.refetch();
+                  billsWithStatus.refetch();
                 }}
               >
                 Refresh
@@ -259,7 +259,7 @@
           </div>
         </div>
         <div class="flex flex-col gap-4" role="list">
-          {#if $billsWithStatus.isSuccess}
+          {#if billsWithStatus.isSuccess}
             {#each filteredBills ?? [] as bill}
               <div
                 class="flex items-center justify-between rounded-xl bg-surface-300 p-4 shadow border border-gray-100 transition-transform hover:translate-x-2"
@@ -314,8 +314,10 @@
                   </div>
                 </div>
               </div>
+            {:else}
+              <p>There are no bills that match this filter</p>
             {/each}
-          {:else if $billsWithStatus.isLoading}
+          {:else if billsWithStatus.isLoading}
             <div class="placeholder">&nbsp;</div>
           {/if}
         </div>
