@@ -10,6 +10,27 @@ import { and, desc, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import { getUser, getUserHouseholds } from './common.remote';
 import { getImageIdByPath } from './images.remote';
 
+export const getCurrentPaymentsByHousehold = query(async () => {
+  const payments = await getCurrentPayments();
+  const grouped: Record<string, { name: string; payments: typeof payments }> =
+    payments.reduce(
+      (acc, payment) => {
+        if (!acc[payment.householdId]) {
+          acc[payment.householdId] = {
+            name: payment.household.name,
+            payments: [],
+          };
+        }
+
+        acc[payment.householdId].payments.push(payment);
+
+        return acc;
+      },
+      {} as Record<string, { name: string; payments: typeof payments }>,
+    );
+  return grouped;
+});
+
 export const getCurrentPayments = query(async () => {
   const userHouseholds = await getUserHouseholds();
   await new Promise((r) => setTimeout(r, 1500)); // artificial delay for demo purposes
@@ -34,6 +55,10 @@ export const getCurrentPayments = query(async () => {
         eq(
           sql`extract('month' from ${schema.payments.forMonthD})`,
           new Date().getMonth() + 1,
+        ),
+        eq(
+          sql`extract(YEAR from ${schema.payments.forMonthD})`,
+          sql`extract(YEAR from now())`,
         ),
       ),
     )

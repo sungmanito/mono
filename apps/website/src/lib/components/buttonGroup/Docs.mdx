@@ -1,0 +1,28 @@
+import {
+  Canvas,
+  Meta,
+  Heading,
+  extractTitle,
+} from '@storybook/addon-docs/blocks';
+import * as CheckboxStories from './buttonGroup.stories.svelte';
+
+<Meta of={CheckboxStories} />
+
+# ButtonGroups
+
+Button Groups are a common UI trend where multiple options are used, and
+selected state is shared between the given options.
+
+{
+CheckboxStories.\_\_namedExportsOrder.map(key => (
+
+<>
+<Heading >
+{extractTitle(key)}
+</Heading>
+
+      <Canvas of={CheckboxStories[key]} />
+    </>
+
+))
+}

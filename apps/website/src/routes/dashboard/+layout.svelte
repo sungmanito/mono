@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { queryClient } from '$lib/client/svelte-query';
+  import { dev } from '$app/environment';
   import {
     arrow,
     autoUpdate,
@@ -72,7 +73,7 @@
         </AppRailAnchor>
       </AppRail>
     </aside>
-    <svelte:boundary>
+    <svelte:boundary onerror={(e) => console.error(e)}>
       {#snippet pending()}
         Loading...
       {/snippet}
@@ -83,6 +84,11 @@
               We've encountered an error while switching pages. Please wait a
               second and click the reset button to try again.
               <p>We are actively working to resolve this problem.</p>
+              {#if dev}
+                <p>
+                  {JSON.stringify(_.message, null, 2)}
+                </p>
+              {/if}
             </div>
             <div class="alert-actions">
               <button class="btn variant-filled-error" onclick={reset}>
