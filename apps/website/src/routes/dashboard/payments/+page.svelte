@@ -4,6 +4,7 @@
   import Header from '$lib/components/header/header.svelte';
   import {
     getCurrentPayments,
+    getCurrentPaymentsByHousehold,
     togglePayment,
   } from '$lib/remotes/payments.remote';
   import { CheckIcon } from 'lucide-svelte';
@@ -76,72 +77,77 @@
           <div class="card animate-pulse h-16">&nbsp;</div>
         {/each}
       {/snippet}
-      {#each await getCurrentPayments() as payment}
-        {@const paymentForm = togglePayment.for(payment.id)}
-        <form {...paymentForm}>
-          <div class="card" role="listitem">
-            <header class="card-header">
-              <Header tag="h5" color="secondary">
-                <div class="flex gap-3 items-baseline">
-                  {#if payment.paidAt !== null}
-                    <CheckIcon size="1em" />
-                  {/if}
-                  <div>
-                    <a
-                      href={`/dashboard/payments/${payment.id}`}
-                      onclick={(e) => {
-                        e.preventDefault();
-                        detailsModalUrl = `/dashboard/payments/${payment.id}`;
-                        detailsModalOpen = true;
-                        paymentDetailsOpen();
-                      }}
-                    >
-                      {payment.billName}
-                    </a>
-                  </div>
-                </div>
-                {#snippet actions()}
-                  <button
-                    class={[
-                      'btn btn-sm ',
-                      {
-                        'variant-outline-primary': payment.paidAt !== null,
-                        'variant-outline-secondary': payment.paidAt === null,
-                      },
-                    ]}
-                    type="submit"
-                    name="paymentId"
-                    value={payment.id}
-                    disabled={paymentForm.pending > 0}
-                  >
-                    {#if payment.paidAt === null}
-                      Mark as paid
-                    {:else}
-                      Unmark as paid
+      {#each Object.values(await getCurrentPaymentsByHousehold()) as { name, payments }}
+        <Header tag="h3" color="secondary" class="mt-6 mb-2">
+          {name}
+        </Header>
+        {#each payments as payment}
+          {@const paymentForm = togglePayment.for(payment.id)}
+          <form {...paymentForm}>
+            <div class="card" role="listitem">
+              <header class="card-header">
+                <Header tag="h5" color="secondary">
+                  <div class="flex gap-3 items-baseline">
+                    {#if payment.paidAt !== null}
+                      <CheckIcon size="1em" />
                     {/if}
-                  </button>
-                {/snippet}
-              </Header>
-            </header>
-            <section class="p-3">
-              {#if payment.paidAt !== null}
-                <strong>
-                  Paid {payment.paidAt.toLocaleString(undefined, {
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    hour12: true,
-                    minute: '2-digit',
-                  })}
-                </strong>
-              {:else}
-                <em>Waiting for payment...</em>
-              {/if}
-            </section>
-          </div>
-        </form>
-      {:else}
-        <em>No Payments available</em>
+                    <div>
+                      <a
+                        href={`/dashboard/payments/${payment.id}`}
+                        onclick={(e) => {
+                          e.preventDefault();
+                          detailsModalUrl = `/dashboard/payments/${payment.id}`;
+                          detailsModalOpen = true;
+                          paymentDetailsOpen();
+                        }}
+                      >
+                        {payment.billName}
+                      </a>
+                    </div>
+                  </div>
+                  {#snippet actions()}
+                    <button
+                      class={[
+                        'btn btn-sm ',
+                        {
+                          'variant-outline-primary': payment.paidAt !== null,
+                          'variant-outline-secondary': payment.paidAt === null,
+                        },
+                      ]}
+                      type="submit"
+                      name="paymentId"
+                      value={payment.id}
+                      disabled={paymentForm.pending > 0}
+                    >
+                      {#if payment.paidAt === null}
+                        Mark as paid
+                      {:else}
+                        Unmark as paid
+                      {/if}
+                    </button>
+                  {/snippet}
+                </Header>
+              </header>
+              <section class="p-3">
+                {#if payment.paidAt !== null}
+                  <strong>
+                    Paid {payment.paidAt.toLocaleString(undefined, {
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      hour12: true,
+                      minute: '2-digit',
+                    })}
+                  </strong>
+                {:else}
+                  <em>Waiting for payment...</em>
+                {/if}
+              </section>
+            </div>
+          </form>
+        {:else}
+          <em>No Payments available</em>
+        {/each}
       {/each}
     </svelte:boundary>
   </div>
