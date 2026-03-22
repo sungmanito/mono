@@ -2,3 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 @tailwind variants;
+
+[data-floating] {
+  width: max-content;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
