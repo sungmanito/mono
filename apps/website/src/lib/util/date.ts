@@ -59,3 +59,10 @@ export function getFullTimeBetween(
 
   return responseParts;
 }
+
+export function getLastDayOfMonth(date: Date): number {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() + 1);
+  d.setDate(0);
+  return d.getDate();
+}
