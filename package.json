@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev",
+    "dev": "turbo dev --ui tui",
     "lint": "turbo lint",
     "prettier:format": "prettier . --write",
     "prettier:check": "prettier . --check"
