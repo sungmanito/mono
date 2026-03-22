@@ -58,6 +58,7 @@ export const actions = {
       name: 'string',
       householdId: 'string',
       dueDate: '1<=number.integer<=28',
+      amount: 'number',
     });
 
     const billsValidator = type({
@@ -83,6 +84,7 @@ export const actions = {
       billName: b.name,
       householdId: b.householdId,
       dueDate: b.dueDate,
+      amount: b.amount,
       id: b.id, // keep id for WHERE clause only
     }));
 
@@ -96,6 +98,7 @@ export const actions = {
             billName: b.billName,
             householdId: b.householdId,
             dueDate: b.dueDate,
+            amount: b.amount,
           })
           .where(
             and(

@@ -85,6 +85,14 @@
             required
           />
         </FormLabel>
+        <FormLabel label="Amount">
+          <input
+            class="input"
+            type="number"
+            name="bills[].amount"
+            value={bill.amount || 0}
+          />
+        </FormLabel>
       </div>
     {/each}
     <footer>

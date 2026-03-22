@@ -25,6 +25,10 @@ export const GET: RequestHandler = async () => {
           sql`extract('month' from ${schema.payments.forMonthD})`,
           sql`extract('month' from now())`,
         ),
+        eq(
+          sql`extract(YEAR from ${schema.payments.forMonthD})`,
+          sql`extract(YEAR from now())`,
+        ),
       ),
     );
 

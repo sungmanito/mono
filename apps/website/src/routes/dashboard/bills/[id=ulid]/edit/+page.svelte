@@ -31,8 +31,6 @@
     submit: SubmitFunction;
   } = $props();
 
-  console.info('BILL DATA', data);
-
   let bill = $derived(data.bill);
 
   let households = $derived(data.households);

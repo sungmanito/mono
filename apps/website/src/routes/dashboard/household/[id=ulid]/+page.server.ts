@@ -51,6 +51,7 @@ export const load = async ({ params, locals, depends }) => {
         and(
           eq(schema.payments.billId, schema.bills.id),
           sql`extract(month from ${schema.payments.forMonthD}) = extract(month from now())`,
+          sql`extract(year from ${schema.payments.forMonthD}) = extract(year from now())`,
         ),
       )
       .where(eq(schema.bills.householdId, params.id)),

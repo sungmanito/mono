@@ -31,7 +31,7 @@
   import DeleteHousehold from '$lib/components/households/delete.svelte';
   import { asyncStore } from '$lib/util/asyncStore.svelte';
   import { formatNumber, ordinalSuffix } from '$lib/util/numbers';
-  import { createQueries } from '@tanstack/svelte-query';
+  import { createQueries, createQuery } from '@tanstack/svelte-query';
   import { SvelteMap } from 'svelte/reactivity';
   import BillDetails from '../../bills/[id=ulid]/+page.svelte';
   import CreateBillPage from '../../bills/create/+page.svelte';
@@ -73,8 +73,9 @@
     unpaid: ResItem[];
   };
 
-  const st = $derived(
-    asyncStore(async () => {
+  const billsByStatus = createQuery(() => ({
+    queryKey: ['bills'],
+    queryFn: async () => {
       const res = await data.bills;
       let obj: MappedByStatus = {
         paid: [],
@@ -93,14 +94,14 @@
       }, obj);
 
       return obj;
-    }),
-  );
+    },
+  }));
 
   let filter: keyof MappedByStatus = $state('all');
   let selectedPayments: string[] = $state([]);
 
   const paymentsData = $derived(
-    createQueries({
+    createQueries(() => ({
       queries: selectedPayments.map((id) => ({
         queryKey: ['multi', 'drawer', id],
         queryFn: async () => {
@@ -111,7 +112,7 @@
           throw new Error(`Couldn't load info for payment ${id}`);
         },
       })),
-    }),
+    })),
   );
   let showMultiPayments = $state(false);
   let previewUrlsByPayment = new SvelteMap<string, string>();
@@ -262,7 +263,7 @@
         </div>
       {/snippet}
       <div class="flex flex-col gap-4">
-        {#each $paymentsData as payment}
+        {#each paymentsData as payment}
           {#if payment.isError}
             {payment.error.message}
           {:else if payment.isLoading}
@@ -434,7 +435,7 @@
         {/snippet}
         Bills
       </Header>
-      {#if st.isLoading}
+      {#if billsByStatus.isLoading}
         <div class="card">
           <div class="p-4 flex flex-col gap-4">
             <div class="placeholder animate-pulse h-7"></div>
@@ -465,7 +466,7 @@
             <div class="placeholder animate-pulse"></div>
           </div>
         </div>
-      {:else if st.isSuccess}
+      {:else if billsByStatus.isSuccess}
         {#snippet displayBill(bill: ResItem)}
           <div
             role="listitem"
@@ -547,7 +548,7 @@
             </section>
           </div>
         {/snippet}
-        {@const bills = st.data[filter]}
+        {@const bills = billsByStatus.data[filter]}
         {@const groupedByDate = bills.reduce(
           (all, cur) => {
             if (all[cur.dueDate]) all[cur.dueDate].push(cur);
