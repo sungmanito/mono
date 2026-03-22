@@ -27,10 +27,10 @@ export const handle: Handle = async ({ event, resolve }) => {
       cookies: {
         get: (key) => event.cookies.get(key),
         set: (key, value, options) => {
-          event.cookies.set(key, value, options);
+          event.cookies.set(key, value, { ...options, path: options.path ?? '/' });
         },
         remove: (key, options) => {
-          event.cookies.delete(key, options);
+          event.cookies.delete(key, { ...options, path: options.path ?? '/' });
         },
       },
     },
