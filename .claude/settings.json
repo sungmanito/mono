@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm check:*)",
+      "Bash(npx svelte-kit:*)",
+      "Bash(npx svelte-check:*)",
+      "Bash(npm show:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm test:unit)",
+      "Bash(pnpm --filter website check)",
+      "Bash(pnpm -r check)",
+      "Bash(ls /c/Users/Jim/projects/bill-tracker/apps/website/src/routes/dashboard/payments/[id=ulid]/)",
+      "Bash(grep -v \"^$\")",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(rm \"C:\\\\Users\\\\Jim\\\\projects\\\\bill-tracker\\\\apps\\\\website\\\\src\\\\routes\\\\dashboard\\\\household\\\\[id=ulid]\\\\+page.server.ts\")",
+      "Bash(rm \"C:\\\\Users\\\\Jim\\\\projects\\\\bill-tracker\\\\apps\\\\website\\\\src\\\\routes\\\\dashboard\\\\household\\\\[id=ulid]\\\\edit\\\\+page.server.ts\")",
+      "Bash(rm \"C:\\\\Users\\\\Jim\\\\projects\\\\bill-tracker\\\\apps\\\\website\\\\src\\\\routes\\\\dashboard\\\\household\\\\[id=ulid]\\\\members\\\\+page.server.ts\")",
+      "Bash(grep -n \"delete.svelte\\\\|Delete\" apps/website/src/routes/dashboard/household/[id=ulid]/+page.svelte)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm prettier:*)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Jim\\projects\\bill-tracker\\apps\\website\\src\\routes\\dashboard\\bills\\[id=ulid]",
+      "C:\\Users\\Jim\\projects\\bill-tracker\\apps\\website\\src\\routes\\dashboard\\payments\\[id=ulid]"
+    ]
+  }
+}

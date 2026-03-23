@@ -1,17 +1,32 @@
 <script lang="ts" module>
   export interface HouseholdSideItemProps {
-    household: { id: string; name: string; ownerId: string | null; billCount: number };
+    household: {
+      id: string;
+      name: string;
+      ownerId: string | null;
+      billCount: number;
+    };
     userMap: Promise<
       Record<
         string,
         {
           householdId: string;
           householdName: string;
-          users: { id: string; isOwner: boolean; email: string; userMetadata: unknown }[];
+          users: {
+            id: string;
+            isOwner: boolean;
+            email: string;
+            userMetadata: unknown;
+          }[];
         }
       >
     >;
-    generateLinkUri?: (p: { id: string; name: string; ownerId: string | null; billCount: number }) => string;
+    generateLinkUri?: (p: {
+      id: string;
+      name: string;
+      ownerId: string | null;
+      billCount: number;
+    }) => string;
     selected: boolean;
   }
 </script>

@@ -8,7 +8,11 @@
   import { XIcon } from 'lucide-svelte';
   import FormLabel from '$components/formLabel/formLabel.svelte';
   import { page } from '$app/state';
-  import { getBillsByIds, updateBills, getUserBills } from '$lib/remotes/bills.remote';
+  import {
+    getBillsByIds,
+    updateBills,
+    getUserBills,
+  } from '$lib/remotes/bills.remote';
   import { getUserHouseholds } from '$lib/remotes/common.remote';
 
   let { component = false, onclose = () => void 0 }: Props = $props();
@@ -70,7 +74,9 @@
           <FormLabel label="Household">
             <select name="bills[].householdId" class="select">
               {#each households as h (h.id)}
-                <option value={h.id} selected={bill.householdId === h.id}>{h.name}</option>
+                <option value={h.id} selected={bill.householdId === h.id}
+                  >{h.name}</option
+                >
               {/each}
             </select>
           </FormLabel>

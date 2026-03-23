@@ -55,13 +55,6 @@
 </svelte:head>
 <Drawerify
   onclose={() => history.back()}
-  bind:open={showMakePaymentModal}
-  url={showModalOpenUrl}
-  component={CreatePaymentPage}
-/>
-
-<Drawerify
-  onclose={() => history.back()}
   bind:open={detailsModalOpen}
   component={PaymentDetails}
   url={detailsModalUrl}

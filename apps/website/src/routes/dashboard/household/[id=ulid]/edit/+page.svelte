@@ -4,7 +4,10 @@
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
   import { Loader2Icon } from 'lucide-svelte';
-  import { getUserHouseholdsWithBillCount, updateHousehold } from '$lib/remotes/households.remote';
+  import {
+    getUserHouseholdsWithBillCount,
+    updateHousehold,
+  } from '$lib/remotes/households.remote';
 
   let {
     component = false,
@@ -55,12 +58,20 @@
       <p class="text-surface-700-200-token">ID: {household.id}</p>
 
       <FormLabel label="Household Name">
-        <input name="name" disabled={saving} type="text" class="input" value={household.name} />
+        <input
+          name="name"
+          disabled={saving}
+          type="text"
+          class="input"
+          value={household.name}
+        />
       </FormLabel>
 
       <section class="flex gap-3">
         {#if component}
-          <Button disabled={saving} variant="filled" onclick={() => onclose()}>Close</Button>
+          <Button disabled={saving} variant="filled" onclick={() => onclose()}
+            >Close</Button
+          >
         {/if}
         <Button disabled={saving}>Save</Button>
       </section>

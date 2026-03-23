@@ -19,7 +19,9 @@
 <svelte:boundary>
   {#snippet pending()}
     <div class="container mx-auto px-4">
-      <div class="h-8 w-64 rounded animate-pulse bg-surface-300 mt-8 mb-4"></div>
+      <div
+        class="h-8 w-64 rounded animate-pulse bg-surface-300 mt-8 mb-4"
+      ></div>
       <div class="h-4 w-48 rounded animate-pulse bg-surface-300 mb-2"></div>
       <div class="h-4 w-32 rounded animate-pulse bg-surface-300 mb-4"></div>
       <div class="h-48 w-full rounded animate-pulse bg-surface-300 mb-4"></div>
@@ -86,10 +88,11 @@
         <Header tag="h2" class="my-4">Payment History</Header>
         <div class="flex flex-col gap-3">
           {#each payment.history as pastPayment (pastPayment.id)}
-            {@const paymentDateString = pastPayment.forMonthD.toLocaleDateString(undefined, {
-              month: 'long',
-              year: 'numeric',
-            })}
+            {@const paymentDateString =
+              pastPayment.forMonthD.toLocaleDateString(undefined, {
+                month: 'long',
+                year: 'numeric',
+              })}
             <div
               class="card"
               class:variant-filled-primary={pastPayment.paidAt !== null}

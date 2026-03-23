@@ -43,7 +43,10 @@
   {@const households = await getUserHouseholdsWithBillCount()}
   {@const userMap = getUserHouseholdsWithMembers()}
   {@const billsMap = await getUserBillsByHousehold()}
-  {@const totalBills = Object.values(billsMap).reduce((all, cur) => all + cur.length, 0)}
+  {@const totalBills = Object.values(billsMap).reduce(
+    (all, cur) => all + cur.length,
+    0,
+  )}
   {@const upcoming = Object.values(billsMap).reduce((all, cur) => {
     const today = new Date().setHours(0, 0, 0, 0);
     for (const bill of cur) {
@@ -64,7 +67,11 @@
     <Header class="mb-4">
       Households
       {#snippet actions()}
-        <Button size="sm" variant="primary" onclick={() => (showCreateHousehold = true)}>Add household</Button>
+        <Button
+          size="sm"
+          variant="primary"
+          onclick={() => (showCreateHousehold = true)}>Add household</Button
+        >
       {/snippet}
     </Header>
 
@@ -103,11 +110,19 @@
           {#snippet header({ open, toggle })}
             <div class="flex flex-col gap-4">
               <Header tag="h5" color="secondary">
-                <button type="button" onclick={() => toggle()} role="switch" aria-checked={open}>
+                <button
+                  type="button"
+                  onclick={() => toggle()}
+                  role="switch"
+                  aria-checked={open}
+                >
                   <strong>{household.name}</strong>
                 </button>
                 {#snippet actions()}
-                  <a href={`/dashboard/household/${household.id}`} class="btn-sm variant-outline">
+                  <a
+                    href={`/dashboard/household/${household.id}`}
+                    class="btn-sm variant-outline"
+                  >
                     Go to details
                   </a>
                   <Button variant="custom" class="pb-2" onclick={toggle}>
@@ -147,7 +162,9 @@
                 {#each userHouseholds[household.id].users as member}
                   <div class="kv">
                     <div>Name</div>
-                    <div>{(member.userMetadata as any)?.name || member.email}</div>
+                    <div>
+                      {(member.userMetadata as any)?.name || member.email}
+                    </div>
                   </div>
                 {/each}
               {/if}

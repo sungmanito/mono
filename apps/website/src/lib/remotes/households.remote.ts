@@ -6,7 +6,17 @@ import schema from '@sungmanito/db';
 export type Household = typeof schema.households.$inferSelect;
 import { error } from '@sveltejs/kit';
 import { type } from 'arktype';
-import { and, asc, count, eq, getTableColumns, inArray, like, or, sql } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  count,
+  eq,
+  getTableColumns,
+  inArray,
+  like,
+  or,
+  sql,
+} from 'drizzle-orm';
 import { getUser, getUserHouseholds } from './common.remote';
 
 export const getUserHouseholdsWithBillCount = query(async () => {
@@ -36,7 +46,12 @@ export const getUserHouseholdsWithMembers = query(async () => {
       {
         householdId: string;
         householdName: string;
-        users: { id: string; isOwner: boolean; email: string; userMetadata: unknown }[];
+        users: {
+          id: string;
+          isOwner: boolean;
+          email: string;
+          userMetadata: unknown;
+        }[];
       }
     >;
   const rows = await db
@@ -56,7 +71,10 @@ export const getUserHouseholdsWithMembers = query(async () => {
         eq(schema.usersToHouseholds.userId, schema.users.id),
       ),
     )
-    .innerJoin(schema.households, eq(schema.households.id, schema.usersToHouseholds.householdId));
+    .innerJoin(
+      schema.households,
+      eq(schema.households.id, schema.usersToHouseholds.householdId),
+    );
   return rows.reduce(
     (all, cur) => {
       if (!all[cur.householdId])
@@ -78,7 +96,12 @@ export const getUserHouseholdsWithMembers = query(async () => {
       {
         householdId: string;
         householdName: string;
-        users: { id: string; isOwner: boolean; email: string; userMetadata: unknown }[];
+        users: {
+          id: string;
+          isOwner: boolean;
+          email: string;
+          userMetadata: unknown;
+        }[];
       }
     >,
   );
@@ -97,9 +120,15 @@ export const getPendingInvites = query(async () => {
       },
     })
     .from(schema.invites)
-    .innerJoin(schema.households, eq(schema.households.id, schema.invites.householdId))
+    .innerJoin(
+      schema.households,
+      eq(schema.households.id, schema.invites.householdId),
+    )
     .leftJoin(schema.bills, eq(schema.bills.householdId, schema.households.id))
-    .leftJoin(schema.usersToHouseholds, eq(schema.usersToHouseholds.householdId, schema.households.id))
+    .leftJoin(
+      schema.usersToHouseholds,
+      eq(schema.usersToHouseholds.householdId, schema.households.id),
+    )
     .groupBy(schema.invites.id, schema.households.id)
     .where(eq(schema.invites.toId, user.id));
 });
@@ -107,7 +136,8 @@ export const getPendingInvites = query(async () => {
 export const getUserBillsByHousehold = query(async () => {
   const userHouseholds = await getUserHouseholds();
   const ids = userHouseholds.map((h) => h.id);
-  if (ids.length === 0) return {} as Record<string, (typeof schema.bills.$inferSelect)[]>;
+  if (ids.length === 0)
+    return {} as Record<string, (typeof schema.bills.$inferSelect)[]>;
   const bills = await db
     .select()
     .from(schema.bills)
@@ -127,7 +157,8 @@ export const getHouseholdDetail = query(ulidValidator, async (id) => {
   const userHouseholds = await getUserHouseholds();
   const ids = userHouseholds.map((h) => h.id);
   const household = await db.query.households.findFirst({
-    where: ({ id: hId }, { eq, and, inArray }) => and(eq(hId, id), inArray(hId, ids)),
+    where: ({ id: hId }, { eq, and, inArray }) =>
+      and(eq(hId, id), inArray(hId, ids)),
   });
   if (!household) error(404);
   const bills = await db
@@ -149,7 +180,10 @@ export const getHouseholdDetail = query(ulidValidator, async (id) => {
       ),
     )
     .where(eq(schema.bills.householdId, id));
-  const invites = await db.select().from(schema.invites).where(eq(schema.invites.householdId, household.id));
+  const invites = await db
+    .select()
+    .from(schema.invites)
+    .where(eq(schema.invites.householdId, household.id));
   return { household, bills, invites };
 });
 
@@ -164,8 +198,14 @@ export const getHouseholdMembers = query(ulidValidator, async (householdId) => {
       name: sql`${schema.users.userMetadata} -> 'name'`,
     })
     .from(schema.users)
-    .innerJoin(schema.usersToHouseholds, eq(schema.usersToHouseholds.userId, schema.users.id))
-    .innerJoin(schema.households, eq(schema.households.id, schema.usersToHouseholds.householdId))
+    .innerJoin(
+      schema.usersToHouseholds,
+      eq(schema.usersToHouseholds.userId, schema.users.id),
+    )
+    .innerJoin(
+      schema.households,
+      eq(schema.households.id, schema.usersToHouseholds.householdId),
+    )
     .where(eq(schema.households.id, householdId));
 });
 
@@ -174,7 +214,11 @@ export const addHousehold = form(
   async (data) => {
     const user = await getUser();
     const { locals, url } = await getRequestEvent();
-    const members = Array.isArray(data.members) ? data.members : data.members ? [data.members] : [];
+    const members = Array.isArray(data.members)
+      ? data.members
+      : data.members
+        ? [data.members]
+        : [];
     const [newHome] = await db
       .insert(schema.households)
       .values({ name: data['household-name'], ownerId: user.id })
@@ -189,9 +233,10 @@ export const addHousehold = form(
           .then((r) => r[0]);
         let toId = existing?.id;
         if (!toId) {
-          const { data: invData } = await locals.supabase.auth.admin.inviteUserByEmail(email, {
-            redirectTo: `${url.protocol}//${url.host}/login`,
-          });
+          const { data: invData } =
+            await locals.supabase.auth.admin.inviteUserByEmail(email, {
+              redirectTo: `${url.protocol}//${url.host}/login`,
+            });
           if (invData?.user) toId = invData.user.id;
         }
         if (toId) {
@@ -223,7 +268,12 @@ export const respondToInvite = form(
         const [inv] = await tx
           .select()
           .from(schema.invites)
-          .where(and(eq(schema.invites.id, data['invite-id']), eq(schema.invites.toId, user.id)));
+          .where(
+            and(
+              eq(schema.invites.id, data['invite-id']),
+              eq(schema.invites.toId, user.id),
+            ),
+          );
         if (!inv) {
           tx.rollback();
           return;
@@ -236,7 +286,12 @@ export const respondToInvite = form(
     } else {
       await db
         .delete(schema.invites)
-        .where(and(eq(schema.invites.id, data['invite-id']), eq(schema.invites.toId, user.id)));
+        .where(
+          and(
+            eq(schema.invites.id, data['invite-id']),
+            eq(schema.invites.toId, user.id),
+          ),
+        );
     }
     getPendingInvites().refresh();
     getUserHouseholdsWithBillCount().refresh();
@@ -249,7 +304,9 @@ export const deleteHousehold = form(
     const user = await getUser();
     const deleted = await db.transaction(async (tx) => {
       const [{ isOwner }] = await tx
-        .select({ isOwner: sql<boolean>`${schema.households.ownerId} = ${user.id}` })
+        .select({
+          isOwner: sql<boolean>`${schema.households.ownerId} = ${user.id}`,
+        })
         .from(schema.households)
         .where(eq(schema.households.id, data['household-id']));
       if (!isOwner) {
@@ -282,18 +339,18 @@ export const updateHousehold = form(
   },
 );
 
-export const findUser = form(
-  type({ user: 'string' }),
-  async (data) => {
-    return db.select().from(schema.users).where(
+export const findUser = form(type({ user: 'string' }), async (data) => {
+  return db
+    .select()
+    .from(schema.users)
+    .where(
       or(
         sql`${schema.users.userMetadata}->>'name' ilike ${'%' + data.user + '%'}`,
         like(schema.users.email, `%${data.user as string}%`),
         eq(schema.users.email, data.user as string),
       ),
     );
-  },
-);
+});
 
 export const removeMember = form(
   type({ userId: 'string', householdId: ulidValidator }),

@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(gt branch:*)",
-      "Bash(gt checkout:*)"
+      "Bash(gt checkout:*)",
+      "Bash(gt log:*)",
+      "Bash(cat *)",
+      "Bash(ls *)"
     ]
   }
 }
