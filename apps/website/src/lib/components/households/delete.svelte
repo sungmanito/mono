@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto, invalidateAll } from '$app/navigation';
-  import type { Household } from '$lib/server/actions/households.actions';
+  import type { Household } from '$lib/remotes/households.remote';
   import Button from '../button/button.svelte';
   import Modal from '../modal/modal.svelte';
 

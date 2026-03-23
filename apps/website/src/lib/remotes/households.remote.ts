@@ -2,6 +2,8 @@ import { form, getRequestEvent, query } from '$app/server';
 import { db } from '$lib/server/db';
 import { ulidValidator } from '$lib/typesValidators';
 import schema from '@sungmanito/db';
+
+export type Household = typeof schema.households.$inferSelect;
 import { error } from '@sveltejs/kit';
 import { type } from 'arktype';
 import { and, asc, count, eq, getTableColumns, inArray, like, or, sql } from 'drizzle-orm';

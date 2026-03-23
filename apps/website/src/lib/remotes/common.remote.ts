@@ -17,10 +17,7 @@ export const getUser = query(async () => {
     throw new Error('User not authenticated');
   }
 
-  return {
-    ...session.user,
-    households: event.locals.userHouseholds,
-  };
+  return session.user;
 });
 
 export const getUserHouseholds = query(async () => {
