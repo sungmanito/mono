@@ -84,10 +84,14 @@
 <svelte:boundary>
   {#snippet pending()}
     <div class="container mx-auto">
-      <div class="h-8 w-48 rounded animate-pulse bg-surface-300 mb-6 mt-6"></div>
+      <div
+        class="h-8 w-48 rounded animate-pulse bg-surface-300 mb-6 mt-6"
+      ></div>
       <div class="h-10 w-full rounded animate-pulse bg-surface-300 mb-6"></div>
       {#each Array(3) as _}
-        <div class="h-8 w-64 rounded animate-pulse bg-surface-300 mt-8 mb-4"></div>
+        <div
+          class="h-8 w-64 rounded animate-pulse bg-surface-300 mt-8 mb-4"
+        ></div>
         {#each Array(4) as _}
           <div class="h-20 rounded-lg animate-pulse bg-surface-300 mt-6"></div>
         {/each}
@@ -133,7 +137,9 @@
       {/each}
       <div class="max-w-72">
         <p>
-          Are you sure you want to delete <strong>{selectedBillIds.length}</strong> bills?
+          Are you sure you want to delete <strong
+            >{selectedBillIds.length}</strong
+          > bills?
         </p>
         <p>
           This action cannot be undone, and will delete all payment history
@@ -187,7 +193,11 @@
         >
           <PencilIcon size="1rem" />
         </Button>
-        <Button variant="primary" size="sm" onclick={() => fetchCreateBillData()}>
+        <Button
+          variant="primary"
+          size="sm"
+          onclick={() => fetchCreateBillData()}
+        >
           <PlusIcon size="1rem" class="mr-2" />
           New Bill
         </Button>
@@ -203,7 +213,9 @@
               const difference = theseBillIds.difference(selectedSet);
               const intersection = selectedSet.intersection(theseBillIds);
               return (
-                intersection.size > 0 && selectedSet.size > 0 && difference.size > 0
+                intersection.size > 0 &&
+                selectedSet.size > 0 &&
+                difference.size > 0
               );
             })()}
             {@const checked = householdBills.every((bill) =>

@@ -195,7 +195,7 @@ export const togglePayment = form(
      * 3. toggle the paidAt field and updatedBy field
      */
 
-    const txResult = await db.transaction(async (tx) => {
+    await db.transaction(async (tx) => {
       const [image] = await tx
         .select()
         .from(schema.objects)
@@ -365,33 +365,30 @@ export const getPaymentWithDetails = query(ulidValidator, async (id) => {
 /**
  * Gets payments by IDs (for the bulk payment creation page).
  */
-export const getPaymentsForIds = query(
-  type('string[]'),
-  async (ids) => {
-    const userHouseholds = await getUserHouseholds();
-    if (ids.length === 0) return [];
-    return db
-      .select({
-        ...getTableColumns(schema.payments),
-        householdName: schema.households.name,
-        billName: schema.bills.billName,
-        billAmount: schema.bills.amount,
-        billCurrency: schema.bills.currency,
-      })
-      .from(schema.payments)
-      .innerJoin(
-        schema.households,
-        eq(schema.payments.householdId, schema.households.id),
-      )
-      .innerJoin(schema.bills, eq(schema.payments.billId, schema.bills.id))
-      .where(
-        and(
-          inArray(schema.payments.id, ids),
-          inArray(
-            schema.payments.householdId,
-            userHouseholds.map((h) => h.id),
-          ),
+export const getPaymentsForIds = query(type('string[]'), async (ids) => {
+  const userHouseholds = await getUserHouseholds();
+  if (ids.length === 0) return [];
+  return db
+    .select({
+      ...getTableColumns(schema.payments),
+      householdName: schema.households.name,
+      billName: schema.bills.billName,
+      billAmount: schema.bills.amount,
+      billCurrency: schema.bills.currency,
+    })
+    .from(schema.payments)
+    .innerJoin(
+      schema.households,
+      eq(schema.payments.householdId, schema.households.id),
+    )
+    .innerJoin(schema.bills, eq(schema.payments.billId, schema.bills.id))
+    .where(
+      and(
+        inArray(schema.payments.id, ids),
+        inArray(
+          schema.payments.householdId,
+          userHouseholds.map((h) => h.id),
         ),
-      );
-  },
-);
+      ),
+    );
+});

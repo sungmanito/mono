@@ -43,7 +43,10 @@
   {@const userMap = getUserHouseholdsWithMembers()}
   {@const invites = getPendingInvites()}
 
-  <aside data-testid="sidebar-household" class="bg-surface-100-800-token p-4 overflow-auto min-w-max">
+  <aside
+    data-testid="sidebar-household"
+    class="bg-surface-100-800-token p-4 overflow-auto min-w-max"
+  >
     <div class="flex flex-col gap-2">
       <Header tag="h3" color="secondary" class="gap-4">
         Households
@@ -60,7 +63,11 @@
       </Header>
 
       {#each households as household (household.id)}
-        <HouseholdSideItem {household} {userMap} selected={page.params.id === household.id} />
+        <HouseholdSideItem
+          {household}
+          {userMap}
+          selected={page.params.id === household.id}
+        />
       {/each}
 
       <Header tag="h3" color="secondary" class="gap-4">Invites</Header>

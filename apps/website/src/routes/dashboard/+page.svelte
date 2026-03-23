@@ -5,7 +5,12 @@
   import Pill from '$lib/components/pill/pill.svelte';
   import ButtonGroup from '$lib/components/buttonGroup/buttonGroup.svelte';
   import { makeShowDrawerUtil } from '$utils/drawer.svelte';
-  import { CheckIcon, ClockAlertIcon, TriangleAlertIcon, WatchIcon } from 'lucide-svelte';
+  import {
+    CheckIcon,
+    ClockAlertIcon,
+    TriangleAlertIcon,
+    WatchIcon,
+  } from 'lucide-svelte';
   import type { Component } from 'svelte';
   import type { Attachment } from 'svelte/attachments';
   import BillDetailsComponent from './bills/[id=ulid]/+page.svelte';
@@ -34,7 +39,7 @@
     };
   };
 
-  let filter: 'all' | 'overdue' | 'paid' = $state('all');
+  let filter: 'all' | 'overdue' | 'upcoming' | 'paid' = $state('all');
 </script>
 
 <svelte:head>
@@ -87,16 +92,22 @@
 <svelte:boundary>
   {#snippet pending()}
     <div class="min-h-screen container mx-auto mt-6">
-      <div class="h-20 rounded-2xl animate-pulse bg-surface-100-800-token mb-6"></div>
+      <div
+        class="h-20 rounded-2xl animate-pulse bg-surface-100-800-token mb-6"
+      ></div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {#each Array(3) as _}
-          <div class="rounded-xl bg-surface-100-800-token h-28 animate-pulse"></div>
+          <div
+            class="rounded-xl bg-surface-100-800-token h-28 animate-pulse"
+          ></div>
         {/each}
       </div>
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2 rounded-2xl bg-surface-800 p-6 shadow mb-6">
           {#each Array(5) as _}
-            <div class="h-16 rounded-xl bg-surface-300 animate-pulse mb-4"></div>
+            <div
+              class="h-16 rounded-xl bg-surface-300 animate-pulse mb-4"
+            ></div>
           {/each}
         </div>
         <div class="rounded-2xl bg-surface-800 p-6 h-48 animate-pulse"></div>
@@ -184,7 +195,9 @@
       <div class="lg:col-span-2">
         <div class="rounded-2xl bg-surface-800 p-6 shadow mb-6">
           <div class="flex items-center justify-between mb-4">
-            <h2 class="text-2xl font-bold text-surface-800-100">Recent Bills</h2>
+            <h2 class="text-2xl font-bold text-surface-800-100">
+              Recent Bills
+            </h2>
             <div class="flex gap-3">
               <Button
                 class="btn-sm bg-gradient-to-r variant-gradient-tertiary-secondary rounded-lg"
@@ -199,8 +212,10 @@
                 <button
                   class={[
                     {
-                      'bg-purple-500 text-white font-semibold': filter === 'all',
-                      'px-3 py-1 text-purple-300 hover:bg-purple-100': filter !== 'all',
+                      'bg-purple-500 text-white font-semibold':
+                        filter === 'all',
+                      'px-3 py-1 text-purple-300 hover:bg-purple-100':
+                        filter !== 'all',
                     },
                   ]}
                   onclick={() => (filter = 'all')}
@@ -211,18 +226,35 @@
                   onclick={() => (filter = 'overdue')}
                   class={[
                     {
-                      'bg-purple-500 text-white font-semibold': filter === 'overdue',
-                      'px-3 py-1 text-purple-300 hover:bg-purple-100': filter !== 'overdue',
+                      'bg-purple-500 text-white font-semibold':
+                        filter === 'overdue',
+                      'px-3 py-1 text-purple-300 hover:bg-purple-100':
+                        filter !== 'overdue',
                     },
                   ]}
                 >
                   Overdue
                 </button>
                 <button
+                  onclick={() => (filter = 'upcoming')}
                   class={[
                     {
-                      'bg-purple-500 text-white font-semibold': filter === 'paid',
-                      'px-3 py-1 text-purple-300 hover:bg-purple-100': filter !== 'paid',
+                      'bg-purple-500 text-white font-semibold':
+                        filter === 'upcoming',
+                      'px-3 py-1 text-purple-300 hover:bg-purple-100':
+                        filter !== 'upcoming',
+                    },
+                  ]}
+                >
+                  Pending
+                </button>
+                <button
+                  class={[
+                    {
+                      'bg-purple-500 text-white font-semibold':
+                        filter === 'paid',
+                      'px-3 py-1 text-purple-300 hover:bg-purple-100':
+                        filter !== 'paid',
                     },
                   ]}
                   onclick={() => (filter = 'paid')}

@@ -1,9 +1,7 @@
-import { query, getRequestEvent, form } from '$app/server';
+import { query, getRequestEvent } from '$app/server';
 import schema from '@sungmanito/db';
 import { db } from '../server/db';
 import { eq, getTableColumns } from 'drizzle-orm';
-import { type } from 'arktype';
-
 /**
  * This file is used for common things, like getting the current user,
  * the current user's households, etc.

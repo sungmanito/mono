@@ -8,10 +8,6 @@
   } from '$lib/remotes/payments.remote';
   import { CheckIcon } from 'lucide-svelte';
   import PaymentDetails from './[id=ulid]/+page.svelte';
-  import CreatePaymentPage from './create/[id=ulid]/+page.svelte';
-
-  let showMakePaymentModal = $state(false);
-  let showModalOpenUrl = $state('');
 
   let detailsModalOpen = $state(false);
   let detailsModalUrl = $state('');
@@ -26,13 +22,6 @@
 <svelte:head>
   <title>Dashboard &ndash; Payments</title>
 </svelte:head>
-<Drawerify
-  onclose={() => history.back()}
-  bind:open={showMakePaymentModal}
-  url={showModalOpenUrl}
-  component={CreatePaymentPage}
-/>
-
 <Drawerify
   onclose={() => history.back()}
   bind:open={detailsModalOpen}

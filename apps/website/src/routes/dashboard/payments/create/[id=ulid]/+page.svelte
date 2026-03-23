@@ -123,7 +123,13 @@
       </div>
       <div class="col-start-1">
         <FormLabel label="Amount paid (optional)">
-          <input class="input" type="number" min="0" name="amount" step="0.01" />
+          <input
+            class="input"
+            type="number"
+            min="0"
+            name="amount"
+            step="0.01"
+          />
         </FormLabel>
       </div>
       <div>
@@ -137,7 +143,8 @@
       </div>
       <div class="col-span-4 flex gap-3 justify-end pt-6">
         {#if component}
-          <Button variant="filled" type="button" onclick={onclose}>Close</Button>
+          <Button variant="filled" type="button" onclick={onclose}>Close</Button
+          >
         {/if}
         <Button>Save</Button>
       </div>

@@ -27,7 +27,9 @@
     <div class="@container/main mx-auto px-10 py-5">
       <div class="h-8 w-48 rounded animate-pulse bg-surface-300 mb-4"></div>
       {#each Array(3) as _}
-        <div class="p-3 rounded-lg border bg-surface-backdrop-token border-surface-600 mb-3">
+        <div
+          class="p-3 rounded-lg border bg-surface-backdrop-token border-surface-600 mb-3"
+        >
           <div class="h-6 w-40 rounded animate-pulse bg-surface-300 mb-2"></div>
           <div class="h-12 rounded animate-pulse bg-surface-300 mb-2"></div>
           <div class="h-24 rounded animate-pulse bg-surface-300"></div>
@@ -36,7 +38,9 @@
     </div>
   {/snippet}
 
-  {@const paymentIds = page.url.searchParams.getAll('payments[]').filter((id) => isValid(id))}
+  {@const paymentIds = page.url.searchParams
+    .getAll('payments[]')
+    .filter((id) => isValid(id))}
   {@const payments = await getPaymentsForIds(paymentIds)}
 
   <div class="@container/main mx-auto px-10 py-5">
@@ -68,7 +72,11 @@
                 {payment.billName}
               </Header>
               <input type="hidden" name="paymentId" value={payment.id} />
-              <input type="hidden" name="householdId" value={payment.householdId} />
+              <input
+                type="hidden"
+                name="householdId"
+                value={payment.householdId}
+              />
               <FormLabel label="Amount Paid">
                 <input
                   class="input"
@@ -108,7 +116,9 @@
                     {/if}
                   {/snippet}
                   {#snippet dragover()}
-                    <div class="text-center text-surface-500">Drop your file here</div>
+                    <div class="text-center text-surface-500">
+                      Drop your file here
+                    </div>
                   {/snippet}
                 </Dropzone>
               </FormLabel>
@@ -129,7 +139,12 @@
     {:else}
       <p class="mt-4">No payments to process.</p>
       {#if component}
-        <Button type="button" variant="secondary" class="mt-4" onclick={() => onclose()}>
+        <Button
+          type="button"
+          variant="secondary"
+          class="mt-4"
+          onclick={() => onclose()}
+        >
           Close
         </Button>
       {/if}

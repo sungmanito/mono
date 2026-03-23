@@ -32,11 +32,22 @@
       <div class="flex gap-2 justify-center">
         <form {...acceptForm}>
           <input type="hidden" name="invite-id" value={invite.id} />
-          <Button name="action" value="accept" type="submit" disabled={acceptForm.pending > 0}>Accept</Button>
+          <Button
+            name="action"
+            value="accept"
+            type="submit"
+            disabled={acceptForm.pending > 0}>Accept</Button
+          >
         </form>
         <form {...rejectForm}>
           <input type="hidden" name="invite-id" value={invite.id} />
-          <Button variant="destructive:ghost" name="action" value="delete" type="submit" disabled={rejectForm.pending > 0}>Reject</Button>
+          <Button
+            variant="destructive:ghost"
+            name="action"
+            value="delete"
+            type="submit"
+            disabled={rejectForm.pending > 0}>Reject</Button
+          >
         </form>
       </div>
     </div>

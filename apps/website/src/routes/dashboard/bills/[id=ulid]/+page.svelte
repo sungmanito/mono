@@ -89,7 +89,9 @@
         <div class="grid grid-cols-2 md:grid-cols-4 about-list gap-x-4 rounded">
           <div>Household</div>
           <div>
-            <a class="link" href={`/dashboard/household/${billData.householdId}`}
+            <a
+              class="link"
+              href={`/dashboard/household/${billData.householdId}`}
               >{billData.household.name}</a
             >
           </div>

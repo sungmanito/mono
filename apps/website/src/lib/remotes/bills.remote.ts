@@ -1,11 +1,10 @@
-import { query, form, command } from '$app/server';
+import { query, form } from '$app/server';
 import { db } from '$lib/server/db';
 import { exportedSchema as schema } from '@sungmanito/db';
 import { and, eq, getTableColumns, inArray } from 'drizzle-orm';
 import { getUser, getUserHouseholds } from './common.remote';
 import { getUserHouseholdBills } from './dashboard.remote';
 import { type } from 'arktype';
-import { ulid } from 'ulidx';
 import { ulidValidator } from '$lib/typesValidators';
 
 export const getUserBills = query(async () => {
@@ -70,7 +69,10 @@ export const getBillWithPayments = query(ulidValidator, async (id) => {
 
   const [bill, payments] = await Promise.all([
     db
-      .select({ ...getTableColumns(schema.bills), household: schema.households })
+      .select({
+        ...getTableColumns(schema.bills),
+        household: schema.households,
+      })
       .from(schema.bills)
       .innerJoin(
         schema.households,

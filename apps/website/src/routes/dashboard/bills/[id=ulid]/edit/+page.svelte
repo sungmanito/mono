@@ -6,7 +6,7 @@
   import Header from '$lib/components/header/header.svelte';
   import { XIcon } from 'lucide-svelte';
   import Currency from '$lib/components/currency/currency.svelte';
-  import { getBill, getUserBills, updateBill } from '$lib/remotes/bills.remote';
+  import { getBill, updateBill } from '$lib/remotes/bills.remote';
   import { getUserHouseholds } from '$lib/remotes/common.remote';
 
   let {
@@ -72,7 +72,12 @@
       </div>
       <div>
         <FormLabel label="Household">
-          <select class="select" name="household-id" required placeholder="Holding">
+          <select
+            class="select"
+            name="household-id"
+            required
+            placeholder="Holding"
+          >
             {#each households as household (household.id)}
               <option
                 value={household.id}

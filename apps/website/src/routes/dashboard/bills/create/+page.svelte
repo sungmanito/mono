@@ -9,7 +9,7 @@
   import { page } from '$app/state';
   import { type } from 'arktype';
 
-  const tmpBillValidator = type({
+  const _tmpBillValidator = type({
     name: 'string',
     dueDate: '1<=number<=28',
     household: 'string',
@@ -22,7 +22,7 @@
     onclose = () => void 0,
   }: { component?: boolean; onclose?: () => void } = $props();
 
-  type BillTmp = (typeof tmpBillValidator)['infer'];
+  type BillTmp = (typeof _tmpBillValidator)['infer'];
 
   // Parse initial bills from URL search params (e.g. ?household-id[]=abc)
   const initialBillsFromUrl: BillTmp[] = (() => {
@@ -79,7 +79,11 @@
               let [name, dueDate] = r;
               let dueDateN = Number(dueDate);
               if (isNaN(dueDateN)) dueDateN = 1;
-              return { name, dueDate: dueDateN, household: '' } satisfies BillTmp;
+              return {
+                name,
+                dueDate: dueDateN,
+                household: '',
+              } satisfies BillTmp;
             });
             bills = bills.concat(b);
           }
@@ -97,7 +101,9 @@
         {/if}
       {/snippet}
     </Header>
-    <section class="grid grid-cols-[repeat(5,1fr)_minmax(20px,min-content)] gap-3">
+    <section
+      class="grid grid-cols-[repeat(5,1fr)_minmax(20px,min-content)] gap-3"
+    >
       {#each bills as bill, i}
         <div class="col-start-1">
           <FormLabel label="Name">
