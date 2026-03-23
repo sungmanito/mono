@@ -27,6 +27,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Dashboard &ndash; Bills</title>
+</svelte:head>
+
 <Drawerify
   component={PaymentDetails}
   url={paymentDetails.url}
@@ -49,10 +53,6 @@
   {/snippet}
 
   {@const billData = await getBillWithPayments(page.params.id)}
-
-  <svelte:head>
-    <title>Dashboard &ndash; {billData.billName}</title>
-  </svelte:head>
 
   <div class="p-6 flex-grow @container">
     <div class="wrapper @3xl:max-w-[75vw] mx-auto">

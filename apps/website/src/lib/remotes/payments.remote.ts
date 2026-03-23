@@ -307,3 +307,91 @@ export const getPaymentHistoryMonths = query(async () => {
       .orderBy((fields) => desc(fields.month))
   );
 });
+
+/**
+ * Gets a payment with all related details including proof image URL and payment history.
+ */
+export const getPaymentWithDetails = query(ulidValidator, async (id) => {
+  const userHouseholds = await getUserHouseholds();
+  const { locals } = await getRequestEvent();
+
+  const payment = await db.query.payments.findFirst({
+    with: {
+      household: true,
+      proofRef: true,
+      payee: true,
+      bill: true,
+    },
+    where(fields, { and, eq, inArray }) {
+      return and(
+        eq(fields.id, id),
+        inArray(
+          fields.householdId,
+          userHouseholds.map((h) => h.id),
+        ),
+      );
+    },
+  });
+
+  if (!payment) error(404);
+
+  let paymentImageUrl: string | null = null;
+  if (payment.proofImage && payment.proofRef) {
+    const {
+      data: { publicUrl },
+    } = locals.supabase.storage
+      .from(payment.proofRef.bucketId)
+      .getPublicUrl(payment.proofRef.name);
+    paymentImageUrl = publicUrl;
+  }
+
+  const history = await db.query.payments.findMany({
+    with: { payee: true },
+    where(fields, { and, eq, lt }) {
+      return and(
+        eq(fields.billId, payment.billId),
+        lt(fields.forMonthD, payment.forMonthD),
+      );
+    },
+    orderBy(fields, { desc }) {
+      return desc(fields.forMonthD);
+    },
+    limit: 12,
+  });
+
+  return { ...payment, paymentImageUrl, history };
+});
+
+/**
+ * Gets payments by IDs (for the bulk payment creation page).
+ */
+export const getPaymentsForIds = query(
+  type('string[]'),
+  async (ids) => {
+    const userHouseholds = await getUserHouseholds();
+    if (ids.length === 0) return [];
+    return db
+      .select({
+        ...getTableColumns(schema.payments),
+        householdName: schema.households.name,
+        billName: schema.bills.billName,
+        billAmount: schema.bills.amount,
+        billCurrency: schema.bills.currency,
+      })
+      .from(schema.payments)
+      .innerJoin(
+        schema.households,
+        eq(schema.payments.householdId, schema.households.id),
+      )
+      .innerJoin(schema.bills, eq(schema.payments.billId, schema.bills.id))
+      .where(
+        and(
+          inArray(schema.payments.id, ids),
+          inArray(
+            schema.payments.householdId,
+            userHouseholds.map((h) => h.id),
+          ),
+        ),
+      );
+  },
+);

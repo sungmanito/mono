@@ -62,8 +62,15 @@
   <div class="flex flex-col gap-3 mt-4" role="list">
     <svelte:boundary>
       {#snippet pending()}
-        {#each Array(5)}
-          <div class="card animate-pulse h-16">&nbsp;</div>
+        {#each Array(5) as _}
+          <div class="card animate-pulse">
+            <header class="card-header">
+              <div class="h-6 w-48 rounded animate-pulse bg-surface-300"></div>
+            </header>
+            <section class="p-3">
+              <div class="h-4 w-64 rounded animate-pulse bg-surface-300"></div>
+            </section>
+          </div>
         {/each}
       {/snippet}
       {#each await getCurrentPayments() as payment}
