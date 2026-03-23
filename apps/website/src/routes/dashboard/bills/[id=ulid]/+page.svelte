@@ -1,24 +1,23 @@
 <script lang="ts">
   import { pushState } from '$app/navigation';
+  import { page } from '$app/state';
   import Alert from '$components/alert/alert.svelte';
   import Header from '$components/header/header.svelte';
   import Button from '$lib/components/button/button.svelte';
   import Drawerify from '$lib/components/drawerify/drawerify.svelte';
   import Expandable from '$lib/components/expandable/expandable.svelte';
-  import type { ModalifyPage } from '$lib/util/page';
   import { XIcon } from 'lucide-svelte';
   import PaymentDetails from '../../payments/[id=ulid]/+page.svelte';
-  import type { PageData } from './$types';
   import Breadcrumb from '$components/breadcrumb/breadcrumb.svelte';
   import Chart from '$components/chart/chart.svelte';
   import { makeShowDrawerUtil } from '$utils/drawer.svelte';
   import { formatNumber, ordinalSuffix } from '$lib/util/numbers';
+  import { getBillWithPayments } from '$lib/remotes/bills.remote';
 
   let {
-    data,
     component = false,
     onclose = () => void 0,
-  }: ModalifyPage<PageData> = $props();
+  }: { component?: boolean; onclose?: () => void } = $props();
 
   let paymentDetails = makeShowDrawerUtil();
 
@@ -28,12 +27,6 @@
   }
 </script>
 
-<svelte:head>
-  <title>
-    Dashboard &ndash; {data.bill.billName}
-  </title>
-</svelte:head>
-
 <Drawerify
   component={PaymentDetails}
   url={paymentDetails.url}
@@ -41,80 +34,88 @@
   onclose={() => (paymentDetails.url = '')}
 />
 
-<div class="p-6 flex-grow @container">
-  <div class="wrapper @3xl:max-w-[75vw] mx-auto">
-    {#if !component}
-      <Breadcrumb
-        class="mb-4"
-        crumbs={[
-          {
-            link: 'Dashboard',
-            href: '/dashboard',
-          },
-          {
-            link: 'Household',
-            href: '/dashboard/household',
-          },
-          {
-            link: data.bill.household.name,
-            href: `/dashboard/household/${data.bill.household.id}`,
-          },
-          {
-            link: data.bill.billName,
-            href: `/dashboard/bills/${data.bill.id}`,
-          },
-        ]}
-      />
-    {/if}
-    <Header tag="h1" color="secondary" class="mb-6">
-      {data.bill.billName}
-      {#snippet actions()}
-        {#if component}
-          <Button onclick={() => onclose()} variant="custom">
-            <XIcon size="1.5em" />
-          </Button>
-        {/if}
-      {/snippet}
-    </Header>
-
-    <Alert class="mb-4" type="info:ghost">
-      <Header tag="h5" color="secondary">Details</Header>
-      <div class="grid grid-cols-2 md:grid-cols-4 about-list gap-x-4 rounded">
-        <div>Household</div>
-        <div>
-          <a class="link" href={`/dashboard/household/${data.bill.householdId}`}
-            >{data.bill.household.name}</a
-          >
-        </div>
-        <div>Due Date</div>
-        <div>{data.bill.dueDate}{ordinalSuffix(data.bill.dueDate)}</div>
-        <div>Notes</div>
-        <div>
-          {#if data.bill.notes}
-            {data.bill.notes}
-          {:else}
-            <em>N/A</em>
-          {/if}
-        </div>
-        <div>Amount</div>
-        <div>
-          {formatNumber(data.bill.amount)}
-        </div>
-        <div>Currency</div>
-        <div>
-          {data.bill.currency}
-        </div>
+<svelte:boundary>
+  {#snippet pending()}
+    <div class="p-6 flex-grow @container">
+      <div class="wrapper @3xl:max-w-[75vw] mx-auto">
+        <div class="h-8 w-64 rounded animate-pulse bg-surface-300 mb-6"></div>
+        <div class="h-32 rounded animate-pulse bg-surface-300 mb-8"></div>
+        <div class="h-48 rounded animate-pulse bg-surface-300 mb-4"></div>
+        {#each Array(5) as _}
+          <div class="h-16 rounded animate-pulse bg-surface-300 mt-4"></div>
+        {/each}
       </div>
-    </Alert>
+    </div>
+  {/snippet}
 
-    <Expandable class="bg-surface-backdrop-token p-4 rounded mb-8" open>
-      {#snippet header()}
-        <Header tag="h3">Payment History</Header>
-      {/snippet}
-      {#await data.payments}
-        <div class="h-20 placeholder animate-pulse"></div>
-      {:then payments}
-        {@const labels = payments
+  {@const billData = await getBillWithPayments(page.params.id)}
+
+  <svelte:head>
+    <title>Dashboard &ndash; {billData.billName}</title>
+  </svelte:head>
+
+  <div class="p-6 flex-grow @container">
+    <div class="wrapper @3xl:max-w-[75vw] mx-auto">
+      {#if !component}
+        <Breadcrumb
+          class="mb-4"
+          crumbs={[
+            { link: 'Dashboard', href: '/dashboard' },
+            { link: 'Household', href: '/dashboard/household' },
+            {
+              link: billData.household.name,
+              href: `/dashboard/household/${billData.household.id}`,
+            },
+            {
+              link: billData.billName,
+              href: `/dashboard/bills/${billData.id}`,
+            },
+          ]}
+        />
+      {/if}
+      <Header tag="h1" color="secondary" class="mb-6">
+        {billData.billName}
+        {#snippet actions()}
+          {#if component}
+            <Button onclick={() => onclose()} variant="custom">
+              <XIcon size="1.5em" />
+            </Button>
+          {/if}
+        {/snippet}
+      </Header>
+
+      <Alert class="mb-4" type="info:ghost">
+        <Header tag="h5" color="secondary">Details</Header>
+        <div class="grid grid-cols-2 md:grid-cols-4 about-list gap-x-4 rounded">
+          <div>Household</div>
+          <div>
+            <a class="link" href={`/dashboard/household/${billData.householdId}`}
+              >{billData.household.name}</a
+            >
+          </div>
+          <div>Due Date</div>
+          <div>{billData.dueDate}{ordinalSuffix(billData.dueDate)}</div>
+          <div>Notes</div>
+          <div>
+            {#if billData.notes}
+              {billData.notes}
+            {:else}
+              <em>N/A</em>
+            {/if}
+          </div>
+          <div>Amount</div>
+          <div>{formatNumber(billData.amount)}</div>
+          <div>Currency</div>
+          <div>{billData.currency}</div>
+        </div>
+      </Alert>
+
+      <Expandable class="bg-surface-backdrop-token p-4 rounded mb-8" open>
+        {#snippet header()}
+          <Header tag="h3">Payment History</Header>
+        {/snippet}
+        {@const labels = billData.payments
+          .slice()
           .sort((a, b) => a.forMonthD.getTime() - b.forMonthD.getTime())
           .map((p) =>
             p.forMonthD.toLocaleDateString(undefined, {
@@ -126,16 +127,20 @@
 
         <Chart
           {labels}
+          type="line"
           datasets={[
             {
-              data: payments.map((p) => Number(p.amount) ?? null),
-              label: `${data.bill.billName} (Actual)`,
+              data: billData.payments
+                .slice()
+                .sort((a, b) => a.forMonthD.getTime() - b.forMonthD.getTime())
+                .map((p) => Number(p.amount) ?? null),
+              label: `${billData.billName} (Actual)`,
               type: 'line',
             },
             {
               data: Array.from(
-                { length: payments.length },
-                () => data.bill.amount || 0,
+                { length: billData.payments.length },
+                () => billData.amount || 0,
               ),
               label: 'Minimum',
               type: 'line',
@@ -144,40 +149,22 @@
           ]}
           options={{
             scales: {
-              y: {
-                grid: {
-                  color: '#e9e9e950',
-                },
-              },
-              x: {
-                grid: {
-                  color: '#eee',
-                },
-              },
+              y: { grid: { color: '#e9e9e950' } },
+              x: { grid: { color: '#eee' } },
             },
           }}
         />
-      {/await}
-    </Expandable>
+      </Expandable>
 
-    {#await data.payments}
-      <div class="placeholder animate-pulse w-3/5 h-56"></div>
-      <div class="placeholder animate-pulse mt-4"></div>
-      <div class="placeholder animate-pulse mt-4"></div>
-      <div class="placeholder animate-pulse mt-4"></div>
-      <div class="placeholder animate-pulse mt-4"></div>
-    {:then payments}
       <section class="flex flex-col gap-5">
-        {#each payments as payment (payment.id)}
+        {#each billData.payments as payment (payment.id)}
           <section class="rounded card variant-ghost-primary">
             <header class="card-header flex gap-4 pb-3">
               <a
                 href={`/dashboard/payments/${payment.id}`}
                 onclick={(e) => {
                   e.preventDefault();
-                  // @ts-expect-error can't turn this shit off rn
-
-                  pushState(e.target.href, {});
+                  pushState(`/dashboard/payments/${payment.id}`, {});
                   showPaymentDetails(payment.id);
                 }}
               >
@@ -214,9 +201,9 @@
           No payment history yet
         {/each}
       </section>
-    {/await}
+    </div>
   </div>
-</div>
+</svelte:boundary>
 
 <style>
   .about-list {
