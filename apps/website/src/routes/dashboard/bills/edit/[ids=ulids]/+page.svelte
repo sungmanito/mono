@@ -32,23 +32,6 @@
   {@const ids = page.params.ids.split(',')}
   {@const bills = await getBillsByIds(ids)}
   {@const households = await getUserHouseholds()}
-  {@const householdOptions = households.map((h) => ({ value: h.id, label: h.name }))}
-
-  {#snippet selectOptions({
-    name,
-    selectedValue,
-  }: {
-    name: string;
-    selectedValue: string;
-  })}
-    <select {name} class="select">
-      {#each householdOptions as option (option.value)}
-        <option value={option.value} selected={selectedValue === option.value}
-          >{option.label}</option
-        >
-      {/each}
-    </select>
-  {/snippet}
 
   <div class="@container/main p-6 flex-grow">
     <form
@@ -85,10 +68,11 @@
           </FormLabel>
 
           <FormLabel label="Household">
-            {@render selectOptions({
-              name: 'bills[].householdId',
-              selectedValue: bill.householdId,
-            })}
+            <select name="bills[].householdId" class="select">
+              {#each households as h (h.id)}
+                <option value={h.id} selected={bill.householdId === h.id}>{h.name}</option>
+              {/each}
+            </select>
           </FormLabel>
 
           <FormLabel label="Due date">
