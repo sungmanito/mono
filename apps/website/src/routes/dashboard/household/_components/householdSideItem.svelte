@@ -1,15 +1,37 @@
 <script lang="ts" module>
   export interface HouseholdSideItemProps {
-    household: PageData['households'][number];
-    userMap: PageData['streamable']['userHouseholds'];
-    generateLinkUri?: (p: PageData['households'][number]) => string;
+    household: {
+      id: string;
+      name: string;
+      ownerId: string | null;
+      billCount: number;
+    };
+    userMap: Promise<
+      Record<
+        string,
+        {
+          householdId: string;
+          householdName: string;
+          users: {
+            id: string;
+            isOwner: boolean;
+            email: string;
+            userMetadata: unknown;
+          }[];
+        }
+      >
+    >;
+    generateLinkUri?: (p: {
+      id: string;
+      name: string;
+      ownerId: string | null;
+      billCount: number;
+    }) => string;
     selected: boolean;
   }
 </script>
 
 <script lang="ts">
-  import type { PageData } from '../$types';
-
   import { page } from '$app/state';
   import { CrownIcon, ReceiptIcon, Users2Icon } from 'lucide-svelte';
   import { fly, slide } from 'svelte/transition';
@@ -34,7 +56,7 @@
 >
   <header class="flex gap-2 items-baseline text-lg justify-between">
     <div class="flex gap-2 items-baseline">
-      {#if page.data.user.id === household.ownerId}
+      {#if page.data.user?.id === household.ownerId}
         <CrownIcon size="0.9em" />
       {/if}
       {household.name}

@@ -4,8 +4,6 @@ import {
   POSTHOG_API_KEY,
 } from '$env/static/private';
 import { PUBLIC_SUPABASE_URL } from '$env/static/public';
-import { getUserHouseholds } from '$lib/server/actions/households.actions';
-import { validateUserSession } from '$lib/util/session';
 import { createServerClient } from '@supabase/ssr';
 import { redirect, type Handle } from '@sveltejs/kit';
 import { PostHog } from 'posthog-node';
@@ -27,10 +25,13 @@ export const handle: Handle = async ({ event, resolve }) => {
       cookies: {
         get: (key) => event.cookies.get(key),
         set: (key, value, options) => {
-          event.cookies.set(key, value, options);
+          event.cookies.set(key, value, {
+            ...options,
+            path: options.path ?? '/',
+          });
         },
         remove: (key, options) => {
-          event.cookies.delete(key, options);
+          event.cookies.delete(key, { ...options, path: options.path ?? '/' });
         },
       },
     },
@@ -61,15 +62,6 @@ export const handle: Handle = async ({ event, resolve }) => {
   // Quick and easy way to protect the dashboard.
   if (session === null && event.url.pathname.startsWith('/dashboard')) {
     redirect(303, `/login?url=${event.url.pathname}`);
-  }
-
-  // We are gathering the logged in users' households a lot
-  // To hopefully save that, we store them in the locals.
-  if (validateUserSession(session)) {
-    console.info('Gathering user households');
-    event.locals.userHouseholds = await getUserHouseholds(session.user.id);
-  } else {
-    event.locals.userHouseholds = [];
   }
 
   return resolve(event, {
