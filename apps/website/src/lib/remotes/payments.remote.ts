@@ -10,35 +10,68 @@ import { and, desc, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import { getUser, getUserHouseholds } from './common.remote';
 import { getImageIdByPath } from './images.remote';
 
-export const getCurrentPayments = query(async () => {
-  const userHouseholds = await getUserHouseholds();
-  await new Promise((r) => setTimeout(r, 1500)); // artificial delay for demo purposes
-  return db
-    .select({
-      ...getTableColumns(schema.payments),
-      billName: schema.bills.billName,
-      household: schema.households,
-    })
-    .from(schema.payments)
-    .innerJoin(schema.bills, eq(schema.bills.id, schema.payments.billId))
-    .innerJoin(
-      schema.households,
-      eq(schema.households.id, schema.payments.householdId),
-    )
-    .where(
-      and(
-        inArray(
-          schema.payments.householdId,
-          userHouseholds.map((h) => h.id),
+const optionalISODateValidator = type(
+  /^\d{4}-\d{2}-\d{2}((?:T|\s)\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?)?$/,
+)
+  .or('undefined')
+  .or('Date');
+
+export const getCurrentPaymentsByHousehold = query(
+  optionalISODateValidator,
+  async (date) => {
+    const payments = await getCurrentPayments(date);
+    const grouped: Record<string, { name: string; payments: typeof payments }> =
+      payments.reduce(
+        (acc, payment) => {
+          if (!acc[payment.householdId]) {
+            acc[payment.householdId] = {
+              name: payment.household.name,
+              payments: [],
+            };
+          }
+
+          acc[payment.householdId].payments.push(payment);
+
+          return acc;
+        },
+        {} as Record<string, { name: string; payments: typeof payments }>,
+      );
+    return grouped;
+  },
+);
+
+export const getCurrentPayments = query(
+  optionalISODateValidator,
+  async (date) => {
+    const userHouseholds = await getUserHouseholds();
+    const isoDate = (date ? new Date(date) : new Date()).toISOString();
+    const [isoYear, isoMonth] = isoDate.split('T')[0].split('-').map(Number);
+
+    return db
+      .select({
+        ...getTableColumns(schema.payments),
+        billName: schema.bills.billName,
+        household: schema.households,
+      })
+      .from(schema.payments)
+      .innerJoin(schema.bills, eq(schema.bills.id, schema.payments.billId))
+      .innerJoin(
+        schema.households,
+        eq(schema.households.id, schema.payments.householdId),
+      )
+      .where(
+        and(
+          inArray(
+            schema.payments.householdId,
+            userHouseholds.map((h) => h.id),
+          ),
+          eq(sql`extract('month' from ${schema.payments.forMonthD})`, isoMonth),
+          eq(sql`extract(YEAR from ${schema.payments.forMonthD})`, isoYear),
         ),
-        eq(
-          sql`extract('month' from ${schema.payments.forMonthD})`,
-          new Date().getMonth() + 1,
-        ),
-      ),
-    )
-    .orderBy(schema.payments.forMonthD);
-});
+      )
+      .orderBy(schema.payments.forMonthD);
+  },
+);
 
 export const unmarkPayment = command(ulidValidator, async (id) => {
   const userHouseholds = await getUserHouseholds();
@@ -204,7 +237,6 @@ export const togglePayment = form(
           eq(schema.objects.id, schema.payments.proofImage),
         )
         .where(eq(schema.payments.id, paymentId));
-      console.info('IMAGE', image);
       if (image) {
         // We must remove the image from storage.
         const res = await locals.supabase.storage
@@ -294,7 +326,10 @@ export const getPaymentHistoryMonths = query(async () => {
   return (
     db
       .selectDistinct({
-        month: sql<Date>`date_trunc('month', ${schema.payments.forMonthD})::date`,
+        month:
+          sql<string>`date_trunc('month', ${schema.payments.forMonthD})::timestamp at time zone 'UTC'`.mapWith(
+            schema.payments.forMonthD,
+          ),
       })
       .from(schema.payments)
       .where(
