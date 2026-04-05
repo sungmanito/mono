@@ -8,11 +8,11 @@ const config = {
   // for more information about preprocessors
   preprocess: vitePreprocess(),
 
-  // compilerOptions: {
-  //   experimental: {
-  //     async: true,
-  //   }
-  // },
+  compilerOptions: {
+    experimental: {
+      async: true,
+    }
+  },
 
   kit: {
     // adapter-auto only supports some environments, see https://kit.svelte.dev/docs/adapter-auto for a list.
@@ -21,9 +21,9 @@ const config = {
     adapter: adapter({
       runtime: 'nodejs22.x',
     }),
-    // experimental: {
-    //   remoteFunctions: true
-    // },
+    experimental: {
+      remoteFunctions: true,
+    },
     csp: {
       directives: {
         'worker-src': ['self', 'blob:'],
