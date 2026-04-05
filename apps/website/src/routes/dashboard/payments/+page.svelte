@@ -28,10 +28,14 @@
   };
 
   const paymentHistoryMonths = $derived(await getPaymentHistoryMonths());
-  let selectedMonth = $derived(paymentHistoryMonths[0].month);
+  let selectedMonth = $derived(
+    paymentHistoryMonths.length ? paymentHistoryMonths[0].month : null,
+  );
 
   const paymentsByHousehold = $derived(
-    await getCurrentPaymentsByHousehold(selectedMonth.toISOString()),
+    selectedMonth
+      ? await getCurrentPaymentsByHousehold(selectedMonth.toISOString())
+      : {},
   );
 
   const paymentPins = $derived(
@@ -101,10 +105,11 @@
     {/snippet}
   </Header>
   <p class="font-xl font-semibold text-zinc-400">
-    Showing all payments for {selectedMonth.toLocaleDateString(undefined, {
+    Showing all payments for {selectedMonth?.toLocaleDateString(undefined, {
       month: 'long',
       year: 'numeric',
-    })}
+      timeZone: 'UTC',
+    }) ?? ''}
   </p>
 
   <p class="text-zinc-400 mt-4">Monthly Progress</p>
@@ -114,8 +119,10 @@
   </div>
 
   <Progress
-    today={new Date()}
-    end={getLastDayOfMonth(new Date())}
+    today={selectedMonth ? new Date(selectedMonth) : new Date()}
+    end={selectedMonth
+      ? getLastDayOfMonth(selectedMonth)
+      : getLastDayOfMonth(new Date())}
     pins={paymentPins}
   />
 
