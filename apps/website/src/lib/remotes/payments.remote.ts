@@ -8,13 +8,23 @@ import { error } from '@sveltejs/kit';
 import { type } from 'arktype';
 import { and, desc, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import { getUser, getUserHouseholds } from './common.remote';
+import { getUserHouseholdBills } from './dashboard.remote';
 import { getImageIdByPath } from './images.remote';
 
 const optionalISODateValidator = type(
   /^\d{4}-\d{2}-\d{2}((?:T|\s)\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?)?$/,
 )
   .or('undefined')
-  .or('Date');
+  .or('Date')
+  .narrow((value) => {
+    if (value === undefined) return true;
+    if (value instanceof Date) {
+      return !isNaN(value.getTime());
+    }
+    // For string values, verify the date is actually valid
+    const date = new Date(value);
+    return !isNaN(date.getTime());
+  });
 
 export const getCurrentPaymentsByHousehold = query(
   optionalISODateValidator,
@@ -90,14 +100,17 @@ export const unmarkPayment = command(ulidValidator, async (id) => {
     .returning();
 
   getCurrentPayments().refresh();
+  getCurrentPaymentsByHousehold().refresh();
   return payment[0];
 });
 
 const uploadImageValidator = type({
   paymentId: ulidValidator,
   householdId: ulidValidator,
-  proofFile: 'File',
-  amount: type("number>=0 | ''").pipe((s) => s === '' && 0),
+  'proofFile?': type('File | string | undefined').pipe((v) =>
+    v instanceof File ? v : undefined,
+  ),
+  amount: 'string',
   'proof?': 'string>=0',
 });
 
@@ -109,19 +122,19 @@ export const uploadImage = form(
     // Need this for our where clause to ensure we aren't uploading an image to the wrong place
     const userHouseholds = await getUserHouseholds();
 
-    const { locals } = await getRequestEvent();
+    const { locals } = getRequestEvent();
 
-    if (image.type && !allowedImageTypes.has(image.type)) {
+    if (image && image.type && !allowedImageTypes.has(image.type)) {
       throw error(400, 'Invalid image type');
     }
 
-    if (image.size > 5 * 1024 * 1024) {
+    if (image && image.size > 5 * 1024 * 1024) {
       throw error(400, 'Image too large (max 5MB)');
     }
 
     let imageId: string | null = null;
 
-    if (image.size > 0) {
+    if (image && image.size > 0) {
       const fileName = `${householdId}/${paymentId}.${image.name.split('.').at(-1)}`;
       const bucket = locals.supabase.storage.from(PAYMENT_BUCKET_NAME);
       const { data: url, error: signingErr } =
@@ -152,9 +165,7 @@ export const uploadImage = form(
         paidAt: new Date(),
         notes: proof ? (proof.length > 0 ? proof : null) : undefined,
         amount:
-          typeof amount === 'number' && amount > 0
-            ? amount.toString()
-            : undefined,
+          typeof amount === 'string' && Number(amount) > 0 ? amount : undefined,
       })
       .where(
         and(
@@ -173,6 +184,9 @@ export const uploadImage = form(
       getCurrentPayments().refresh();
       // reset the cache for this specific payment
       getPayment(paymentId).refresh();
+      // reset the grouped cache
+      getCurrentPaymentsByHousehold().refresh();
+      getUserHouseholdBills().refresh();
       return updated;
     }
 
@@ -273,6 +287,7 @@ export const togglePayment = form(
       } else {
         getCurrentPayments().refresh();
         getPayment(paymentId).refresh();
+        getCurrentPaymentsByHousehold().refresh();
       }
 
       return {
@@ -315,6 +330,8 @@ export const markPayment = form(
       getCurrentPayments().refresh();
       // reset the cache for this specific payment
       getPayment(data.paymentId).refresh();
+      // reset the grouped cache
+      getCurrentPaymentsByHousehold().refresh();
       return updated;
     }
     return null;

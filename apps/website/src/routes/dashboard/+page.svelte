@@ -121,6 +121,7 @@
   onclose={() => {
     history.go(-1);
     invalidate('household:payments');
+    billsWithStatus.refetch();
   }}
 />
 
