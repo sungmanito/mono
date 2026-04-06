@@ -14,7 +14,16 @@ const optionalISODateValidator = type(
   /^\d{4}-\d{2}-\d{2}((?:T|\s)\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?)?$/,
 )
   .or('undefined')
-  .or('Date');
+  .or('Date')
+  .narrow((value) => {
+    if (value === undefined) return true;
+    if (value instanceof Date) {
+      return !isNaN(value.getTime());
+    }
+    // For string values, verify the date is actually valid
+    const date = new Date(value);
+    return !isNaN(date.getTime());
+  });
 
 export const getCurrentPaymentsByHousehold = query(
   optionalISODateValidator,
@@ -65,8 +74,14 @@ export const getCurrentPayments = query(
             schema.payments.householdId,
             userHouseholds.map((h) => h.id),
           ),
-          eq(sql`extract('month' from ${schema.payments.forMonthD})`, isoMonth),
-          eq(sql`extract(YEAR from ${schema.payments.forMonthD})`, isoYear),
+          eq(
+            sql`extract('month' from ${schema.payments.forMonthD})`,
+            isoMonth,
+          ),
+          eq(
+            sql`extract(YEAR from ${schema.payments.forMonthD})`,
+            isoYear,
+          ),
         ),
       )
       .orderBy(schema.payments.forMonthD);
@@ -90,6 +105,7 @@ export const unmarkPayment = command(ulidValidator, async (id) => {
     .returning();
 
   getCurrentPayments().refresh();
+  getCurrentPaymentsByHousehold.refresh();
   return payment[0];
 });
 
@@ -173,6 +189,8 @@ export const uploadImage = form(
       getCurrentPayments().refresh();
       // reset the cache for this specific payment
       getPayment(paymentId).refresh();
+      // reset the grouped cache
+      getCurrentPaymentsByHousehold.refresh();
       return updated;
     }
 
@@ -273,6 +291,7 @@ export const togglePayment = form(
       } else {
         getCurrentPayments().refresh();
         getPayment(paymentId).refresh();
+        getCurrentPaymentsByHousehold.refresh();
       }
 
       return {
@@ -315,6 +334,8 @@ export const markPayment = form(
       getCurrentPayments().refresh();
       // reset the cache for this specific payment
       getPayment(data.paymentId).refresh();
+      // reset the grouped cache
+      getCurrentPaymentsByHousehold.refresh();
       return updated;
     }
     return null;
