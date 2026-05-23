@@ -19,6 +19,7 @@
   import CreatePaymentsComponent from './payments/create/+page.svelte';
   import { hijack } from '$lib/attachments/hijack.svelte';
   import { getUserHouseholdBills } from '$lib/remotes/dashboard.remote';
+  import { createQuery } from '@tanstack/svelte-query';
 
   let createBillDrawer = makeShowDrawerUtil('/dashboard/bills/create');
   let createBillDetailsDrawer = makeShowDrawerUtil('/dashboard/bills/');
@@ -39,7 +40,40 @@
     };
   };
 
-  let filter: 'all' | 'overdue' | 'upcoming' | 'paid' = $state('all');
+  type Filters = 'all' | 'overdue' | 'upcoming' | 'paid';
+
+  // We make the function that does this callable outside of the queryFn so that
+  // we can use svelte's async setup to fetch the data in `initialData` before
+  // client hydration.
+  async function billsByStatusQueryFn() {
+    const bills = await getUserHouseholdBills();
+    const byStatus = bills.reduce(
+      (all, cur) => {
+        all.all.push(cur);
+        all[cur.status].push(cur);
+        return all;
+      },
+      {
+        all: [],
+        overdue: [],
+        upcoming: [],
+        paid: [],
+      } as Record<Filters, typeof bills>,
+    );
+    return byStatus;
+  }
+
+  const initialData = await billsByStatusQueryFn();
+
+  let billsByStatus = createQuery(() => ({
+    queryKey: ['dashboard', 'homepage', 'bills-by-status'],
+    queryFn: billsByStatusQueryFn,
+    staleTime: 5 * 60 * 1_000,
+    suspense: true,
+    initialData,
+  }));
+
+  let filter: Filters = $state('all');
 </script>
 
 <svelte:head>
@@ -66,7 +100,7 @@
   onclose={() => {
     history.go(-1);
     invalidate('household:payments');
-    billsWithStatus.refetch();
+    billsByStatus.refetch();
   }}
 />
 
@@ -116,33 +150,24 @@
     </div>
   {/snippet}
 
-  {@const allBills = await getUserHouseholdBills()}
-  {@const paidBills = allBills.filter((b) => b.status === 'paid')}
-  {@const overdueBills = allBills.filter((b) => b.status === 'overdue')}
-  {@const thisWeekBills = allBills.filter((b) => b.status === 'upcoming')}
-  {@const totalOutstanding = allBills
-    .filter((p) => p.payment === null || p.payment?.paidAt === null)
-    .reduce((acc, bill) => acc + bill.amount, 0)}
-  {@const filteredBills =
-    filter === 'all' ? allBills : allBills.filter((b) => b.status === filter)}
   {@const summary = [
     {
       label: 'Paid This Month',
-      value: paidBills.length,
+      value: billsByStatus.data.paid.length,
       icon: CheckIcon,
       iconBg: 'bg-green-500',
       iconText: 'text-green-700',
     },
     {
       label: 'Overdue',
-      value: overdueBills.length,
+      value: billsByStatus.data.overdue.length,
       icon: TriangleAlertIcon,
       iconBg: 'bg-red-500',
       iconText: 'text-red-700',
     },
     {
       label: 'Due This Week',
-      value: thisWeekBills.length,
+      value: billsByStatus.data.upcoming,
       icon: WatchIcon,
       iconBg: 'bg-blue-500',
       iconText: 'text-blue-500',
@@ -161,7 +186,7 @@
       <div class="text-right">
         <div class="text-surface-700-200-token text-sm">Total Outstanding</div>
         <div class="text-3xl font-bold text-warning-300-600-token">
-          {(totalOutstanding || 0).toLocaleString(undefined, {
+          {(0).toLocaleString(undefined, {
             style: 'currency',
             currency: 'USD',
           })}
@@ -200,12 +225,14 @@
               Recent Bills
             </h2>
             <div class="flex gap-3">
-              <Button
-                class="btn-sm bg-gradient-to-r variant-gradient-tertiary-secondary rounded-lg"
-                onclick={() => getUserHouseholdBills().refresh()}
-              >
-                Refresh
-              </Button>
+              {#if billsByStatus.isStale}
+                <Button
+                  class="btn-sm bg-gradient-to-r variant-gradient-tertiary-secondary rounded-lg"
+                  onclick={() => billsByStatus.refetch()}
+                >
+                  Refresh
+                </Button>
+              {/if}
 
               <ButtonGroup options={[]} />
 
@@ -266,7 +293,7 @@
             </div>
           </div>
           <div class="flex flex-col gap-4" role="list">
-            {#each filteredBills as bill}
+            {#each billsByStatus.data?.[filter] as bill}
               <div
                 class="flex items-center justify-between rounded-xl bg-surface-300 p-4 shadow border border-gray-100 transition-transform hover:translate-x-2"
                 role="listitem"
@@ -345,7 +372,7 @@
             <button
               class="w-full mb-3 py-2 rounded-xl bg-yellow-100 text-yellow-800 font-semibold flex items-center gap-2 justify-center"
               onclick={() => {
-                const ids = thisWeekBills
+                const ids = billsByStatus.data.upcoming
                   .filter((bill) => bill.payment !== null)
                   .map((b) => `payments[]=${b.payment?.id}`)
                   .join('&');
@@ -358,7 +385,7 @@
             <button
               class="w-full mb-3 py-2 rounded-xl bg-red-100 text-red-700 font-semibold flex items-center gap-2 justify-center"
               onclick={() => {
-                const ids = overdueBills
+                const ids = billsByStatus.data.overdue
                   .map((bill) => `payments[]=${bill.payment?.id}`)
                   .join('&');
                 makeMultiplePayments.url = `/dashboard/payments/create?${ids}`;
