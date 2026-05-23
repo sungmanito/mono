@@ -30,7 +30,6 @@ export const GET: RequestHandler = async () => {
 
   const mapped = bills.map((bill) => {
     return {
-      id: bill?.payments?.id,
       billId: bill.id,
       forMonthD: new Date(`${bill.nextYear}-${bill.nextMonth}-${bill.dueDate}`),
       householdId: bill.householdId,
