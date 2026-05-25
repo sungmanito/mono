@@ -91,7 +91,14 @@ export const getBillWithPayments = query(ulidValidator, async (id) => {
       .then((r) => r[0]),
 
     db.query.payments.findMany({
-      where: (fields, { eq }) => eq(fields.billId, id),
+      where: (fields, { eq, and, inArray }) =>
+        and(
+          eq(fields.billId, id),
+          inArray(
+            fields.householdId,
+            userHouseholds.map((h) => h.id),
+          ),
+        ),
       orderBy: (fields, { desc }) => desc(fields.forMonthD),
       limit: 12,
     }),

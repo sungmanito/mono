@@ -9,7 +9,7 @@ import { type } from 'arktype';
 import {
   and,
   asc,
-  count,
+  countDistinct,
   eq,
   getTableColumns,
   inArray,
@@ -115,8 +115,8 @@ export const getPendingInvites = query(async () => {
       household: {
         id: schema.households.id,
         name: schema.households.name,
-        bills: count(schema.bills.id),
-        members: count(schema.usersToHouseholds.id),
+        bills: countDistinct(schema.bills.id),
+        members: countDistinct(schema.usersToHouseholds.id),
       },
     })
     .from(schema.invites)
@@ -188,6 +188,9 @@ export const getHouseholdDetail = query(ulidValidator, async (id) => {
 });
 
 export const getHouseholdMembers = query(ulidValidator, async (householdId) => {
+  const userHouseholds = await getUserHouseholds();
+  if (!userHouseholds.find((h) => h.id === householdId)) return [];
+
   return db
     .select({
       id: schema.users.id,
@@ -381,6 +384,8 @@ export const inviteUsers = form(
   type({ 'emails[]': 'string[]', 'household-id': ulidValidator }),
   async (data) => {
     const user = await getUser();
+    const userHouseholds = await getUserHouseholds();
+    if (!userHouseholds.find((h) => h.id === data['household-id'])) error(401);
     const { locals, url } = await getRequestEvent();
     const emails = data['emails[]'].filter((e) => e !== 'email@email.com');
     await db.transaction(async (tx) => {

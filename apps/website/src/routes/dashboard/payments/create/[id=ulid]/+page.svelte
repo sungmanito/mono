@@ -12,7 +12,10 @@
   let {
     component = false,
     onclose = () => void 0,
-  }: { component?: boolean; onclose?: () => void } = $props();
+    id: idProp = '',
+  }: { component?: boolean; onclose?: () => void; id?: string; } = $props();
+
+  const id = $derived(idProp || page.params.id);
 
   let file: File | null = $state(null);
   const toastStore = getToastStore();
@@ -34,7 +37,7 @@
     </div>
   {/snippet}
 
-  {@const payment = await getPayment(page.params.id)}
+  {@const payment = await getPayment(id)}
 
   <form
     class="p-6"

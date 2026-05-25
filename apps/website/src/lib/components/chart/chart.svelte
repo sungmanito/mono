@@ -58,8 +58,6 @@
       }
     };
   });
-
-  $inspect(chartInstance);
 </script>
 
 <div>

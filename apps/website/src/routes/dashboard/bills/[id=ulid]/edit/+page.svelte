@@ -12,7 +12,10 @@
   let {
     component = false,
     onclose = () => void 0,
-  }: { component?: boolean; onclose?: () => void } = $props();
+    id: idProp = '',
+  }: { component?: boolean; onclose?: () => void; id?: string } = $props();
+
+  const id = $derived(idProp || page.params.id);
 
   let saving = $state(false);
 </script>
@@ -29,7 +32,7 @@
     </div>
   {/snippet}
 
-  {@const bill = await getBill(page.params.id)}
+  {@const bill = await getBill(id)}
   {@const households = await getUserHouseholds()}
 
   <form

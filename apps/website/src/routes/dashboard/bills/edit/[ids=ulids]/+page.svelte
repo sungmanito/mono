@@ -1,6 +1,6 @@
 <script lang="ts" module>
   import Header from '$components/header/header.svelte';
-  type Props = { component?: boolean; onclose?: () => void };
+  type Props = { component?: boolean; onclose?: () => void; ids?: string[] };
 </script>
 
 <script lang="ts">
@@ -15,7 +15,10 @@
   } from '$lib/remotes/bills.remote';
   import { getUserHouseholds } from '$lib/remotes/common.remote';
 
-  let { component = false, onclose = () => void 0 }: Props = $props();
+  let { component = false, onclose = () => void 0, ids: idsProp = [] }: Props = $props();
+
+  const ids = $derived(idsProp || page.params.id.split(',') || []);
+
 </script>
 
 <svelte:boundary>
@@ -33,7 +36,6 @@
     </div>
   {/snippet}
 
-  {@const ids = page.params.ids.split(',')}
   {@const bills = await getBillsByIds(ids)}
   {@const households = await getUserHouseholds()}
 

@@ -2,7 +2,11 @@
   export interface DrawerifyProps<
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     Data,
-    T extends { data: unknown; component: boolean; onclose: () => void },
+    T extends {
+      data: unknown;
+      component: boolean;
+      onclose: () => void;
+    },
   > extends Omit<DrawerProps, 'children'> {
     component: Component<T>;
     url: string;
@@ -12,7 +16,7 @@
 
 <script
   lang="ts"
-  generics="Data extends Record<string, any>, T extends { data: Data; component: boolean; onclose: () => void}"
+  generics="Data extends Record<string, any>, T extends { data: Data; component: boolean; onclose: () => void}, Extras = unknown"
 >
   import { preloadData } from '$app/navigation';
 
@@ -29,7 +33,8 @@
     onclose = () => void 0,
     url,
     loading,
-  }: DrawerifyProps<Data, T> = $props();
+    ...extras
+  }: DrawerifyProps<Data, T> & Extras = $props();
 
   const query = createQuery(() => ({
     queryKey: ['drawerify', url],
@@ -52,6 +57,7 @@
     onclose();
   }}
   aria-atomic="true"
+  stopScroll
 >
   {#snippet children({ close: closeDrawer })}
     {#if query.isLoading || !query.isSuccess}
@@ -68,6 +74,7 @@
         data={query.data || {}}
         onclose={closeDrawer}
         component={true}
+        {...extras}
       />
     {/if}
   {/snippet}

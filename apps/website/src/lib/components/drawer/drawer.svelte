@@ -6,10 +6,12 @@
     onopen?: () => void;
     children: Snippet<[{ close: () => void }]>;
     from?: 'left' | 'right' | 'top' | 'bottom';
+    stopScroll?: boolean;
   }
 </script>
 
 <script lang="ts">
+  import { browser } from '$app/environment';
   import { focusTrap } from '@skeletonlabs/skeleton';
   import { cx } from 'class-variance-authority';
   import { type Snippet, untrack } from 'svelte';
@@ -21,17 +23,36 @@
     onopen = () => void 0,
     children,
     class: propClass,
+    stopScroll,
     ...rest
   }: DrawerProps = $props();
+
+  function addNoScroll() {
+    if (open && browser) {
+      document.body.classList.toggle('no-scroll', true);
+    }
+  }
+
+  function removeNoScroll() {
+    if (!open && browser && document.querySelectorAll('[data-dialog]')) {
+      document.body.classList.remove('no-scroll');
+    }
+  }
 
   function dispatchCloseEvent() {
     open = false;
     onclose();
+    if (stopScroll) {
+      removeNoScroll();
+    }
   }
 
   function dispatchOpenEvent() {
     open = true;
     onopen();
+    if (stopScroll) {
+      addNoScroll();
+    }
   }
 
   let classNames = cx(
@@ -48,7 +69,10 @@
 
 <svelte:window
   onkeyup={(e) => {
-    if (e.key === 'Escape') dispatchCloseEvent();
+    if (e.key === 'Escape') {
+      console.info('YO WTF', e);
+      dispatchCloseEvent();
+    }
   }}
 />
 
@@ -61,6 +85,7 @@
     { hidden: !open },
   ]}
   use:focusTrap={true}
+  data-dialog
 >
   <div role="dialog" class={classNames} {...rest}>
     {@render children({ close: () => dispatchCloseEvent() })}

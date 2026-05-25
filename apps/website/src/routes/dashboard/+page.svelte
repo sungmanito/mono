@@ -102,6 +102,7 @@
     invalidate('household:payments');
     billsByStatus.refetch();
   }}
+  id={makeOrUpdatePayment.url.split('/').at(-1)}
 />
 
 <Drawerify
@@ -122,6 +123,7 @@
     component: boolean;
     onclose: () => void;
   }>}
+  id={createBillDetailsDrawer.url.split('/').at(-1)}
 />
 
 <svelte:boundary>

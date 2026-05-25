@@ -17,7 +17,15 @@
   let {
     component = false,
     onclose = () => void 0,
-  }: { component?: boolean; onclose?: () => void } = $props();
+    id: idProp,
+  }: {
+    component?: boolean;
+    onclose?: () => void;
+    data: unknown;
+    id?: string;
+  } = $props();
+
+  const id = $derived(page.params.id || idProp);
 
   let paymentDetails = makeShowDrawerUtil();
 
@@ -52,7 +60,7 @@
     </div>
   {/snippet}
 
-  {@const billData = await getBillWithPayments(page.params.id)}
+  {@const billData = await getBillWithPayments(id)}
 
   <div class="p-6 flex-grow @container">
     <div class="wrapper @3xl:max-w-[75vw] mx-auto">

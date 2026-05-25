@@ -9,7 +9,10 @@
   let {
     component = false,
     onclose = () => void 0,
-  }: { component?: boolean; onclose?: () => void } = $props();
+    id: idProp = '',
+  }: { component?: boolean; onclose?: () => void; id?: string } = $props();
+
+  const id = $derived(idProp || page.params.id);
 </script>
 
 <svelte:head>
@@ -29,7 +32,7 @@
     </div>
   {/snippet}
 
-  {@const payment = await getPaymentWithDetails(page.params.id)}
+  {@const payment = await getPaymentWithDetails(id)}
   {@const monthYear = payment.forMonthD.toLocaleDateString(undefined, {
     month: 'long',
     year: 'numeric',
