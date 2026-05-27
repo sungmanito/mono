@@ -48,9 +48,19 @@
     0,
   )}
   {@const upcoming = Object.values(billsMap).reduce((all, cur) => {
-    const today = new Date().setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayMs = today.getTime();
     for (const bill of cur) {
-      if (new Date(bill.dueDate).getTime() > today) all += 1;
+      const dueDate = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        bill.dueDate,
+      );
+      if (dueDate.getTime() <= todayMs) {
+        dueDate.setMonth(dueDate.getMonth() + 1);
+      }
+      if (dueDate.getTime() > todayMs) all += 1;
     }
     return all;
   }, 0)}

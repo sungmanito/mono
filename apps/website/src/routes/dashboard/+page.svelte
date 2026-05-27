@@ -329,23 +329,25 @@
                     >
                       Details
                     </a>
-                    <a
-                      class="btn-sm rounded-full bg-gradient-to-br variant-gradient-primary-tertiary"
-                      {@attach hijack({
-                        onclick: (e) => {
-                          const target = e.target as HTMLAnchorElement;
-                          makeOrUpdatePayment.url = target.href;
-                          makeOrUpdatePayment.show = true;
-                        },
-                      })}
-                      href={`/dashboard/payments/create/${bill.payment?.id}`}
-                    >
-                      {#if bill.payment?.paidAt !== null}
-                        Update
-                      {:else}
-                        Pay
-                      {/if}
-                    </a>
+                    {#if bill.payment?.id}
+                      <a
+                        class="btn-sm rounded-full bg-gradient-to-br variant-gradient-primary-tertiary"
+                        {@attach hijack({
+                          onclick: (e) => {
+                            const target = e.currentTarget as HTMLAnchorElement;
+                            makeOrUpdatePayment.url = target.href;
+                            makeOrUpdatePayment.show = true;
+                          },
+                        })}
+                        href={`/dashboard/payments/create/${bill.payment.id}`}
+                      >
+                        {#if bill.payment.paidAt !== null}
+                          Update
+                        {:else}
+                          Pay
+                        {/if}
+                      </a>
+                    {/if}
                   </div>
                 </div>
               </div>

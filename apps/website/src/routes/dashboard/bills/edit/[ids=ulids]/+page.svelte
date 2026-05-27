@@ -15,10 +15,13 @@
   } from '$lib/remotes/bills.remote';
   import { getUserHouseholds } from '$lib/remotes/common.remote';
 
-  let { component = false, onclose = () => void 0, ids: idsProp = [] }: Props = $props();
+  let {
+    component = false,
+    onclose = () => void 0,
+    ids: idsProp = [],
+  }: Props = $props();
 
   const ids = $derived(idsProp || page.params.id.split(',') || []);
-
 </script>
 
 <svelte:boundary>

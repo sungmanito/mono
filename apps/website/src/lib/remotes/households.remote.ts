@@ -13,6 +13,7 @@ import {
   eq,
   getTableColumns,
   inArray,
+  isNull,
   like,
   or,
   sql,
@@ -455,8 +456,14 @@ export const claimHousehold = form(
     const [returned] = await db
       .update(schema.households)
       .set({ ownerId: user.id, updatedAt: null })
-      .where(eq(schema.households.id, data['household-id']))
+      .where(
+        and(
+          eq(schema.households.id, data['household-id']),
+          isNull(schema.households.ownerId),
+        ),
+      )
       .returning();
+    if (!returned) error(403, 'Household is already claimed');
     getUserHouseholdsWithBillCount().refresh();
     return { household: returned };
   },

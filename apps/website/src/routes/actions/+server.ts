@@ -23,11 +23,11 @@ export const GET: RequestHandler = async () => {
         eq(schema.payments.billId, schema.bills.id),
         eq(
           sql`extract('month' from ${schema.payments.forMonthD})`,
-          sql`extract('month' from now())`,
+          sql`extract('month' from now() + interval '5 days')`,
         ),
         eq(
           sql`extract(YEAR from ${schema.payments.forMonthD})`,
-          sql`extract(YEAR from now())`,
+          sql`extract(YEAR from now() + interval '5 days')`,
         ),
       ),
     );

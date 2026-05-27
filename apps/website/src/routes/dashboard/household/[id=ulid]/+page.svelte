@@ -24,6 +24,7 @@
   import CreateBillPage from '../../bills/create/+page.svelte';
   import EditBillPage from '../../bills/[id=ulid]/edit/+page.svelte';
   import EditHousehold from './edit/+page.svelte';
+  import MembersPage from './members/+page.svelte';
   import {
     getHouseholdDetail,
     claimHousehold,
@@ -139,9 +140,7 @@
     bind:open={showMembersDrawer}
     onclose={() => (showMembersDrawer = false)}
   >
-    <div class="p-4">
-      <Header tag="h1">Members</Header>
-    </div>
+    <MembersPage />
   </Drawer>
 
   <Drawer
@@ -169,6 +168,7 @@
               {...uploadImage.enhance(async ({ submit }) => {
                 await submit();
                 getUserBills().refresh();
+                getHouseholdDetail(page.params.id).refresh();
               })}
             >
               <fieldset class="border p-4 rounded">

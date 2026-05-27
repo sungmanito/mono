@@ -13,7 +13,7 @@
     component = false,
     onclose = () => void 0,
     id: idProp = '',
-  }: { component?: boolean; onclose?: () => void; id?: string; } = $props();
+  }: { component?: boolean; onclose?: () => void; id?: string } = $props();
 
   const id = $derived(idProp || page.params.id);
 
