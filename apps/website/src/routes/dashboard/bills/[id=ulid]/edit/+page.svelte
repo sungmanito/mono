@@ -51,7 +51,7 @@
     })}
     class="p-4"
   >
-    <input type="hidden" name="bill-id" value={bill.id} />
+    <input type="hidden" name="billId" value={bill.id} />
     <Header color="secondary" tag="h2">
       Update {bill.billName}
       {#snippet actions()}
@@ -68,7 +68,7 @@
           <input
             type="text"
             class="input"
-            name="bill-name"
+            name="billName"
             value={bill.billName}
           />
         </FormLabel>
@@ -77,7 +77,7 @@
         <FormLabel label="Household">
           <select
             class="select"
-            name="household-id"
+            name="householdId"
             required
             placeholder="Holding"
           >
@@ -95,7 +95,7 @@
         <FormLabel label="Due Date">
           <input
             type="number"
-            name="due-date"
+            name="dueDate"
             class="input"
             required
             min="1"

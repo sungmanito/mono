@@ -11,10 +11,12 @@
   import { PencilIcon, PlusIcon, TrashIcon } from 'lucide-svelte';
   import type { Component } from 'svelte';
   import CreateBillComponent from './create/+page.svelte';
-  import ShowBillDetailsComponent from './edit/[ids=ulids]/+page.svelte';
+  import EditBillDetailsComponent from './edit/[ids=ulids]/+page.svelte';
+  import BillDetailsComponent from './[id=ulid]/+page.svelte';
   import { deleteBills, getUserBills } from '$lib/remotes/bills.remote';
 
   let deleteModalOpen = $state(false);
+  let deleteFormEl: HTMLFormElement = $state()!;
 
   let selectedBillIds: string[] = $state([]);
 
@@ -41,6 +43,7 @@
    */
   async function fetchEditBillData(ids: string[]) {
     if (ids.length === 0) return;
+    selectedBillIds = ids;
     editBillStore.show = true;
     editBillStore.url = `/dashboard/bills/edit/${ids.join(',')}`;
     history.pushState(null, '', editBillStore.url);
@@ -74,11 +77,12 @@
     selectedBillIds = [];
     getUserBills().refresh();
   }}
-  component={ShowBillDetailsComponent as Component<{
+  component={EditBillDetailsComponent as Component<{
     data: unknown;
     component: boolean;
     onclose: () => void;
   }>}
+  ids={selectedBillIds}
 />
 
 <svelte:boundary>
@@ -113,12 +117,16 @@
 
   <!-- Delete modal — uses deleteBills remote form -->
   <form
+    bind:this={deleteFormEl}
     {...deleteBills.enhance(async ({ submit }) => {
       await submit();
       deleteModalOpen = false;
       selectedBillIds = [];
     })}
   >
+    {#each selectedBillIds as id}
+      <input type="hidden" name="billId[]" value={id} />
+    {/each}
     <Modal
       bind:open={deleteModalOpen}
       onclose={() => {
@@ -130,16 +138,15 @@
         Delete Bills?
       {/snippet}
       {#snippet footer()}
-        <Button type="submit">Delete</Button>
+        <Button type="button" onclick={() => deleteFormEl.requestSubmit()}
+          >Delete</Button
+        >
       {/snippet}
-      {#each selectedBillIds as id}
-        <input type="hidden" name="bill-id[]" value={id} />
-      {/each}
       <div class="max-w-72">
         <p>
-          Are you sure you want to delete <strong
-            >{selectedBillIds.length}</strong
-          > bills?
+          Are you sure you want to delete
+          <strong>{selectedBillIds.length}</strong>
+          bills?
         </p>
         <p>
           This action cannot be undone, and will delete all payment history
@@ -156,14 +163,15 @@
       showBillDetailsStore.show = false;
       history.replaceState(null, '', '/dashboard/bills');
     }}
-    component={ShowBillDetailsComponent as Component<{
+    component={BillDetailsComponent as Component<{
       data: unknown;
       component: boolean;
       onclose: () => void;
     }>}
+    id={showBillDetailsStore.url.split('/').at(-1)}
   />
 
-  <div class="container mx-auto">
+  <div class="container mx-auto md:w-2/3 lg:4/5">
     <Breadcrumb
       class="mt-6 mb-4"
       crumbs={[

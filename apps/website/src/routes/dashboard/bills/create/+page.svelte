@@ -120,7 +120,7 @@
           <FormLabel label="Household">
             <select
               class="select"
-              name="household-id[]"
+              name="householdId[]"
               required
               placeholder="Please select a household"
             >
@@ -139,7 +139,7 @@
           <FormLabel label="Due date">
             <input
               class="input"
-              name="due-date[]"
+              name="dueDate[]"
               type="number"
               min="1"
               max="28"

@@ -18,10 +18,11 @@
   let {
     component = false,
     onclose = () => void 0,
-    ids: idsProp = [],
+    ids: idsProp,
   }: Props = $props();
 
-  const ids = $derived(idsProp || page.params.id.split(',') || []);
+  const ids = $derived(idsProp || page.params?.ids?.split(',') || []);
+
 </script>
 
 <svelte:boundary>
@@ -66,18 +67,18 @@
           <Header color="custom" tag="h4" class="mb-2">
             {bill.billName}
           </Header>
-          <input type="hidden" name="bills[].id" value={bill.id} />
+          <input type="hidden" name="billsId[]" value={bill.id} />
           <FormLabel label="Bill name">
             <input
               class="input"
               type="text"
-              name="bills[].name"
+              name="billsName[]"
               value={bill.billName}
             />
           </FormLabel>
 
           <FormLabel label="Household">
-            <select name="bills[].householdId" class="select">
+            <select name="billsHouseholdId[]" class="select">
               {#each households as h (h.id)}
                 <option value={h.id} selected={bill.householdId === h.id}
                   >{h.name}</option
@@ -90,7 +91,7 @@
             <input
               class="input"
               type="number"
-              name="bills[].dueDate"
+              name="billsDueDate[]"
               value={bill.dueDate}
               min="1"
               max="28"
@@ -103,7 +104,7 @@
             <input
               class="input"
               type="number"
-              name="bills[].amount"
+              name="billsAmount[]"
               value={bill.amount || 0}
             />
           </FormLabel>

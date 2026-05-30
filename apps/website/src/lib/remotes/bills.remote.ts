@@ -134,11 +134,11 @@ export const getBillsByIds = query(type('string[]'), async (ids) => {
 });
 
 const billCreateValidator = type({
-  'name[]': 'string[]',
-  'household-id[]': 'string[]',
-  'due-date[]': 'string[]',
-  'amount[]': 'string[]',
-  'currency[]': 'string[]',
+  name: 'string[]',
+  householdId: ulidValidator.array(),
+  dueDate: 'string.numeric.parse[]',
+  amount: 'string.numeric.parse[]',
+  currency: 'string[]',
 });
 
 /**
@@ -148,11 +148,11 @@ export const createBill = form(billCreateValidator, async (data) => {
   const userHouseholds = await getUserHouseholds();
   const householdIds = userHouseholds.map((h) => h.id);
 
-  const names = data['name[]'];
-  const householdIdsInput = data['household-id[]'];
-  const dueDates = data['due-date[]'].map(Number);
-  const amounts = data['amount[]'].map(Number);
-  const currencies = data['currency[]'];
+  const names = data['name'];
+  const householdIdsInput = data['householdId'];
+  const dueDates = data['dueDate'];
+  const amounts = data['amount'];
+  const currencies = data['currency'];
 
   // Validate all submitted households belong to the user
   if (!householdIdsInput.every((id) => householdIds.includes(id))) {
@@ -202,10 +202,10 @@ export const createBill = form(billCreateValidator, async (data) => {
 });
 
 const billUpdateValidator = type({
-  'bill-id': 'string',
-  'bill-name': 'string',
-  'household-id': 'string',
-  'due-date': 'string',
+  billId: 'string',
+  billName: 'string',
+  householdId: 'string',
+  dueDate: 'string',
   'amount?': 'string',
   'currency?': 'string',
 });
@@ -216,11 +216,11 @@ const billUpdateValidator = type({
 export const updateBill = form(billUpdateValidator, async (data) => {
   const userHouseholds = await getUserHouseholds();
 
-  if (!userHouseholds.some((h) => h.id === data['household-id'])) {
+  if (!userHouseholds.some((h) => h.id === data['householdId'])) {
     throw new Error('Not authorized to update this bill');
   }
 
-  const dueDate = Number(data['due-date']);
+  const dueDate = Number(data['dueDate']);
   if (dueDate < 1 || dueDate > 28) {
     throw new Error('Due date must be between 1 and 28');
   }
@@ -228,15 +228,15 @@ export const updateBill = form(billUpdateValidator, async (data) => {
   const [updated] = await db
     .update(schema.bills)
     .set({
-      billName: data['bill-name'],
+      billName: data['billName'],
       dueDate,
-      householdId: data['household-id'],
+      householdId: data['householdId'],
       amount: data['amount'] ? Number(data['amount']) : undefined,
       currency: data['currency'] ? data['currency'].toUpperCase() : undefined,
     })
     .where(
       and(
-        eq(schema.bills.id, data['bill-id']),
+        eq(schema.bills.id, data['billId']),
         inArray(
           schema.bills.householdId,
           userHouseholds.map((h) => h.id),
@@ -253,11 +253,11 @@ export const updateBill = form(billUpdateValidator, async (data) => {
 });
 
 const billsBatchUpdateValidator = type({
-  'bills[].id': 'string[]',
-  'bills[].name': 'string[]',
-  'bills[].householdId': 'string[]',
-  'bills[].dueDate': 'string[]',
-  'bills[].amount': 'string[]',
+  billsId: 'string[]',
+  billsName: 'string[]',
+  billsHouseholdId: 'string[]',
+  billsDueDate: 'string[]',
+  billsAmount: 'string[]',
 });
 
 /**
@@ -267,11 +267,11 @@ export const updateBills = form(billsBatchUpdateValidator, async (data) => {
   const userHouseholds = await getUserHouseholds();
   const userHouseholdIds = userHouseholds.map((h) => h.id);
 
-  const ids = data['bills[].id'];
-  const names = data['bills[].name'];
-  const householdIds = data['bills[].householdId'];
-  const dueDates = data['bills[].dueDate'].map(Number);
-  const amounts = data['bills[].amount'].map(Number);
+  const ids = data['billsId'];
+  const names = data['billsName'];
+  const householdIds = data['billsHouseholdId'];
+  const dueDates = data['billsDueDate'].map(Number);
+  const amounts = data['billsAmount'].map(Number);
 
   // Validate all household IDs belong to the user
   if (!householdIds.every((id) => userHouseholdIds.includes(id))) {
@@ -308,7 +308,7 @@ export const updateBills = form(billsBatchUpdateValidator, async (data) => {
 });
 
 const deleteBillsValidator = type({
-  'bill-id[]': 'string[]',
+  billId: 'string[]',
 });
 
 /**
@@ -316,7 +316,7 @@ const deleteBillsValidator = type({
  */
 export const deleteBills = form(deleteBillsValidator, async (data) => {
   const userHouseholds = await getUserHouseholds();
-  const billIds = [...new Set(data['bill-id[]'])];
+  const billIds = [...new Set(data['billId'])];
 
   if (billIds.length === 0) {
     throw new Error('No bill IDs provided');
