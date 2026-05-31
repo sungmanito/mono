@@ -18,6 +18,8 @@ importers:
         specifier: ^2.0.6
         version: 2.5.6
 
+  apps/bill-aggregator: {}
+
   apps/website:
     dependencies:
       '@floating-ui/dom':

@@ -5,17 +5,10 @@ const BATCH_SIZE = parseInt(Deno.env.get('BATCH_SIZE') ?? '500');
 const BATCH_DELAY_MS = parseInt(Deno.env.get('BATCH_DELAY_MS') ?? '100');
 const JOB_NAME = 'generate-monthly-payments';
 
-Deno.serve(async (req) => {
-  const authHeader = req.headers.get('Authorization');
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-
-  if (!serviceRoleKey || authHeader !== `Bearer ${serviceRoleKey}`) {
-    return new Response('Unauthorized', { status: 401 });
-  }
-
+Deno.serve(async (_req) => {
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
-    serviceRoleKey!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     { auth: { persistSession: false } },
   );
 
