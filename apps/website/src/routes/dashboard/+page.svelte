@@ -74,6 +74,8 @@
   }));
 
   let filter: Filters = $state('all');
+
+  $inspect(billsByStatus);
 </script>
 
 <svelte:head>
@@ -169,7 +171,7 @@
     },
     {
       label: 'Due This Week',
-      value: billsByStatus.data.upcoming,
+      value: billsByStatus.data.upcoming.length,
       icon: WatchIcon,
       iconBg: 'bg-blue-500',
       iconText: 'text-blue-500',

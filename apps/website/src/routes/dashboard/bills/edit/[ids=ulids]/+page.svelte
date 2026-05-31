@@ -22,7 +22,6 @@
   }: Props = $props();
 
   const ids = $derived(idsProp || page.params?.ids?.split(',') || []);
-
 </script>
 
 <svelte:boundary>
