@@ -7,4 +7,4 @@ export * from './usersToHouseholds.table';
 export * from './invites.table';
 export * from './objects.table';
 export * from './buckets.table';
-export * from './job-runs.table';
+export * from './jobRuns.table';
