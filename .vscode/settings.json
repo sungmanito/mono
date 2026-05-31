@@ -13,5 +13,7 @@
     "@*/": "${workspaceRoot}/apps/$1/",
     "$*/": "${workspaceRoot}/packages/$1/"
   },
-  "explorer.sortOrder": "filesFirst"
+  "explorer.sortOrder": "filesFirst",
+  "deno.enablePaths": ["apps/bill-aggregator/supabase/functions"],
+  "deno.lint": true
 }
