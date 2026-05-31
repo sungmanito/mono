@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
   const authHeader = req.headers.get('Authorization');
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-  if (authHeader !== `Bearer ${serviceRoleKey}`) {
+  if (!serviceRoleKey || authHeader !== `Bearer ${serviceRoleKey}`) {
     return new Response('Unauthorized', { status: 401 });
   }
 
@@ -72,13 +72,16 @@ Deno.serve(async (req) => {
   const durationMs = Date.now() - startedAt;
   const summary = { created, skipped, batches, duration_ms: durationMs };
 
-  await supabase.from('job_runs').insert({
+  const { error: jobRunError } = await supabase.from('job_runs').insert({
     job_name: JOB_NAME,
     created,
     skipped,
     duration_ms: durationMs,
     error: errorMessage,
   });
+  if (jobRunError) {
+    console.error(`[${JOB_NAME}] failed to write job_run:`, jobRunError.message);
+  }
 
   console.log(`[${JOB_NAME}]`, JSON.stringify(summary));
 
