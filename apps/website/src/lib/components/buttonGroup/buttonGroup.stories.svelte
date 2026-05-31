@@ -6,7 +6,6 @@
   const { Story } = defineMeta({
     title: 'Components/Button Group',
     component: ButtonGroup,
-    tags: ['autodocs'],
   });
 
   let fn = $state('Option 1');

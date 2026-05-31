@@ -9,8 +9,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         name: Install PNPM
-        with:
-          version: 9.0.5
       - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
@@ -24,8 +22,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         name: Install PNPM
-        with:
-          version: 9.0.5
       - uses: actions/setup-node@v4
         with:
           node-version: '22.x'

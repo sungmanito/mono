@@ -1,71 +1,80 @@
 <script lang="ts">
-  import { enhance } from '$app/forms';
-  import { goto, invalidate } from '$app/navigation';
   import Button from '$lib/components/button/button.svelte';
   import FormLabel from '$lib/components/formLabel/formLabel.svelte';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
+  import { goto } from '$app/navigation';
   import { Loader2Icon } from 'lucide-svelte';
+  import {
+    getUserHouseholdsWithBillCount,
+    updateHousehold,
+  } from '$lib/remotes/households.remote';
 
-  export let data;
+  let {
+    component = false,
+    onclose = () => void 0,
+  }: { component?: boolean; onclose?: () => void } = $props();
 
-  export let component = false;
-  export let onclose: () => void = () => void 0;
-
-  let sending = false;
-
-  $: household = data.household;
+  let saving = $state(false);
 </script>
 
-<svelte:head>
-  <title>
-    Household &ndash; Edit {household.name}
-  </title>
-</svelte:head>
+<svelte:boundary>
+  {#snippet pending()}
+    <div class="flex flex-col gap-4 p-4">
+      <div class="h-8 w-64 rounded animate-pulse bg-surface-300 mb-2"></div>
+      <div class="h-12 rounded animate-pulse bg-surface-300"></div>
+    </div>
+  {/snippet}
 
-<form
-  action="/dashboard/household?/updateHousehold"
-  class="flex flex-col gap-4 p-4"
-  method="post"
-  use:enhance={() => {
-    sending = true;
-    return async ({ update }) => {
-      sending = false;
-      await update();
-      await invalidate('user:households');
-      if (!component) {
-        goto(`/dashboard/household/${$page.params.id}`);
-      } else {
-        onclose();
-      }
-    };
-  }}
->
-  <input type="hidden" name="household-id" value={household.id} />
+  {@const households = await getUserHouseholdsWithBillCount()}
+  {@const household = households.find((h) => h.id === page.params.id)}
 
-  <h2 class="h2 flex gap-2">
-    {#if sending}
-      <Loader2Icon size={'1.5em'} />
-    {/if}
-    Edit {household.name}
-  </h2>
-  <p class="text-surface-700-200-token">ID: {household.id}</p>
+  {#if !household}
+    <div class="p-4">Household not found.</div>
+  {:else}
+    <form
+      class="flex flex-col gap-4 p-4"
+      {...updateHousehold.enhance(async ({ submit }) => {
+        saving = true;
+        try {
+          await submit();
+          if (!component) {
+            goto(`/dashboard/household/${household.id}`);
+          } else {
+            onclose();
+          }
+        } finally {
+          saving = false;
+        }
+      })}
+    >
+      <input type="hidden" name="household-id" value={household.id} />
 
-  <FormLabel label="Household Name">
-    <input
-      name="name"
-      disabled={sending}
-      type="text"
-      class="input"
-      value={household.name}
-    />
-  </FormLabel>
+      <h2 class="h2 flex gap-2">
+        {#if saving}
+          <Loader2Icon size="1.5em" />
+        {/if}
+        Edit {household.name}
+      </h2>
+      <p class="text-surface-700-200-token">ID: {household.id}</p>
 
-  <section class="flex gap-3">
-    {#if component}
-      <Button disabled={sending} variant="filled" onclick={() => onclose()}
-        >Close</Button
-      >
-    {/if}
-    <Button disabled={sending}>Save</Button>
-  </section>
-</form>
+      <FormLabel label="Household Name">
+        <input
+          name="name"
+          disabled={saving}
+          type="text"
+          class="input"
+          value={household.name}
+        />
+      </FormLabel>
+
+      <section class="flex gap-3">
+        {#if component}
+          <Button disabled={saving} variant="filled" onclick={() => onclose()}
+            >Close</Button
+          >
+        {/if}
+        <Button disabled={saving}>Save</Button>
+      </section>
+    </form>
+  {/if}
+</svelte:boundary>

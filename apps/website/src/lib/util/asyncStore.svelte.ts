@@ -13,6 +13,7 @@ export type StoreReturnType<T, E> =
       error: E;
       isLoading: boolean;
     };
+
 export function asyncStore<T, E>(
   asyncFn: () => Promise<T>,
 ): StoreReturnType<T, E> {
