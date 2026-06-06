@@ -20,8 +20,6 @@ jobs:
             ${{ runner.os }}-pnpm-
       - uses: pnpm/action-setup@v4
         name: Install PNPM
-        with:
-          version: 9.0.5
 
       - uses: actions/cache/restore@v4
         name: Restore Playwright from Cache

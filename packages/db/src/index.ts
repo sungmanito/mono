@@ -23,6 +23,7 @@ export const exportedSchema = {
   invites: schema.invites,
   objects: schema.objects,
   buckets: schema.buckets,
+  jobRuns: schema.jobRuns,
   // Relationships
   billsRelations,
   userRelations,
