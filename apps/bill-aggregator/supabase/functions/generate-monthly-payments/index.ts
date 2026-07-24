@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { nextMonthDateFor } from './next-month-date.ts';
 
-const BATCH_SIZE = parseInt(Deno.env.get('BATCH_SIZE') ?? '500');
-const BATCH_DELAY_MS = parseInt(Deno.env.get('BATCH_DELAY_MS') ?? '100');
+const BATCH_SIZE = parseInt(Deno.env.get('BATCH_SIZE') ?? '500', 10);
+const BATCH_DELAY_MS = parseInt(Deno.env.get('BATCH_DELAY_MS') ?? '100', 10);
 const JOB_NAME = 'generate-monthly-payments';
 
 Deno.serve(async (_req) => {

@@ -5,7 +5,7 @@
  */
 export function nextMonthDateFor(dueDate: number, referenceDate: Date): string {
   const next = new Date(
-    Date.UTC(referenceDate.getFullYear(), referenceDate.getMonth() + 1, 1),
+    Date.UTC(referenceDate.getUTCFullYear(), referenceDate.getUTCMonth() + 1, 1),
   );
   const year = next.getUTCFullYear();
   const month = String(next.getUTCMonth() + 1).padStart(2, '0');
