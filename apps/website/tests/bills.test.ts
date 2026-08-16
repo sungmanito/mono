@@ -75,11 +75,9 @@ test('Users can delete bills using dedicated delete button', async ({
     .getByRole('button', { name: 'Delete' })
     .click();
 
-  expect(
-    await page
-      .getByRole('listitem', { name: /New Bill \d+/, exact: false })
-      .count(),
-  ).toBe(newBillCount - 1);
+  await expect(
+    page.getByRole('listitem', { name: /New Bill \d+/, exact: false }),
+  ).toHaveCount(newBillCount - 1);
 });
 
 test('Users can delete bills using bulk actions', async ({ page }) => {

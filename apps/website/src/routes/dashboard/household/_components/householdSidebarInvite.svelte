@@ -31,7 +31,7 @@
       </div>
       <div class="flex gap-2 justify-center">
         <form {...acceptForm}>
-          <input type="hidden" name="invite-id" value={invite.id} />
+          <input type="hidden" name="inviteId" value={invite.id} />
           <Button
             name="action"
             value="accept"
@@ -40,7 +40,7 @@
           >
         </form>
         <form {...rejectForm}>
-          <input type="hidden" name="invite-id" value={invite.id} />
+          <input type="hidden" name="inviteId" value={invite.id} />
           <Button
             variant="destructive:ghost"
             name="action"

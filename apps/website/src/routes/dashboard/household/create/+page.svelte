@@ -1,40 +1,45 @@
 <script lang="ts">
-  import { enhance } from '$app/forms';
-  import { invalidate } from '$app/navigation';
   import Button from '$lib/components/button/button.svelte';
   import FormLabel from '$lib/components/formLabel/formLabel.svelte';
   import Header from '$lib/components/header/header.svelte';
-  import type { SubmitFunction } from '@sveltejs/kit';
   import { XIcon } from 'lucide-svelte';
+  import { addHousehold } from '$lib/remotes/households.remote';
 
-  export let component = false;
-  export let onclose: () => void = () => void 0;
+  let {
+    component = false,
+    onclose = () => void 0,
+    formKey,
+  }: { component?: boolean; onclose?: () => void; formKey?: string } = $props();
 
-  export let submit: SubmitFunction = ({ formData }) => {
-    const rawMembers = formData.get('members') || '';
-    if (typeof rawMembers !== 'string' || rawMembers === '')
-      formData.delete('members');
-    else if (typeof rawMembers === 'string') {
-      const members = rawMembers.split(/[\s,\n]+/);
-      formData.delete('members');
-      for (const member of members) {
-        formData.append('members', member);
-      }
-    }
+  let membersRaw = $state('');
+  let saving = $state(false);
 
-    return async ({ update }) => {
-      await update();
-      onclose();
-      invalidate('user:households');
-    };
-  };
+  const members = $derived(
+    membersRaw
+      .split(/[\s,\n]+/)
+      .map((m) => m.trim())
+      .filter(Boolean),
+  );
+
+  // This component can be mounted more than once at a time (e.g. the
+  // household list page and the sidebar both render it), so each mount
+  // needs its own remote form instance.
+  const householdForm = $derived(
+    formKey ? addHousehold.for(formKey) : addHousehold,
+  );
 </script>
 
 <form
   class="p-4"
-  action="/dashboard/household/?/addHousehold"
-  method="post"
-  use:enhance={submit}
+  {...householdForm.enhance(async ({ submit }) => {
+    saving = true;
+    try {
+      await submit();
+      onclose();
+    } finally {
+      saving = false;
+    }
+  })}
 >
   <Header color="secondary" tag="h2" class="mb-8">
     New household
@@ -42,7 +47,7 @@
       {#if component}
         <button
           type="button"
-          on:click={() => onclose()}
+          onclick={() => onclose()}
           class="btn-icon btn-icon-sm"
         >
           <XIcon size="1em" />
@@ -55,8 +60,9 @@
       <FormLabel label="Household Name">
         <input
           class="input"
-          name="household-name"
+          name="householdName"
           placeholder="What's a good description for all the members?"
+          disabled={saving}
           required
         />
       </FormLabel>
@@ -64,19 +70,23 @@
     <div>
       <FormLabel label="Invite Members">
         <textarea
-          name="members"
+          bind:value={membersRaw}
           class="textarea"
           placeholder="Invite members to the household"
+          disabled={saving}
         ></textarea>
       </FormLabel>
     </div>
+    {#each members as email (email)}
+      <input type="hidden" name="members[]" value={email} />
+    {/each}
     <footer class="col-span-3 flex justify-end gap-3">
       {#if component}
         <Button type="button" variant="filled" onclick={() => onclose()}>
           Close
         </Button>
       {/if}
-      <Button type="submit">Add</Button>
+      <Button type="submit" disabled={saving}>Add</Button>
     </footer>
   </section>
 </form>

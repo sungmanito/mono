@@ -76,6 +76,7 @@
     "@sungmanito/db": "workspace:*",
     "@supabase/ssr": "^0.0.10",
     "@supabase/supabase-js": "^2.51.0",
+    "@tanstack/query-core": "5.90.2",
     "@tanstack/svelte-query": "^6.0.0",
     "@vercel/edge-config": "^0.4.1",
     "arktype": "2.1.23",

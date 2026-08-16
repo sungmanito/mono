@@ -214,7 +214,7 @@ export const getHouseholdMembers = query(ulidValidator, async (householdId) => {
 });
 
 export const addHousehold = form(
-  type({ 'household-name': 'string', 'members?': 'string.email[]' }),
+  type({ householdName: 'string', 'members?': 'string.email[]' }),
   async (data) => {
     const user = await getUser();
     const { locals, url } = await getRequestEvent();
@@ -225,7 +225,7 @@ export const addHousehold = form(
         : [];
     const [newHome] = await db
       .insert(schema.households)
-      .values({ name: data['household-name'], ownerId: user.id })
+      .values({ name: data.householdName, ownerId: user.id })
       .returning();
     if (!newHome) error(400, 'Failed to create household');
     if (members.length > 0) {
@@ -264,7 +264,7 @@ export const addHousehold = form(
 );
 
 export const respondToInvite = form(
-  type({ 'invite-id': 'string', action: "'accept'|'delete'" }),
+  type({ inviteId: 'string', action: "'accept'|'delete'" }),
   async (data) => {
     const user = await getUser();
     if (data.action === 'accept') {
@@ -274,7 +274,7 @@ export const respondToInvite = form(
           .from(schema.invites)
           .where(
             and(
-              eq(schema.invites.id, data['invite-id']),
+              eq(schema.invites.id, data.inviteId),
               eq(schema.invites.toId, user.id),
             ),
           );
@@ -292,7 +292,7 @@ export const respondToInvite = form(
         .delete(schema.invites)
         .where(
           and(
-            eq(schema.invites.id, data['invite-id']),
+            eq(schema.invites.id, data.inviteId),
             eq(schema.invites.toId, user.id),
           ),
         );
@@ -303,23 +303,23 @@ export const respondToInvite = form(
 );
 
 export const deleteHousehold = form(
-  type({ 'household-id': 'string' }),
+  type({ householdId: 'string' }),
   async (data) => {
     const user = await getUser();
     const deleted = await db.transaction(async (tx) => {
-      const [{ isOwner }] = await tx
+      const [row] = await tx
         .select({
           isOwner: sql<boolean>`${schema.households.ownerId} = ${user.id}`,
         })
         .from(schema.households)
-        .where(eq(schema.households.id, data['household-id']));
-      if (!isOwner) {
+        .where(eq(schema.households.id, data.householdId));
+      if (!row?.isOwner) {
         tx.rollback();
         return false;
       }
       const [item] = await tx
         .delete(schema.households)
-        .where(eq(schema.households.id, data['household-id']))
+        .where(eq(schema.households.id, data.householdId))
         .returning();
       return Boolean(item);
     });
@@ -329,14 +329,14 @@ export const deleteHousehold = form(
 );
 
 export const updateHousehold = form(
-  type({ 'household-id': 'string', name: 'string>=2' }),
+  type({ householdId: 'string', name: 'string>=2' }),
   async (data) => {
     const userHouseholds = await getUserHouseholds();
-    if (!userHouseholds.find((h) => h.id === data['household-id'])) error(401);
+    if (!userHouseholds.find((h) => h.id === data.householdId)) error(401);
     const [returned] = await db
       .update(schema.households)
       .set({ name: data.name })
-      .where(eq(schema.households.id, data['household-id']))
+      .where(eq(schema.households.id, data.householdId))
       .returning();
     getUserHouseholdsWithBillCount().refresh();
     return { household: returned };
@@ -382,11 +382,11 @@ export const removeMember = form(
 );
 
 export const inviteUsers = form(
-  type({ 'emails[]': 'string[]', 'household-id': ulidValidator }),
+  type({ 'emails[]': 'string[]', householdId: ulidValidator }),
   async (data) => {
     const user = await getUser();
     const userHouseholds = await getUserHouseholds();
-    if (!userHouseholds.find((h) => h.id === data['household-id'])) error(401);
+    if (!userHouseholds.find((h) => h.id === data.householdId)) error(401);
     const { locals, url } = await getRequestEvent();
     const emails = data['emails[]'].filter((e) => e !== 'email@email.com');
     await db.transaction(async (tx) => {
@@ -413,26 +413,26 @@ export const inviteUsers = form(
           .values({
             fromEmail: user.email as string,
             toEmail: email,
-            householdId: data['household-id'],
+            householdId: data.householdId,
             fromId: user.id,
             toId,
           })
           .onConflictDoNothing();
       }
     });
-    getHouseholdDetail(data['household-id']).refresh();
+    getHouseholdDetail(data.householdId).refresh();
   },
 );
 
 export const deleteInvite = form(
-  type({ 'invite-id': ulidValidator }),
+  type({ inviteId: ulidValidator }),
   async (data) => {
     const user = await getUser();
     const [row] = await db
       .delete(schema.invites)
       .where(
         and(
-          eq(schema.invites.id, data['invite-id']),
+          eq(schema.invites.id, data.inviteId),
           inArray(
             schema.invites.householdId,
             db
@@ -450,7 +450,7 @@ export const deleteInvite = form(
 );
 
 export const claimHousehold = form(
-  type({ 'household-id': ulidValidator }),
+  type({ householdId: ulidValidator }),
   async (data) => {
     const user = await getUser();
     const [returned] = await db
@@ -458,7 +458,7 @@ export const claimHousehold = form(
       .set({ ownerId: user.id, updatedAt: null })
       .where(
         and(
-          eq(schema.households.id, data['household-id']),
+          eq(schema.households.id, data.householdId),
           isNull(schema.households.ownerId),
         ),
       )
