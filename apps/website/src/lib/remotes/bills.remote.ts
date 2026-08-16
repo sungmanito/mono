@@ -1,11 +1,11 @@
 import { query, form } from '$app/server';
 import { db } from '$lib/server/db';
 import { exportedSchema as schema } from '@sungmanito/db';
-import { and, eq, getTableColumns, inArray } from 'drizzle-orm';
+import { and, asc, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import { getUser, getUserHouseholds } from './common.remote';
 import { getUserHouseholdBills } from './dashboard.remote';
 import { type } from 'arktype';
-import { ulidValidator } from '$lib/typesValidators';
+import { optionalISODateValidator, ulidValidator } from '$lib/typesValidators';
 
 export const getUserBills = query(async () => {
   const user = await getUser();
@@ -35,6 +35,64 @@ export const getUserBills = query(async () => {
       .orderBy(schema.bills.dueDate)
   );
 });
+
+/**
+ * Fetches all of the current user's bills joined with their payment status
+ * for the given month (defaults to the current month), grouped by household.
+ * A bill with no payment row yet for the month is "upcoming" (or "overdue"
+ * once its due date has passed) rather than being excluded.
+ */
+export const getUserBillsWithPaymentStatus = query(
+  optionalISODateValidator,
+  async (date) => {
+    const user = await getUser();
+    const targetDate = date ? new Date(date) : new Date();
+    const month = targetDate.getUTCMonth() + 1;
+    const year = targetDate.getUTCFullYear();
+
+    const rows = await db
+      .select({
+        ...getTableColumns(schema.bills),
+        householdName: schema.households.name,
+        payment: schema.payments,
+        status: sql<
+          'overdue' | 'upcoming' | 'paid'
+        >`case when ${schema.payments.paidAt} is not null then 'paid'::text when make_date(${year}, ${month}, ${schema.bills.dueDate}) < now() then 'overdue'::text else 'upcoming'::text end`,
+      })
+      .from(schema.bills)
+      .innerJoin(
+        schema.households,
+        eq(schema.bills.householdId, schema.households.id),
+      )
+      .innerJoin(
+        schema.usersToHouseholds,
+        and(
+          eq(schema.usersToHouseholds.userId, user.id),
+          eq(schema.usersToHouseholds.householdId, schema.households.id),
+        ),
+      )
+      .leftJoin(
+        schema.payments,
+        and(
+          eq(sql`extract('month' from ${schema.payments.forMonthD})`, month),
+          eq(sql`extract('year' from ${schema.payments.forMonthD})`, year),
+          eq(schema.payments.billId, schema.bills.id),
+        ),
+      )
+      .orderBy(asc(schema.bills.dueDate));
+
+    return rows.reduce(
+      (acc, row) => {
+        if (!acc[row.householdId]) {
+          acc[row.householdId] = { name: row.householdName, bills: [] };
+        }
+        acc[row.householdId].bills.push(row);
+        return acc;
+      },
+      {} as Record<string, { name: string; bills: typeof rows }>,
+    );
+  },
+);
 
 /**
  * Fetches a single bill by ID, ensuring it belongs to the current user's households.
