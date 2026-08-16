@@ -20,7 +20,6 @@ export default [
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: './tsconfig.json',
         sourceType: 'module',
         ecmaVersion: 2022,
       },
@@ -42,7 +41,6 @@ export default [
       parser: svelteParser,
       parserOptions: {
         parser: tsParser,
-        project: './tsconfig.json',
         extraFileExtensions: ['.svelte'],
       },
     },

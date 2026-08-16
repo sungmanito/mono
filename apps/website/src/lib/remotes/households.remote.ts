@@ -307,13 +307,13 @@ export const deleteHousehold = form(
   async (data) => {
     const user = await getUser();
     const deleted = await db.transaction(async (tx) => {
-      const [{ isOwner }] = await tx
+      const [row] = await tx
         .select({
           isOwner: sql<boolean>`${schema.households.ownerId} = ${user.id}`,
         })
         .from(schema.households)
         .where(eq(schema.households.id, data.householdId));
-      if (!isOwner) {
+      if (!row?.isOwner) {
         tx.rollback();
         return false;
       }
