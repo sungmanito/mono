@@ -17,6 +17,9 @@ test('Filters work correctly on the dashboard', async ({ page }) => {
   // Login to the dashboard
   await navigateAndLoginTo('/dashboard', page);
 
+  // Wait for the bill list to finish loading before counting
+  await expect(page.getByRole('listitem').first()).toBeVisible();
+
   // grab the count to en sure the filters work
   const count = await page.getByRole('listitem').count();
   expect(count).not.toBe(0);
@@ -59,14 +62,15 @@ test('Adding new bills works correctly', async ({ page }) => {
   await page.goto('/dashboard/bills');
 
   // // Find and delete the bill
-  const billRow = page.getByRole('row', { name: /Test Bill/ });
+  const billRow = page.getByRole('listitem', { name: /Test Bill/ });
   await billRow.getByRole('button', { name: 'Delete' }).click();
-  await page.getByRole('dialog').getByRole('textbox').fill('delete');
   await page
     .getByRole('dialog')
-    .getByRole('button', { name: 'Submit' })
+    .getByRole('button', { name: 'Delete' })
     .click();
 
   // // Ensure the bill is deleted
-  await expect(page.getByRole('row', { name: 'Test Bill' })).not.toBeVisible();
+  await expect(
+    page.getByRole('listitem', { name: 'Test Bill' }),
+  ).not.toBeVisible();
 });

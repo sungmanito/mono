@@ -94,7 +94,7 @@ test('User can delete household', async ({ page }) => {
   await page.getByRole('dialog').getByRole('textbox').fill('delete');
   await page
     .getByRole('dialog')
-    .getByRole('button', { name: 'Close', exact: true })
+    .getByRole('button', { name: 'Delete', exact: true })
     .click();
   await expect(
     page.getByTestId('sidebar-household').getByText('Edited Household 1'),

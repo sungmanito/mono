@@ -47,7 +47,7 @@
         }
       })}
     >
-      <input type="hidden" name="household-id" value={household.id} />
+      <input type="hidden" name="householdId" value={household.id} />
 
       <h2 class="h2 flex gap-2">
         {#if saving}

@@ -12,6 +12,10 @@ vite.config.ts.timestamp-*
 
 .vercel
 
+# Playwright
+/test-results
+/playwright-report
+
 # Sentry Config File
 .sentryclirc
 

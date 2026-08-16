@@ -103,6 +103,7 @@
     }}
     component={BillDetails}
     url={billDetailUrl}
+    id={billDetailUrl.split('/').at(-1)}
   />
 
   <Drawerify
@@ -133,7 +134,7 @@
   <DeleteHousehold
     {household}
     open={showDelete}
-    on:close={() => (showDelete = false)}
+    onclose={() => (showDelete = false)}
   />
 
   <Drawer
@@ -254,7 +255,7 @@
                 getHouseholdDetail(household.id).refresh();
               })}
             >
-              <input type="hidden" name="household-id" value={household.id} />
+              <input type="hidden" name="householdId" value={household.id} />
               <Button type="submit" variant="filled">Claim household</Button>
             </form>
           {/snippet}

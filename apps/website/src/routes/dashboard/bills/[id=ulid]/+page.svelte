@@ -25,7 +25,7 @@
     id?: string;
   } = $props();
 
-  const id = $derived(page.params.id || idProp);
+  const id = $derived(idProp || page.params.id);
 
   let paymentDetails = makeShowDrawerUtil();
 

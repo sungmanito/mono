@@ -27,6 +27,7 @@
   onopen={() => {
     pushState('/dashboard/household/create', {});
   }}
+  formKey="household-sidebar"
 />
 
 <svelte:boundary>

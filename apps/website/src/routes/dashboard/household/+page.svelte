@@ -28,6 +28,7 @@
   onopen={() => pushState(createHouseholdUrl, {})}
   onclose={() => pushState('/dashboard/household', {})}
   component={CreateHouseholdComponent}
+  formKey="household-list-page"
 />
 
 <svelte:boundary>

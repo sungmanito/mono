@@ -17,14 +17,20 @@
 
   let showMakePaymentModal = $state(false);
   let showModalOpenUrl = $state('');
+  let showModalPaymentId = $state('');
 
   let detailsModalOpen = $state(false);
   let detailsModalUrl = $state('');
+  let detailsModalId = $state('');
 
   const paymentDetailsOpen = () => {
     // Using history.pushState because using pushState from sveltekit makes this whole
     // thing blow tf up
     history.pushState(undefined, '', detailsModalUrl);
+  };
+
+  const makePaymentModalOpen = () => {
+    history.pushState(undefined, '', showModalOpenUrl);
   };
 
   const paymentHistoryMonths = $derived(await getPaymentHistoryMonths());
@@ -58,6 +64,23 @@
   bind:open={detailsModalOpen}
   component={PaymentDetails}
   url={detailsModalUrl}
+  id={detailsModalId}
+/>
+
+<Drawerify
+  bind:open={showMakePaymentModal}
+  onclose={() => {
+    showMakePaymentModal = false;
+    history.back();
+    // The remote mutation's own refresh() calls target a differently-keyed
+    // cache entry (it doesn't know which month this page has selected), so
+    // refresh the month we're actually viewing here too.
+    if (selectedMonth)
+      getCurrentPaymentsByHousehold(selectedMonth.toISOString()).refresh();
+  }}
+  component={CreatePaymentPage}
+  url={showModalOpenUrl}
+  id={showModalPaymentId}
 />
 
 <div class="container mx-auto px-3">
@@ -165,6 +188,7 @@
                         onclick={(e) => {
                           e.preventDefault();
                           detailsModalUrl = `/dashboard/payments/${payment.id}`;
+                          detailsModalId = payment.id;
                           detailsModalOpen = true;
                           paymentDetailsOpen();
                         }}
@@ -174,25 +198,30 @@
                     </div>
                   </div>
                   {#snippet actions()}
-                    <button
-                      class={[
-                        'btn btn-sm ',
-                        {
-                          'variant-outline-primary': payment.paidAt !== null,
-                          'variant-outline-secondary': payment.paidAt === null,
-                        },
-                      ]}
-                      type="submit"
-                      name="paymentId"
-                      value={payment.id}
-                      disabled={paymentForm.pending > 0}
-                    >
-                      {#if payment.paidAt === null}
+                    {#if payment.paidAt === null}
+                      <button
+                        class="btn btn-sm variant-outline-secondary"
+                        type="button"
+                        onclick={() => {
+                          showModalOpenUrl = `/dashboard/payments/create/${payment.id}`;
+                          showModalPaymentId = payment.id;
+                          showMakePaymentModal = true;
+                          makePaymentModalOpen();
+                        }}
+                      >
                         Mark as paid
-                      {:else}
+                      </button>
+                    {:else}
+                      <button
+                        class="btn btn-sm variant-outline-primary"
+                        type="submit"
+                        name="paymentId"
+                        value={payment.id}
+                        disabled={paymentForm.pending > 0}
+                      >
                         Unmark as paid
-                      {/if}
-                    </button>
+                      </button>
+                    {/if}
                   {/snippet}
                 </Header>
               </header>

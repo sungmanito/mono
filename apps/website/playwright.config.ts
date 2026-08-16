@@ -5,7 +5,8 @@ const config: PlaywrightTestConfig = {
   webServer: !process.env.CI
     ? {
         command: 'npm run preview',
-        baseURL: process.env.BASE_URL || 'http://localhost:4173',
+        url: process.env.BASE_URL || 'http://localhost:4173',
+        reuseExistingServer: true,
       }
     : undefined,
   testDir: 'tests',
