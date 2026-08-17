@@ -47,7 +47,82 @@ test('User can create bills', async ({ page }) => {
   }
 });
 
-test.skip('Users can edit bills', async () => {});
+test('Users can edit bills', async ({ page }) => {
+  await navigateAndLoginTo('/dashboard/bills', page);
+
+  await expect(
+    page.getByRole('listitem', { name: /New Bill \d+/, exact: false }).first(),
+  ).toBeVisible();
+
+  // Single edit: rename one bill via its row's Edit button, then clean it
+  // back up so it doesn't throw off the delete tests' bill counts.
+  await page
+    .getByRole('listitem', { name: /New Bill \d+/, exact: false })
+    .first()
+    .getByRole('button', { name: 'Edit' })
+    .click();
+
+  await expect(
+    page.getByRole('dialog').getByRole('heading', { name: 'Edit Bills' }),
+  ).toBeVisible();
+
+  await page.getByLabel('Bill name').fill('Renamed Bill');
+  await page.getByRole('dialog').getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByRole('dialog')).not.toBeVisible();
+
+  const renamedBill = page.getByRole('listitem', { name: 'Renamed Bill' });
+  await expect(
+    renamedBill.getByRole('link', { name: 'Renamed Bill' }),
+  ).toBeVisible();
+
+  await renamedBill.getByRole('button', { name: 'Delete' }).click();
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Delete' })
+    .click();
+  await expect(renamedBill).toHaveCount(0);
+
+  // Bulk edit: select two bills and change their due dates together. The
+  // list re-sorts by due date after saving, so track the two bills by name
+  // rather than position.
+  const bills = page.getByRole('listitem', {
+    name: /New Bill \d+/,
+    exact: false,
+  });
+  const firstBillName = await bills.nth(0).getAttribute('aria-label');
+  const secondBillName = await bills.nth(1).getAttribute('aria-label');
+  await bills.nth(0).getByRole('checkbox').check();
+  await bills.nth(1).getByRole('checkbox').check();
+
+  await page.getByRole('button', { name: 'Edit selected bills' }).click();
+
+  await expect(
+    page.getByRole('dialog').getByRole('heading', { name: 'Edit Bills' }),
+  ).toBeVisible();
+  await expect(page.getByLabel('Due date')).toHaveCount(2);
+
+  // The edit form's bill order isn't guaranteed to match the order bills
+  // were selected in, so scope each due-date fill to its own bill section.
+  await page
+    .getByRole('dialog')
+    .locator('.variant-ghost-surface', { hasText: firstBillName! })
+    .getByLabel('Due date')
+    .fill('15');
+  await page
+    .getByRole('dialog')
+    .locator('.variant-ghost-surface', { hasText: secondBillName! })
+    .getByLabel('Due date')
+    .fill('16');
+  await page.getByRole('dialog').getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByRole('dialog')).not.toBeVisible();
+
+  await expect(
+    page.getByRole('listitem', { name: firstBillName! }),
+  ).toContainText('15th');
+  await expect(
+    page.getByRole('listitem', { name: secondBillName! }),
+  ).toContainText('16th');
+});
 
 test('Users can delete bills using dedicated delete button', async ({
   page,
