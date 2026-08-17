@@ -14,24 +14,104 @@ test('Navigating and logging in redirection works', async ({ page }) => {
   expect(page.url()).toMatch('/dashboard/household');
 });
 
-test('User can create household through dialog', async ({ page }) => {
-  await navigateAndLoginTo('/dashboard/household', page);
-  await page
-    .locator('section')
-    .filter({ hasText: 'Add household' })
-    .getByRole('button')
-    .click();
-  await expect(
-    page.getByRole('dialog').getByText('New household'),
-  ).toBeVisible();
-  await page
-    .getByRole('textbox', { name: 'Household Name' })
-    .fill('Household 1');
-  await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
-  await expect(page.getByRole('dialog')).not.toBeVisible();
-  await expect(
-    page.getByRole('complementary').getByText('Household 1'),
-  ).toBeVisible();
+test.describe.serial('Household create/edit/delete lifecycle', () => {
+  // Unique per run so this lifecycle never collides with (or gets confused
+  // by) households left behind by a previous run. describe.serial also
+  // means a failure in one step skips the rest instead of cascading into
+  // unrelated-looking failures downstream.
+  const householdName = `Household ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const editedHouseholdName = `Edited ${householdName}`;
+
+  test.afterAll(async ({ browser }) => {
+    // Best-effort cleanup: whichever name variant is still around (create
+    // succeeded but edit/delete didn't, or edit succeeded but delete
+    // didn't) gets deleted so it doesn't linger for future runs.
+    const page = await browser.newPage();
+    try {
+      await navigateAndLoginTo('/dashboard/household', page);
+      for (const name of [editedHouseholdName, householdName]) {
+        const item = page
+          .getByTestId('sidebar-household')
+          .getByText(name, { exact: true });
+        if (await item.isVisible().catch(() => false)) {
+          await item.click();
+          await page.getByRole('button', { name: 'Delete' }).click();
+          await page.getByRole('dialog').getByRole('textbox').fill('delete');
+          await page
+            .getByRole('dialog')
+            .getByRole('button', { name: 'Delete', exact: true })
+            .click();
+          break;
+        }
+      }
+    } catch {
+      // Cleanup is best-effort; don't fail the run over it.
+    } finally {
+      await page.close();
+    }
+  });
+
+  test('User can create household through dialog', async ({ page }) => {
+    await navigateAndLoginTo('/dashboard/household', page);
+    await page
+      .locator('section')
+      .filter({ hasText: 'Add household' })
+      .getByRole('button')
+      .click();
+    await expect(
+      page.getByRole('dialog').getByText('New household'),
+    ).toBeVisible();
+    await page
+      .getByRole('textbox', { name: 'Household Name' })
+      .fill(householdName);
+    await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
+    await expect(page.getByRole('dialog')).not.toBeVisible();
+    await expect(
+      page.getByRole('complementary').getByText(householdName, { exact: true }),
+    ).toBeVisible();
+  });
+
+  test('User can edit', async ({ page }) => {
+    await navigateAndLoginTo('/dashboard/household', page);
+
+    await page
+      .getByRole('complementary')
+      .getByText(householdName, { exact: true })
+      .click();
+
+    await page.getByRole('button', { name: 'Edit' }).click();
+    await page.getByLabel('Household Name').clear();
+    await page.getByLabel('Household Name').fill(editedHouseholdName);
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Save' })
+      .click();
+    await expect(
+      page
+        .getByTestId('sidebar-household')
+        .getByText(editedHouseholdName, { exact: true }),
+    ).toBeVisible();
+  });
+
+  test('User can delete household', async ({ page }) => {
+    await navigateAndLoginTo('/dashboard/household', page);
+
+    await page
+      .getByTestId('sidebar-household')
+      .getByText(editedHouseholdName, { exact: true })
+      .click();
+    await page.getByRole('button', { name: 'Delete' }).click();
+    await page.getByRole('dialog').getByRole('textbox').fill('delete');
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Delete', exact: true })
+      .click();
+    await expect(
+      page
+        .getByTestId('sidebar-household')
+        .getByText(editedHouseholdName, { exact: true }),
+    ).not.toBeVisible();
+  });
 });
 
 test('User can view household details', async ({ page }) => {
@@ -64,41 +144,6 @@ test('User can view household details', async ({ page }) => {
   expect(page.url()).toMatch(/\/dashboard\/bills\/[A-Z0-9]+$/);
   await page.keyboard.press('Escape');
   expect(page.url()).toMatch(/\/dashboard\/household\/?$/);
-});
-
-test('User can edit', async ({ page }) => {
-  await navigateAndLoginTo('/dashboard/household', page);
-  // await page.goto('/');
-  // await page.goto('/dashboard/household');
-  // await login(page);
-
-  await page.getByRole('complementary').getByText('Household 1').click();
-
-  await page.getByRole('button', { name: 'Edit' }).click();
-  await page.getByLabel('Household Name').clear();
-  await page.getByLabel('Household Name').fill('Edited Household 1');
-  await page.getByRole('dialog').getByRole('button', { name: 'Save' }).click();
-  await expect(
-    page.getByTestId('sidebar-household').getByText('Edited Household 1'),
-  ).toBeVisible();
-});
-
-test('User can delete household', async ({ page }) => {
-  await navigateAndLoginTo('/dashboard/household', page);
-
-  await page
-    .getByTestId('sidebar-household')
-    .getByText('Edited Household 1')
-    .click();
-  await page.getByRole('button', { name: 'Delete' }).click();
-  await page.getByRole('dialog').getByRole('textbox').fill('delete');
-  await page
-    .getByRole('dialog')
-    .getByRole('button', { name: 'Delete', exact: true })
-    .click();
-  await expect(
-    page.getByTestId('sidebar-household').getByText('Edited Household 1'),
-  ).not.toBeVisible();
 });
 
 test('User can view bill details', async ({ page }) => {
