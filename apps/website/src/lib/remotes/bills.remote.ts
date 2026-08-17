@@ -255,6 +255,7 @@ export const createBill = form(billCreateValidator, async (data) => {
 
   getUserBills().refresh();
   getUserHouseholdBills().refresh();
+  getUserBillsWithPaymentStatus().refresh();
 
   return bills;
 });
@@ -305,6 +306,7 @@ export const updateBill = form(billUpdateValidator, async (data) => {
 
   getUserBills().refresh();
   getUserHouseholdBills().refresh();
+  getUserBillsWithPaymentStatus().refresh();
   if (updated) getBill(updated.id).refresh();
 
   return updated;
@@ -361,6 +363,7 @@ export const updateBills = form(billsBatchUpdateValidator, async (data) => {
 
   getUserBills().refresh();
   getUserHouseholdBills().refresh();
+  getUserBillsWithPaymentStatus().refresh();
 
   return { updatedBills: result, updatedCount: result.length };
 });
@@ -395,6 +398,7 @@ export const deleteBills = form(deleteBillsValidator, async (data) => {
 
   getUserBills().refresh();
   getUserHouseholdBills().refresh();
+  getUserBillsWithPaymentStatus().refresh();
 
   return { deletedBills: deleted, deletedCount: deleted.length };
 });

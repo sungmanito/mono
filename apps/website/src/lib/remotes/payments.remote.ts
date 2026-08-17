@@ -7,6 +7,7 @@ import schema from '@sungmanito/db';
 import { error } from '@sveltejs/kit';
 import { type } from 'arktype';
 import { and, desc, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
+import { getUserBillsWithPaymentStatus } from './bills.remote';
 import { getUser, getUserHouseholds } from './common.remote';
 import { getUserHouseholdBills } from './dashboard.remote';
 import { getImageIdByPath } from './images.remote';
@@ -86,6 +87,7 @@ export const unmarkPayment = command(ulidValidator, async (id) => {
 
   getCurrentPayments().refresh();
   getCurrentPaymentsByHousehold().refresh();
+  getUserBillsWithPaymentStatus().refresh();
   return payment[0];
 });
 
@@ -172,6 +174,7 @@ export const uploadImage = form(
       // reset the grouped cache
       getCurrentPaymentsByHousehold().refresh();
       getUserHouseholdBills().refresh();
+      getUserBillsWithPaymentStatus().refresh();
       return updated;
     }
 
@@ -273,6 +276,7 @@ export const togglePayment = form(
         getCurrentPayments().refresh();
         getPayment(paymentId).refresh();
         getCurrentPaymentsByHousehold().refresh();
+        getUserBillsWithPaymentStatus().refresh();
       }
 
       return {
@@ -317,6 +321,7 @@ export const markPayment = form(
       getPayment(data.paymentId).refresh();
       // reset the grouped cache
       getCurrentPaymentsByHousehold().refresh();
+      getUserBillsWithPaymentStatus().refresh();
       return updated;
     }
     return null;

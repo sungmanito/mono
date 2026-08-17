@@ -13,7 +13,6 @@
   import { AppRail, AppRailAnchor } from '@skeletonlabs/skeleton';
   import { QueryClientProvider } from '@tanstack/svelte-query';
   import {
-    CreditCardIcon,
     LayoutDashboardIcon,
     MenuIcon,
     ReceiptIcon,
@@ -46,31 +45,27 @@
         </AppRailAnchor>
         <AppRailAnchor
           href="/dashboard/bills"
-          selected={page.url.pathname === '/dashboard/bills'}
+          selected={page.url.pathname.startsWith('/dashboard/bills') ||
+            page.url.pathname.startsWith('/dashboard/payments')}
         >
           <svelte:fragment slot="lead">
             <ReceiptIcon class="mx-auto" size={32} />
           </svelte:fragment>
-          <span>Bills</span>
+          <span>Bills &amp; Pay</span>
         </AppRailAnchor>
-        <AppRailAnchor
-          href="/dashboard/household"
-          selected={page.url.pathname.startsWith('/dashboard/household')}
-        >
-          <svelte:fragment slot="lead">
-            <Users2Icon class="mx-auto" size={32} />
-          </svelte:fragment>
-          <span>Household</span>
-        </AppRailAnchor>
-        <AppRailAnchor
-          href="/dashboard/payments"
-          selected={page.url.pathname.startsWith('/dashboard/payments')}
-        >
-          <svelte:fragment slot="lead">
-            <CreditCardIcon size={32} class="mx-auto" />
-          </svelte:fragment>
-          <span>Payments</span>
-        </AppRailAnchor>
+        <svelte:fragment slot="trail">
+          <hr class="opacity-30 mx-3" />
+          <AppRailAnchor
+            href="/dashboard/household"
+            selected={page.url.pathname.startsWith('/dashboard/household')}
+            class="opacity-70"
+          >
+            <svelte:fragment slot="lead">
+              <Users2Icon class="mx-auto" size={20} />
+            </svelte:fragment>
+            <span>Household</span>
+          </AppRailAnchor>
+        </svelte:fragment>
       </AppRail>
     </aside>
     <svelte:boundary onerror={(e) => console.error(e)}>
