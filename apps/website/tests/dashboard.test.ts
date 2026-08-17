@@ -38,39 +38,57 @@ test('Filters work correctly on the dashboard', async ({ page }) => {
 });
 
 test('Adding new bills works correctly', async ({ page }) => {
+  // Unique per run so this test never collides with (or gets tripped up by)
+  // bills left behind by a previous run, and the finally-block below deletes
+  // it again so a failed assertion doesn't leave the row behind either.
+  const billName = `Test Bill ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
   await navigateAndLoginTo('/dashboard', page);
 
-  // Click the "Add New Bill" button
-  await page.getByRole('button', { name: 'Add New Bill' }).click();
+  try {
+    // Click the "Add New Bill" button
+    await page.getByRole('button', { name: 'Add New Bill' }).click();
 
-  // Fill out the bill form
-  await page.getByLabel('Name').fill('Test Bill');
-  await page.getByLabel('Amount').fill('100');
-  await page.getByLabel('Due Date').fill('5');
+    // Fill out the bill form
+    await page.getByLabel('Name').fill(billName);
+    await page.getByLabel('Amount').fill('100');
+    await page.getByLabel('Due Date').fill('5');
 
-  await page
-    .getByRole('dialog')
-    .getByRole('button', { name: 'Add', exact: true })
-    .click();
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Add', exact: true })
+      .click();
 
-  // await waitFor(async () => !(await page.getByRole('dialog').isVisible()));
+    // Navigate to the bills page
+    await page.goto('/dashboard/bills');
 
-  // // Ensure the new bill appears on the dashboard
-  // await expect(page.getByText('Test Bill')).toBeVisible();
+    // Find and delete the bill
+    const billRow = page.getByRole('listitem', { name: billName });
+    await billRow.getByRole('button', { name: 'Delete' }).click();
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Delete' })
+      .click();
 
-  // // Navigate to the bills page
-  await page.goto('/dashboard/bills');
-
-  // // Find and delete the bill
-  const billRow = page.getByRole('listitem', { name: /Test Bill/ });
-  await billRow.getByRole('button', { name: 'Delete' }).click();
-  await page
-    .getByRole('dialog')
-    .getByRole('button', { name: 'Delete' })
-    .click();
-
-  // // Ensure the bill is deleted
-  await expect(
-    page.getByRole('listitem', { name: 'Test Bill' }),
-  ).not.toBeVisible();
+    // Ensure the bill is deleted
+    await expect(
+      page.getByRole('listitem', { name: billName }),
+    ).not.toBeVisible();
+  } finally {
+    // Best-effort cleanup: if something above threw before the delete step
+    // completed, remove the bill here so it doesn't linger for future runs.
+    await page.goto('/dashboard/bills').catch(() => {});
+    const leftover = page.getByRole('listitem', { name: billName });
+    if (await leftover.isVisible().catch(() => false)) {
+      await leftover
+        .getByRole('button', { name: 'Delete' })
+        .click()
+        .catch(() => {});
+      await page
+        .getByRole('dialog')
+        .getByRole('button', { name: 'Delete' })
+        .click()
+        .catch(() => {});
+    }
+  }
 });

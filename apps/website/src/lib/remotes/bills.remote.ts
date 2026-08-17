@@ -255,7 +255,13 @@ export const createBill = form(billCreateValidator, async (data) => {
 
   getUserBills().refresh();
   getUserHouseholdBills().refresh();
-  getUserBillsWithPaymentStatus().refresh();
+  // Note: getUserBillsWithPaymentStatus is keyed by the caller's selected
+  // month, which only the client knows. Refreshing it here with no argument
+  // would only ever target the `undefined`-keyed instance, not the
+  // month-keyed one actually rendered on the bills page, so it can't
+  // reliably invalidate the right cache entry from the server. Callers must
+  // refresh the specific instance client-side after this mutation resolves
+  // (see `refreshBills()` in dashboard/bills/+page.svelte).
 
   return bills;
 });
@@ -306,7 +312,8 @@ export const updateBill = form(billUpdateValidator, async (data) => {
 
   getUserBills().refresh();
   getUserHouseholdBills().refresh();
-  getUserBillsWithPaymentStatus().refresh();
+  // See note above — getUserBillsWithPaymentStatus must be refreshed
+  // client-side with the caller's selected month.
   if (updated) getBill(updated.id).refresh();
 
   return updated;
@@ -363,7 +370,8 @@ export const updateBills = form(billsBatchUpdateValidator, async (data) => {
 
   getUserBills().refresh();
   getUserHouseholdBills().refresh();
-  getUserBillsWithPaymentStatus().refresh();
+  // See note above — getUserBillsWithPaymentStatus must be refreshed
+  // client-side with the caller's selected month.
 
   return { updatedBills: result, updatedCount: result.length };
 });
@@ -398,7 +406,8 @@ export const deleteBills = form(deleteBillsValidator, async (data) => {
 
   getUserBills().refresh();
   getUserHouseholdBills().refresh();
-  getUserBillsWithPaymentStatus().refresh();
+  // See note above — getUserBillsWithPaymentStatus must be refreshed
+  // client-side with the caller's selected month.
 
   return { deletedBills: deleted, deletedCount: deleted.length };
 });

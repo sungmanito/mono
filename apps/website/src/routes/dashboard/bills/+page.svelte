@@ -107,14 +107,39 @@
               b.payment?.forMonthD ??
               (selectedMonth
                 ? new Date(
-                    selectedMonth.getUTCFullYear(),
-                    selectedMonth.getUTCMonth(),
-                    b.dueDate,
+                    Date.UTC(
+                      selectedMonth.getUTCFullYear(),
+                      selectedMonth.getUTCMonth(),
+                      b.dueDate,
+                    ),
                   )
                 : new Date()),
           }) satisfies ProgressPins,
       ),
     ),
+  );
+
+  // selectedMonth is UTC-midnight (see getPaymentHistoryMonths), but
+  // getLastDayOfMonth and <Progress> read dates via local getters. Rebuild it
+  // as a local first-of-month Date from its UTC year/month so those local
+  // getters resolve the intended calendar month regardless of the viewer's
+  // UTC offset (avoids e.g. Feb 1 UTC becoming Jan 31 local in negative
+  // offsets, which threw off both the month length and the marker position).
+  const selectedMonthLocal = $derived(
+    selectedMonth
+      ? new Date(selectedMonth.getUTCFullYear(), selectedMonth.getUTCMonth(), 1)
+      : null,
+  );
+
+  // The "today" marker should reflect where we actually are in the month, not
+  // the 1st — only meaningful when the selected month is the current
+  // calendar month. Otherwise there's no "today" within that month to mark.
+  const progressToday = $derived(
+    !selectedMonthLocal ||
+      (selectedMonthLocal.getFullYear() === new Date().getFullYear() &&
+        selectedMonthLocal.getMonth() === new Date().getMonth())
+      ? new Date()
+      : undefined,
   );
 
   function refreshBills() {
@@ -205,7 +230,7 @@
   url={markPaidStore.url}
   onclose={() => {
     markPaidStore.show = false;
-    history.back();
+    history.replaceState(null, '', '/dashboard/bills');
     refreshBills();
   }}
   component={CreatePaymentComponent as Component<{
@@ -310,10 +335,10 @@
               <button
                 type="button"
                 class={[
+                  'px-3 py-1',
                   {
                     'bg-purple-500 text-white font-semibold': filter === value,
-                    'px-3 py-1 text-purple-300 hover:bg-purple-100':
-                      filter !== value,
+                    'text-purple-300 hover:bg-purple-100': filter !== value,
                   },
                 ]}
                 onclick={() => (filter = value as StatusFilter)}
@@ -366,9 +391,9 @@
 
     <p class="text-zinc-400 mt-4">Monthly Progress</p>
     <Progress
-      today={selectedMonth ? new Date(selectedMonth) : new Date()}
-      end={selectedMonth
-        ? getLastDayOfMonth(selectedMonth)
+      today={progressToday}
+      end={selectedMonthLocal
+        ? getLastDayOfMonth(selectedMonthLocal)
         : getLastDayOfMonth(new Date())}
       pins={paymentPins}
     />
