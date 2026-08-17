@@ -41,7 +41,9 @@ test('User can create bills', async ({ page }) => {
   await expect(page.getByRole('dialog')).not.toBeVisible();
 
   for (const billName of billsToMake) {
-    await expect(page.getByRole('listitem', { name: billName })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: billName, exact: true }),
+    ).toBeVisible();
   }
 });
 
