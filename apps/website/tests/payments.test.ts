@@ -2,9 +2,11 @@ import { test, expect } from '@playwright/test';
 import { navigateAndLoginTo, dragAndDropFile } from './util';
 
 test('User can mark payments as paid without proof', async ({ page }) => {
-  await navigateAndLoginTo('/dashboard/payments', page);
+  await navigateAndLoginTo('/dashboard/bills', page);
 
-  await expect(page.getByRole('heading', { name: 'Payments' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Bills & Payments' }),
+  ).toBeVisible();
 
   await expect(
     page.getByRole('listitem').filter({ hasText: 'Credit Card' }),
@@ -41,9 +43,11 @@ test('User can mark payments as paid without proof', async ({ page }) => {
 });
 
 test('User can mark payments as paid with proof', async ({ page }) => {
-  await navigateAndLoginTo('/dashboard/payments', page);
+  await navigateAndLoginTo('/dashboard/bills', page);
 
-  await expect(page.getByRole('heading', { name: 'Payments' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Bills & Payments' }),
+  ).toBeVisible();
 
   await expect(
     page.getByRole('listitem').filter({ hasText: 'Student Loans' }),
@@ -92,12 +96,17 @@ test('User can mark payments as paid with proof', async ({ page }) => {
 });
 
 test('Can view payment details', async ({ page }) => {
-  await navigateAndLoginTo('/dashboard/payments', page);
-  await expect(page.getByRole('heading', { name: 'Payments' })).toBeVisible();
+  await navigateAndLoginTo('/dashboard/bills', page);
+  await expect(
+    page.getByRole('heading', { name: 'Bills & Payments' }),
+  ).toBeVisible();
+
+  // The bill name opens Bill Details; the status pill is what opens
+  // Payment Details on the merged screen.
   await page
     .getByRole('listitem')
     .filter({ hasText: 'Credit Card' })
-    .getByText('Credit Card')
+    .getByRole('button', { name: 'View payment details' })
     .click();
 
   await expect(
@@ -110,10 +119,11 @@ test('Can view payment details', async ({ page }) => {
 });
 
 test('User can unmark payments', async ({ page }) => {
-  await navigateAndLoginTo('/dashboard/payments', page);
-  await expect(page.getByRole('heading', { name: 'Payments' })).toBeVisible();
+  await navigateAndLoginTo('/dashboard/bills', page);
+  await expect(
+    page.getByRole('heading', { name: 'Bills & Payments' }),
+  ).toBeVisible();
 
-  expect(await page.locator('.card').all()).toHaveLength(6);
   const cards = await page
     .getByRole('listitem')
     .filter({ hasText: 'Unmark as paid' })

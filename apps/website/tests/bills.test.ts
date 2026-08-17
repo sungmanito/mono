@@ -5,7 +5,9 @@ import { navigateAndLoginTo } from './util';
 test('User can create bills', async ({ page }) => {
   await navigateAndLoginTo('/dashboard/bills', page);
 
-  await expect(page.getByRole('heading', { name: 'Bills' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Bills & Payments' }),
+  ).toBeVisible();
 
   await page.getByRole('button', { name: 'New Bill' }).click();
   await expect(
@@ -39,7 +41,9 @@ test('User can create bills', async ({ page }) => {
   await expect(page.getByRole('dialog')).not.toBeVisible();
 
   for (const billName of billsToMake) {
-    await expect(page.getByText(billName)).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: billName, exact: true }),
+    ).toBeVisible();
   }
 });
 

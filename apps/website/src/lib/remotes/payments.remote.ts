@@ -86,6 +86,13 @@ export const unmarkPayment = command(ulidValidator, async (id) => {
 
   getCurrentPayments().refresh();
   getCurrentPaymentsByHousehold().refresh();
+  // Note: getUserBillsWithPaymentStatus is keyed by the caller's selected
+  // month, which only the client knows. Refreshing it here with no argument
+  // would only ever target the `undefined`-keyed instance, not the
+  // month-keyed one actually rendered on the bills page, so it can't
+  // reliably invalidate the right cache entry from the server. Callers must
+  // refresh the specific instance client-side after this command resolves
+  // (see `refreshBills()` in dashboard/bills/+page.svelte).
   return payment[0];
 });
 
@@ -172,6 +179,8 @@ export const uploadImage = form(
       // reset the grouped cache
       getCurrentPaymentsByHousehold().refresh();
       getUserHouseholdBills().refresh();
+      // See note above — getUserBillsWithPaymentStatus must be refreshed
+      // client-side with the caller's selected month.
       return updated;
     }
 
@@ -273,6 +282,8 @@ export const togglePayment = form(
         getCurrentPayments().refresh();
         getPayment(paymentId).refresh();
         getCurrentPaymentsByHousehold().refresh();
+        // See note above — getUserBillsWithPaymentStatus must be refreshed
+        // client-side with the caller's selected month.
       }
 
       return {
@@ -317,6 +328,8 @@ export const markPayment = form(
       getPayment(data.paymentId).refresh();
       // reset the grouped cache
       getCurrentPaymentsByHousehold().refresh();
+      // See note above — getUserBillsWithPaymentStatus must be refreshed
+      // client-side with the caller's selected month.
       return updated;
     }
     return null;
