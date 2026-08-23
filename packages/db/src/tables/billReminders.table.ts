@@ -1,5 +1,12 @@
 import { sql } from 'drizzle-orm';
-import { date, index, pgTable, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
+import {
+  date,
+  index,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
 import { bills } from './bills.table';
 import { households } from './households.table';
 
