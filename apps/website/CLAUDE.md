@@ -26,7 +26,7 @@ Also present: Storybook (`pnpm storybook`, `pnpm build-storybook`) and Histoire 
 
 ## Environment
 
-Needs a `.env` with `DB_URL`, `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE`, `EDGE_CONFIG_TOKEN`, `EDGE_CONFIG`, `PAYMENT_BUCKET_NAME` (see repo root README and `.env.example` here for the full list, including test-only vars).
+Needs a `.env` with `DB_URL`, `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE`, `EDGE_CONFIG_TOKEN`, `EDGE_CONFIG`, `PAYMENT_BUCKET_NAME`, `RESEND_API_KEY`, `REMINDER_SENDER_EMAIL`, `CRON_SECRET` (see repo root README and `.env.example` here for the full list, including test-only vars).
 
 ## Architecture
 
@@ -56,6 +56,8 @@ Needs a `.env` with `DB_URL`, `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`,
 - `src/params/` — custom route param matchers (e.g. `ulid`)
 
 **Deployment:** `@sveltejs/adapter-vercel` targeting the `nodejs22.x` runtime. Sentry (`@sentry/sveltekit`) is wired in via `vite.config.ts`'s `sentrySvelteKit` plugin.
+
+**Cron routes:** `src/routes/actions/+server.ts` (daily, pre-creates the current month's `payments` stub rows) and `src/routes/reminders/+server.ts` (daily, emails each household once per bill whose due date falls in the next 3 days and is still unpaid) are wired into `vercel.json`'s `crons` list — Vercel only invokes these on production deploys. `/reminders` is gated by a `CRON_SECRET` bearer-token check (`/actions` currently has no such check — known, separate, out-of-scope gap); it claims each bill via an `ON CONFLICT DO NOTHING` insert into `bill_reminders` before sending so a retried run can't double-send, rolling the claim back if the send itself fails. Mail goes out through Resend's HTTP API (`src/lib/server/email/resend.ts`), templated in `src/lib/server/email/billReminderTemplate.ts`.
 
 ## Testing setup
 

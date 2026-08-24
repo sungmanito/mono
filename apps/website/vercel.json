@@ -3,6 +3,10 @@
     {
       "path": "/actions",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/reminders",
+      "schedule": "0 13 * * *"
     }
   ]
 }

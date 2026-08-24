@@ -3,6 +3,7 @@ export * from './identities.table';
 export * from './households.table';
 export * from './bills.table';
 export * from './payments.table';
+export * from './billReminders.table';
 export * from './usersToHouseholds.table';
 export * from './invites.table';
 export * from './objects.table';
