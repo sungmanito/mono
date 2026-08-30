@@ -1,38 +1,134 @@
-# create-svelte
+# Sungmanito web app (`mono`)
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+The Sungmanito app itself — a SvelteKit 2 / Svelte 5 application for tracking and
+splitting shared bills between households. See the repo-root `README.md` for
+monorepo setup and the `.env` keys this app needs.
 
-## Creating a project
+## Commands
 
-If you're seeing this, you've probably already done this step. Congrats!
+Run from this directory, or from the repo root with `pnpm --filter mono <script>`.
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+| Command                                        | What it does                                                               |
+| ---------------------------------------------- | -------------------------------------------------------------------------- |
+| `pnpm dev`                                     | `vite dev`                                                                 |
+| `pnpm build` / `pnpm preview`                  | production build / preview                                                 |
+| `pnpm check`                                   | `svelte-kit sync && svelte-check` (type checking)                          |
+| `pnpm lint`                                    | `eslint .`                                                                 |
+| `pnpm prettier:format` / `pnpm prettier:check` | Prettier over `src/`                                                       |
+| `pnpm test:unit`                               | `vitest run` (watch: `pnpm test:unit:watch`)                               |
+| `pnpm test:e2e`                                | `playwright test --workers 1` (needs `TEST_USER` / `TEST_PW` / `BASE_URL`) |
 
-# create a new project in my-app
-npm create svelte@latest my-app
+## Architecture at a glance
+
+- **Auth** is Supabase (`@supabase/ssr`) — session/JWT only. `src/hooks.server.ts`
+  builds the server client, exposes `event.locals.supabase` / `getSession()` /
+  `config` (Vercel Edge Config) / `posthog`, and redirects unauthenticated
+  `/dashboard/*` requests to `/login`.
+- **Application data** (bills, households, payments) lives in Postgres, managed by
+  Drizzle (`@sungmanito/db`) and queried directly through
+  `src/lib/server/db/client.ts` — _not_ via Supabase's data APIs.
+- **Validation** is ArkType (`type(...)`); shared validators in
+  `src/lib/typesValidators.ts`.
+- **Authorization** is enforced at the query layer: nearly every query joins
+  through `schema.usersToHouseholds` to scope rows to the current user's
+  households, and mutation validators re-check a submitted `householdId` belongs
+  to the user before writing.
+
+## Data fetching
+
+**Remote functions are the primary data layer, not `load()` functions.**
+SvelteKit's experimental remote functions
+(`kit.experimental.remoteFunctions: true` in `svelte.config.js`) live in
+`src/lib/remotes/*.remote.ts`, one file per domain (`bills`, `households`,
+`payments`, `dashboard`, `images`, plus `common` for the shared `getUser()`).
+
+### Reads — `query(...)`
+
+```ts
+// src/lib/remotes/bills.remote.ts
+import { query } from '$app/server';
+import { type } from 'arktype';
+import { getUser } from './common.remote';
+import { db } from '$lib/server/db';
+
+export const getBillWithPayments = query(type('string'), async (billId) => {
+  const user = await getUser();
+  // ...scope the query through usersToHouseholds, then return rows
+});
 ```
 
-## Developing
+Consume it directly in a component with a top-level `await`, wrapped in a
+`<svelte:boundary>` that renders a skeleton while it resolves:
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+```svelte
+<script lang="ts">
+  import { getBillWithPayments } from '$lib/remotes/bills.remote';
+  let { id }: { id: string } = $props();
+</script>
 
-```bash
-npm run dev
+<svelte:boundary>
+  {#snippet pending()}
+    <div class="animate-pulse …"></div>
+  {/snippet}
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+  {@const bill = await getBillWithPayments(id)}
+  <h1>{bill.billName}</h1>
+</svelte:boundary>
 ```
 
-## Building
+Components that need async data **fetch it themselves** this way. Don't thread it
+down from a parent `load()`. For list pages that also want client-side caching /
+manual refetch, wrap the query call in `@tanstack/svelte-query`'s `createQuery`
+(see `src/routes/dashboard/+page.svelte`).
 
-To create a production version of your app:
+### Mutations — `form(...)`
 
-```bash
-npm run build
+```ts
+export const deleteBills = form(async (data) => {
+  const user = await getUser();
+  // validate data, re-check household ownership, write
+});
 ```
 
-You can preview the production build with `npm run preview`.
+```svelte
+<form {...deleteBills.enhance(async ({ submit }) => {
+  await submit();
+  await getUserBillsWithPaymentStatus().refresh();
+})}>
+```
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+**Invalidate by calling `.refresh()` on the affected query**, not SvelteKit's
+`invalidate()` / `invalidateAll()`. A server-side mutation can't reliably know
+which client cache key to trip, so the caller refreshes explicitly after
+`submit()` resolves.
+
+### When to still use `load()`
+
+Reach for a `load()` function (or `hooks.server.ts` / `reroute`) only for:
+
+- **The root session layer** — `src/routes/+layout.server.ts` returns
+  `user` / `session` for first paint and route guards. This is the canonical
+  place for auth state and the shape `@supabase/ssr` expects.
+- **Redirects and access guards that must run before render** — the OAuth code
+  exchange and `allow_registration` gate in `login` / `register` / `signup`,
+  `logout`'s `signOut()`, the `payments` → `bills` redirect.
+- **Small synchronous config flags** that ride along with one of those guards
+  (e.g. returning `enabled` from `locals.config` next to a redirect).
+
+Everything else — "fetch domain data to show on an already-authorized page" — is a
+remote function.
+
+## Component patterns
+
+- **`drawerify` / `modalify`** wrap the base `drawer` / `modal` components with
+  `preloadData(url)` + `createQuery` to render a route's component inside a
+  drawer/modal without a full navigation (used for edit/detail panels).
+- **Path aliases**: `$lib` (default), `$components` → `src/lib/components`,
+  `$utils` → `src/lib/util` — defined in `svelte.config.js`, not `tsconfig.json`.
+
+## Testing
+
+- Vitest config is inline in `vite.config.ts` (`jsdom`, `src/**/*.{test,spec}.{js,ts}`,
+  setup in `src/testing/vitest-setup.ts`).
+- Playwright config is `playwright.config.ts`, `testDir: 'tests'`. Locally it
+  boots the app via `npm run preview` as the webServer (skipped when `CI` is set).
