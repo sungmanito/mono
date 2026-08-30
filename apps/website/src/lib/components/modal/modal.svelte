@@ -47,9 +47,23 @@
       modalElement.close();
     }
   });
+
+  // Funnel every way the <dialog> can close — native method="dialog"
+  // submission, Escape, or an explicit modalElement.close() — through the
+  // single onclose path. The `open` guard skips the echo when the close was
+  // driven by the parent setting `open` to false (the effect above).
+  function handleNativeClose() {
+    if (open) {
+      onclose();
+    }
+  }
 </script>
 
-<dialog class={cx(rest.class, baseClasses)} bind:this={modalElement}>
+<dialog
+  class={cx(rest.class, baseClasses)}
+  bind:this={modalElement}
+  onclose={handleNativeClose}
+>
   <form method="dialog" class="flex flex-col gap-4">
     <header class="flex justify-between">
       <div>
@@ -61,10 +75,7 @@
         type="button"
         class="btn-icon btn-icon-sm"
         title="Close Modal"
-        onclick={() => {
-          modalElement.close();
-          onclose();
-        }}
+        onclick={() => onclose()}
       >
         <XIcon size="1em" />
       </button>
@@ -76,7 +87,11 @@
       {#if footer}
         {@render footer({ close: onclose })}
       {:else}
-        <button class="btn variant-filled-primary" onclick={() => onclose()}>
+        <button
+          type="button"
+          class="btn variant-filled-primary"
+          onclick={() => onclose()}
+        >
           Close
         </button>
       {/if}
