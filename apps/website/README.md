@@ -91,16 +91,27 @@ export const deleteBills = form(async (data) => {
 ```
 
 ```svelte
+<script lang="ts">
+  // The page renders this exact instance...
+  const bills = $derived(
+    await getUserBillsWithPaymentStatus(selectedMonth?.toISOString()),
+  );
+</script>
+
 <form {...deleteBills.enhance(async ({ submit }) => {
   await submit();
-  await getUserBillsWithPaymentStatus().refresh();
+  // ...so refresh the same one — args are part of the query key.
+  await getUserBillsWithPaymentStatus(selectedMonth?.toISOString()).refresh();
 })}>
 ```
 
 **Invalidate by calling `.refresh()` on the affected query**, not SvelteKit's
 `invalidate()` / `invalidateAll()`. A server-side mutation can't reliably know
 which client cache key to trip, so the caller refreshes explicitly after
-`submit()` resolves.
+`submit()` resolves. A query's arguments are part of its cache key, so
+`.refresh()` the instance with the **same arguments** the component is
+displaying — `getUserBillsWithPaymentStatus()` and
+`getUserBillsWithPaymentStatus(month)` are separate cached instances.
 
 ### When to still use `load()`
 
