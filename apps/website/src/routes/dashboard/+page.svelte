@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { pushState, invalidate } from '$app/navigation';
+  import { pushState } from '$app/navigation';
   import Drawerify from '$components/drawerify/drawerify.svelte';
   import Button from '$lib/components/button/button.svelte';
   import Pill from '$lib/components/pill/pill.svelte';
@@ -99,9 +99,11 @@
   onopen={() => {
     pushState(makeOrUpdatePayment.url, {});
   }}
-  onclose={() => {
+  onclose={async () => {
     history.go(-1);
-    invalidate('household:payments');
+    // Bust the remote query cache before svelte-query re-runs its queryFn,
+    // otherwise the refetch just re-reads the stale cached result.
+    await getUserHouseholdBills().refresh();
     billsByStatus.refetch();
   }}
   id={makeOrUpdatePayment.url.split('/').at(-1)}
