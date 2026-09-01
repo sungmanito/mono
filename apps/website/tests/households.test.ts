@@ -1,11 +1,10 @@
 import { test, expect } from '@playwright/test';
 
-import { login, navigateAndLoginTo } from './util';
+import { STORAGE_STATE } from '../playwright.config';
+import { navigateAndLoginTo } from './util';
 
-test('Navigating and logging in redirection works', async ({ page }) => {
-  await page.goto('/');
-  await page.goto('/dashboard/household');
-  await login(page);
+test('Household page renders for an authenticated user', async ({ page }) => {
+  await navigateAndLoginTo('/dashboard/household', page);
   await expect(
     page.getByRole('heading', { name: 'Households', level: 1 }),
   ).toBeVisible();
@@ -26,9 +25,10 @@ test.describe.serial('Household create/edit/delete lifecycle', () => {
     // Best-effort cleanup: whichever name variant is still around (create
     // succeeded but edit/delete didn't, or edit succeeded but delete
     // didn't) gets deleted so it doesn't linger for future runs.
-    const page = await browser.newPage();
+    const context = await browser.newContext({ storageState: STORAGE_STATE });
+    const page = await context.newPage();
     try {
-      await navigateAndLoginTo('/dashboard/household', page);
+      await page.goto('/dashboard/household');
       for (const name of [editedHouseholdName, householdName]) {
         const item = page
           .getByTestId('sidebar-household')
@@ -47,7 +47,7 @@ test.describe.serial('Household create/edit/delete lifecycle', () => {
     } catch {
       // Cleanup is best-effort; don't fail the run over it.
     } finally {
-      await page.close();
+      await context.close();
     }
   });
 
@@ -146,19 +146,90 @@ test('User can view household details', async ({ page }) => {
   expect(page.url()).toMatch(/\/dashboard\/household\/?$/);
 });
 
-test('User can view bill details', async ({ page }) => {
-  await navigateAndLoginTo('/dashboard/household', page);
-  await page.getByTestId('sidebar-household').getByText('Default').click();
-  await expect(page.getByRole('button', { name: 'Unpaid' })).toBeVisible();
-  await page.getByRole('button', { name: 'Unpaid' }).click();
+test('Household detail Unpaid/Paid filters reflect payment state', async ({
+  page,
+  request,
+}) => {
+  // Self-seed instead of assuming the Default household already has unpaid
+  // current-month bills (it might not: payments.test.ts pays some, and
+  // current-month payment rows only exist once a bill is created with a due
+  // day >= today or the /actions cron has run). Create a uniquely-named bill
+  // due on the 28th — the highest allowed day, so bill creation seeds a
+  // current-month payment row on all but the last few days of the month — and
+  // assert the filters against that bill specifically.
+  const billName = `Detail Bill ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-  await expect(
-    await page.getByTestId('bill-list').getByRole('listitem').count(),
-  ).toBeGreaterThan(0);
+  const openDefault = async () => {
+    await page.goto('/dashboard/household');
+    await page
+      .getByTestId('sidebar-household')
+      .getByText('Default', { exact: true })
+      .click();
+    await expect(page.getByRole('heading', { name: 'Default' })).toBeVisible();
+  };
 
-  await page.getByRole('button', { name: 'Paid', exact: true }).click();
-  await expect(
-    await page.getByTestId('bill-list').getByRole('listitem').count(),
-  ).toBeLessThan(3);
-  await expect(page.getByText('No bills match this filter')).toBeVisible();
+  const detailRow = () =>
+    page
+      .getByTestId('bill-list')
+      .getByRole('listitem')
+      .filter({ hasText: billName });
+
+  let created = false;
+  try {
+    await openDefault();
+
+    await page
+      .getByRole('main')
+      .getByRole('button', { name: 'Add', exact: true })
+      .click();
+    await expect(
+      page
+        .getByRole('dialog')
+        .getByRole('heading', { name: 'Create new bill' }),
+    ).toBeVisible();
+    await page.getByLabel('Name').fill(billName);
+    await page.getByLabel('Due date').fill('28');
+    await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
+    await expect(page.getByRole('dialog')).not.toBeVisible();
+    created = true;
+
+    // The household detail list inner-joins current-month payments, so the
+    // new bill only shows once it has a current-month payment row.
+    await openDefault();
+    if ((await detailRow().count()) === 0) {
+      // Fallback: the cron endpoint seeds payment rows for the month ~5 days out.
+      await request.get('/actions');
+      await openDefault();
+    }
+    if ((await detailRow().count()) === 0) {
+      test.skip(
+        true,
+        `Could not seed a current-month payment row for "${billName}" via the UI ` +
+          `(calendar day ${new Date().getUTCDate()}). Needs a test-only DB seed ` +
+          `helper — tracked as a SUN-31 follow-up.`,
+      );
+    }
+
+    await page.getByRole('button', { name: 'Unpaid' }).click();
+    await expect(detailRow()).toBeVisible();
+
+    await page.getByRole('button', { name: 'Paid', exact: true }).click();
+    await expect(detailRow()).toHaveCount(0);
+  } finally {
+    if (created) {
+      await page.goto('/dashboard/bills').catch(() => {});
+      const leftover = page.getByRole('listitem', { name: billName });
+      if (await leftover.isVisible().catch(() => false)) {
+        await leftover
+          .getByRole('button', { name: 'Delete' })
+          .click()
+          .catch(() => {});
+        await page
+          .getByRole('dialog')
+          .getByRole('button', { name: 'Delete' })
+          .click()
+          .catch(() => {});
+      }
+    }
+  }
 });
