@@ -7,14 +7,11 @@
     children: Snippet<[{ close: () => void }]>;
     header?: Snippet<[{ close: () => void }]>;
     footer?: Snippet<[{ close: () => void }]>;
-    action?: string;
-    submitFn?: (response: Response) => Promise<unknown>;
     baseClasses?: string;
   }
 </script>
 
 <script lang="ts">
-  import { invalidateAll } from '$app/navigation';
   import { cx } from 'class-variance-authority';
   import { XIcon } from 'lucide-svelte';
   import { type Snippet } from 'svelte';
@@ -27,8 +24,6 @@
     header,
     footer,
     modal,
-    action = '/',
-    submitFn = () => Promise.resolve(void 0),
     baseClasses = 'modal bg-surface-100-800-token p-4 rounded-lg shadow-md shazdow-zinc-100 min-h-12 text-surface-800-100-token',
     ...rest
   }: ModalProps = $props();
@@ -53,41 +48,23 @@
     }
   });
 
-  async function submitForm(
-    e: SubmitEvent & { currentTarget: HTMLFormElement },
-  ) {
-    // Grab the action
-    const action = e.currentTarget.action;
-
-    // Get the current form data
-    const formData = new FormData(e.currentTarget);
-
-    // Send the form with this action
-    const response = await fetch(action, {
-      method: 'POST',
-      body: formData,
-    });
-
-    // If the response is OK then we invalidate all of the data.
-    if (response.ok) {
-      if (submitFn) {
-        await submitFn(response);
-      }
-
-      invalidateAll();
-      e.currentTarget?.reset();
+  // Funnel every way the <dialog> can close — native method="dialog"
+  // submission, Escape, or an explicit modalElement.close() — through the
+  // single onclose path. The `open` guard skips the echo when the close was
+  // driven by the parent setting `open` to false (the effect above).
+  function handleNativeClose() {
+    if (open) {
       onclose();
     }
   }
 </script>
 
-<dialog class={cx(rest.class, baseClasses)} bind:this={modalElement}>
-  <form
-    method="dialog"
-    class="flex flex-col gap-4"
-    {action}
-    onsubmit={submitForm}
-  >
+<dialog
+  class={cx(rest.class, baseClasses)}
+  bind:this={modalElement}
+  onclose={handleNativeClose}
+>
+  <form method="dialog" class="flex flex-col gap-4">
     <header class="flex justify-between">
       <div>
         {#if header}
@@ -98,10 +75,7 @@
         type="button"
         class="btn-icon btn-icon-sm"
         title="Close Modal"
-        onclick={() => {
-          modalElement.close();
-          onclose();
-        }}
+        onclick={() => onclose()}
       >
         <XIcon size="1em" />
       </button>
@@ -113,7 +87,11 @@
       {#if footer}
         {@render footer({ close: onclose })}
       {:else}
-        <button class="btn variant-filled-primary" onclick={() => onclose()}>
+        <button
+          type="button"
+          class="btn variant-filled-primary"
+          onclick={() => onclose()}
+        >
           Close
         </button>
       {/if}
