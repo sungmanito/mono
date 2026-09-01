@@ -21,6 +21,11 @@ jobs:
       - uses: pnpm/action-setup@v4
         name: Install PNPM
 
+      - uses: actions/setup-node@v4
+        name: Setup Node
+        with:
+          node-version: '24.x'
+
       - uses: actions/cache/restore@v4
         name: Restore Playwright from Cache
         id: playwright-cache
