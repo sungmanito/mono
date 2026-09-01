@@ -12,36 +12,56 @@ test.describe.serial('bill creation lifecycle', () => {
   test.afterAll(async ({ browser }) => {
     const context = await browser.newContext({ storageState: STORAGE_STATE });
     const page = await context.newPage();
+    const leftovers = page.getByRole('listitem', {
+      name: /(New Bill \d+|Renamed Bill)/,
+    });
+    let sweepError: unknown;
+    let remaining = -1;
     try {
       await page.goto('/dashboard/bills');
       await expect(
         page.getByRole('heading', { name: 'Bills & Payments' }),
       ).toBeVisible();
-      const leftovers = page.getByRole('listitem', {
-        name: /(New Bill \d+|Renamed Bill)/,
-      });
       // Deleting re-renders the list, so re-query `.first()` each iteration.
+      // Each attempt is isolated so one stuck row doesn't abort the sweep.
       for (
         let guard = 0;
         guard < 20 && (await leftovers.count()) > 0;
         guard++
       ) {
-        await leftovers
-          .first()
-          .getByRole('button', { name: 'Delete' })
-          .click()
-          .catch(() => {});
-        await page
-          .getByRole('dialog')
-          .getByRole('button', { name: 'Delete' })
-          .click()
-          .catch(() => {});
+        try {
+          await leftovers
+            .first()
+            .getByRole('button', { name: 'Delete' })
+            .click();
+          await page
+            .getByRole('dialog')
+            .getByRole('button', { name: 'Delete' })
+            .click();
+        } catch (e) {
+          sweepError = e;
+        }
         await page.waitForTimeout(250);
       }
-    } catch {
-      // best-effort
+      remaining = await leftovers.count();
+    } catch (e) {
+      sweepError ??= e;
     } finally {
       await context.close();
+    }
+
+    // Leftover `New Bill`/`Renamed Bill` rows live in shared data where a later
+    // run's strict locators would match duplicates, so a sweep that can't
+    // finish must fail the run rather than pass silently.
+    if (remaining !== 0) {
+      throw new Error(
+        `bill cleanup did not finish: ${
+          remaining < 0
+            ? 'could not verify remaining rows'
+            : `${remaining} test bill row(s) left behind`
+        }`,
+        { cause: sweepError },
+      );
     }
   });
 

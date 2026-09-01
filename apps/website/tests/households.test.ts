@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 import { STORAGE_STATE } from '../playwright.config';
+import { ensureCurrentMonthPayment } from './db';
 import { navigateAndLoginTo } from './util';
 
 test('Household page renders for an authenticated user', async ({ page }) => {
@@ -148,15 +149,13 @@ test('User can view household details', async ({ page }) => {
 
 test('Household detail Unpaid/Paid filters reflect payment state', async ({
   page,
-  request,
 }) => {
   // Self-seed instead of assuming the Default household already has unpaid
   // current-month bills (it might not: payments.test.ts pays some, and
   // current-month payment rows only exist once a bill is created with a due
-  // day >= today or the /actions cron has run). Create a uniquely-named bill
-  // due on the 28th — the highest allowed day, so bill creation seeds a
-  // current-month payment row on all but the last few days of the month — and
-  // assert the filters against that bill specifically.
+  // day >= today or the /actions cron has run). Create a uniquely-named bill,
+  // seed its current-month payment row directly (see below), and assert the
+  // filters against that bill specifically.
   const billName = `Detail Bill ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   const openDefault = async () => {
@@ -193,22 +192,14 @@ test('Household detail Unpaid/Paid filters reflect payment state', async ({
     await expect(page.getByRole('dialog')).not.toBeVisible();
     created = true;
 
-    // The household detail list inner-joins current-month payments, so the
-    // new bill only shows once it has a current-month payment row.
+    // The household detail list inner-joins current-month payments, so the new
+    // bill only shows once it has a current-month payment row. `createBill`
+    // skips that insert when the due day has already passed this month, so seed
+    // it directly to keep this deterministic on every calendar day.
+    await ensureCurrentMonthPayment(billName);
+
     await openDefault();
-    if ((await detailRow().count()) === 0) {
-      // Fallback: the cron endpoint seeds payment rows for the month ~5 days out.
-      await request.get('/actions');
-      await openDefault();
-    }
-    if ((await detailRow().count()) === 0) {
-      test.skip(
-        true,
-        `Could not seed a current-month payment row for "${billName}" via the UI ` +
-          `(calendar day ${new Date().getUTCDate()}). Needs a test-only DB seed ` +
-          `helper — tracked as a SUN-31 follow-up.`,
-      );
-    }
+    await expect(detailRow()).toHaveCount(1);
 
     await page.getByRole('button', { name: 'Unpaid' }).click();
     await expect(detailRow()).toBeVisible();
