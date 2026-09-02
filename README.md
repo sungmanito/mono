@@ -15,6 +15,8 @@ The `apps` directory is for any websites that we populate. Currently there is on
 The website is stored in the `apps/website` directory. This is the whole of the Sungmanito app. It is possible this gets split out in the future to allow for separate operating domains, but for now they are a singular entity.
 `apps/website` is a SvelteKit 2 application utilizing Drizzle and ArkType
 
+`apps/bill-aggregator` contains the Supabase Edge Function that automatically generates monthly payment records for all bills near the end of each month. It runs as a scheduled job via pg_cron and is deployed independently of the website using the Supabase CLI.
+
 ### packages
 
 Packages are Sungmanito specific things I found myself using that don't really belong in the main `apps/website` code.
@@ -34,3 +36,19 @@ EDGE_CONFIG_TOKEN=<EDGE CONFIG TOKEN FROM VERCEL>
 EDGE_CONFIG=<EDGE CONFIG URL FROM VERCEL>
 PAYMENT_BUCKET_NAME=<string, can be customized a bit, but I use 'payment-proof'>
 ```
+
+### Supabase CLI (required for `apps/bill-aggregator`)
+
+The bill aggregator deploys as a Supabase Edge Function. To work on it locally or deploy it, you need the Supabase CLI. `supabase/tap` is a Homebrew tap (a third-party formula repository) maintained by Supabase — installing from it gives you the `supabase` command:
+
+```bash
+brew install supabase/tap/supabase
+```
+
+The CLI is used to:
+
+- **`supabase link`** — connect your local checkout to your remote Supabase project
+- **`supabase functions serve`** — run Edge Functions locally against your real database for development
+- **`supabase functions deploy`** — push a function to production
+
+All `supabase` commands for the bill aggregator should be run from `apps/bill-aggregator/`.

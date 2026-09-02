@@ -1,6 +1,7 @@
 import { pgTable, text, uuid, timestamp, index } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
-import { households, users } from '.';
+import { households } from './households.table';
+import { users } from './external/auth';
 
 // I either need this, or i need to add information to the users_to_households table
 export const invites = pgTable(

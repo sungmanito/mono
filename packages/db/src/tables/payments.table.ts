@@ -9,10 +9,10 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
-import { users } from '.';
+import { users } from './external/auth';
+import { objects } from './external/storage';
 import { bills } from './bills.table';
 import { households } from './households.table';
-import { objects } from './objects.table';
 
 export const payments = pgTable(
   'payments',

@@ -3,7 +3,9 @@ import 'dotenv/config';
 
 export default {
   dialect: 'postgresql',
-  schema: './src/tables/index.ts',
+  // Only app-owned tables. The Supabase-owned `auth`/`storage` mirrors live in
+  // `src/tables/external/` and are intentionally excluded from migrations.
+  schema: './src/tables/*.table.ts',
   out: './drizzle',
   schemaFilter: ['public'],
   dbCredentials: {

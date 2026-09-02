@@ -1,5 +1,5 @@
 import { pgTable, text, uuid, index, uniqueIndex } from 'drizzle-orm/pg-core';
-import { users } from './users.table';
+import { users } from './external/auth';
 import { households } from './households.table';
 
 export const usersToHouseholds = pgTable(
