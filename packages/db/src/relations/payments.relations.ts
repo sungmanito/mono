@@ -1,6 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { payments, users, bills, households } from '../tables';
-import { objects } from '../tables/objects.table';
+import { objects } from '../tables/external/storage';
 
 export const paymentRelations = relations(payments, ({ one, many }) => ({
   bill: one(bills, {

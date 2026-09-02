@@ -1,89 +1,198 @@
 {
-  "id": "276bc1ef-cafe-4157-85a1-dbffa6dcbb55",
+  "id": "996cfd41-fbf1-494f-8533-617a1ff7c428",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "auth.users": {
-      "name": "users",
-      "schema": "auth",
+    "public.bill_reminders": {
+      "name": "bill_reminders",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "generate_ulid()"
         },
-        "email": {
-          "name": "email",
-          "type": "varchar",
+        "bill_id": {
+          "name": "bill_id",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "raw_user_meta_data": {
-          "name": "raw_user_meta_data",
-          "type": "jsonb",
+        "household_id": {
+          "name": "household_id",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
+        },
+        "for_month_d": {
+          "name": "for_month_d",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sent_at": {
+          "name": "sent_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
-      "indexes": {},
-      "foreignKeys": {},
+      "indexes": {
+        "bill_reminder_bill_month_idx": {
+          "name": "bill_reminder_bill_month_idx",
+          "columns": [
+            {
+              "expression": "bill_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "for_month_d",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bill_reminder_household_idx": {
+          "name": "bill_reminder_household_idx",
+          "columns": [
+            {
+              "expression": "household_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "bill_reminders_bill_id_bills_id_fk": {
+          "name": "bill_reminders_bill_id_bills_id_fk",
+          "tableFrom": "bill_reminders",
+          "tableTo": "bills",
+          "columnsFrom": [
+            "bill_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "bill_reminders_household_id_households_id_fk": {
+          "name": "bill_reminders_household_id_households_id_fk",
+          "tableFrom": "bill_reminders",
+          "tableTo": "households",
+          "columnsFrom": [
+            "household_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "auth.identities": {
-      "name": "identities",
-      "schema": "auth",
+    "public.bills": {
+      "name": "bills",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
-          "primaryKey": false,
-          "notNull": true
+          "primaryKey": true,
+          "notNull": true,
+          "default": "generate_ulid()"
         },
-        "provider": {
-          "name": "provider",
+        "bill_name": {
+          "name": "bill_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
+        "due_date": {
+          "name": "due_date",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": 16
         },
-        "email": {
-          "name": "email",
+        "household_id": {
+          "name": "household_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
+        "notes": {
+          "name": "notes",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "currency": {
+          "name": "currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'USD'"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "household_idx": {
+          "name": "household_idx",
+          "columns": [
+            {
+              "expression": "household_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
-        "identities_user_id_users_id_fk": {
-          "name": "identities_user_id_users_id_fk",
-          "tableFrom": "identities",
-          "tableTo": "users",
-          "schemaTo": "auth",
+        "bills_household_id_households_id_fk": {
+          "name": "bills_household_id_households_id_fk",
+          "tableFrom": "bills",
+          "tableTo": "households",
           "columnsFrom": [
-            "user_id"
+            "household_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -199,8 +308,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.bills": {
-      "name": "bills",
+    "public.invites": {
+      "name": "invites",
       "schema": "",
       "columns": {
         "id": {
@@ -210,18 +319,29 @@
           "notNull": true,
           "default": "generate_ulid()"
         },
-        "bill_name": {
-          "name": "bill_name",
+        "to_email": {
+          "name": "to_email",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "due_date": {
-          "name": "due_date",
-          "type": "integer",
+        "to_id": {
+          "name": "to_id",
+          "type": "uuid",
           "primaryKey": false,
-          "notNull": true,
-          "default": 16
+          "notNull": true
+        },
+        "from_email": {
+          "name": "from_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "from_id": {
+          "name": "from_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
         },
         "household_id": {
           "name": "household_id",
@@ -229,30 +349,54 @@
           "primaryKey": false,
           "notNull": true
         },
-        "notes": {
-          "name": "notes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "amount": {
-          "name": "amount",
-          "type": "double precision",
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": 0
+          "default": "now()"
         },
-        "currency": {
-          "name": "currency",
-          "type": "text",
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "'USD'"
+          "default": "now() + interval '30 days'"
         }
       },
       "indexes": {
-        "household_idx": {
-          "name": "household_idx",
+        "to_id_idx": {
+          "name": "to_id_idx",
+          "columns": [
+            {
+              "expression": "to_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "from_id_idx": {
+          "name": "from_id_idx",
+          "columns": [
+            {
+              "expression": "from_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "invites_household_idx": {
+          "name": "invites_household_idx",
           "columns": [
             {
               "expression": "household_id",
@@ -268,9 +412,37 @@
         }
       },
       "foreignKeys": {
-        "bills_household_id_households_id_fk": {
-          "name": "bills_household_id_households_id_fk",
-          "tableFrom": "bills",
+        "invites_to_id_users_id_fk": {
+          "name": "invites_to_id_users_id_fk",
+          "tableFrom": "invites",
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsFrom": [
+            "to_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "invites_from_id_users_id_fk": {
+          "name": "invites_from_id_users_id_fk",
+          "tableFrom": "invites",
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsFrom": [
+            "from_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "invites_household_id_households_id_fk": {
+          "name": "invites_household_id_households_id_fk",
+          "tableFrom": "invites",
           "tableTo": "households",
           "columnsFrom": [
             "household_id"
@@ -282,6 +454,66 @@
           "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.job_runs": {
+      "name": "job_runs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "generate_ulid()"
+        },
+        "job_name": {
+          "name": "job_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ran_at": {
+          "name": "ran_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created": {
+          "name": "created",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "skipped": {
+          "name": "skipped",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "duration_ms": {
+          "name": "duration_ms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "error": {
+          "name": "error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -596,317 +828,10 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
-    },
-    "public.invites": {
-      "name": "invites",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "generate_ulid()"
-        },
-        "to_email": {
-          "name": "to_email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "to_id": {
-          "name": "to_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "from_email": {
-          "name": "from_email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "from_id": {
-          "name": "from_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "household_id": {
-          "name": "household_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now() + interval '30 days'"
-        }
-      },
-      "indexes": {
-        "to_id_idx": {
-          "name": "to_id_idx",
-          "columns": [
-            {
-              "expression": "to_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "from_id_idx": {
-          "name": "from_id_idx",
-          "columns": [
-            {
-              "expression": "from_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "invites_household_idx": {
-          "name": "invites_household_idx",
-          "columns": [
-            {
-              "expression": "household_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "invites_to_id_users_id_fk": {
-          "name": "invites_to_id_users_id_fk",
-          "tableFrom": "invites",
-          "tableTo": "users",
-          "schemaTo": "auth",
-          "columnsFrom": [
-            "to_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "invites_from_id_users_id_fk": {
-          "name": "invites_from_id_users_id_fk",
-          "tableFrom": "invites",
-          "tableTo": "users",
-          "schemaTo": "auth",
-          "columnsFrom": [
-            "from_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "invites_household_id_households_id_fk": {
-          "name": "invites_household_id_households_id_fk",
-          "tableFrom": "invites",
-          "tableTo": "households",
-          "columnsFrom": [
-            "household_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "storage.objects": {
-      "name": "objects",
-      "schema": "storage",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "bucket_id": {
-          "name": "bucket_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "owner": {
-          "name": "owner",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "path_tokens": {
-          "name": "path_tokens",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "objects_bucket_id_buckets_id_fk": {
-          "name": "objects_bucket_id_buckets_id_fk",
-          "tableFrom": "objects",
-          "tableTo": "buckets",
-          "schemaTo": "storage",
-          "columnsFrom": [
-            "bucket_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "objects_owner_users_id_fk": {
-          "name": "objects_owner_users_id_fk",
-          "tableFrom": "objects",
-          "tableTo": "users",
-          "schemaTo": "auth",
-          "columnsFrom": [
-            "owner"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "storage.buckets": {
-      "name": "buckets",
-      "schema": "storage",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.job_runs": {
-      "name": "job_runs",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "generate_ulid()"
-        },
-        "job_name": {
-          "name": "job_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "ran_at": {
-          "name": "ran_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "created": {
-          "name": "created",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "skipped": {
-          "name": "skipped",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "duration_ms": {
-          "name": "duration_ms",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "error": {
-          "name": "error",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
     }
   },
   "enums": {},
-  "schemas": {
-    "auth": "auth",
-    "storage": "storage"
-  },
+  "schemas": {},
   "sequences": {},
   "roles": {},
   "policies": {},

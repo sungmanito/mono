@@ -1,7 +1,6 @@
 import { relations } from 'drizzle-orm';
-import { objects } from '../tables/objects.table';
+import { buckets, objects } from '../tables/external/storage';
 import { payments } from '../tables';
-import { buckets } from '../tables/buckets.table';
 
 export const objectRelations = relations(objects, ({ many, one }) => ({
   payments: many(payments),

@@ -7,7 +7,7 @@ import {
   uuid,
   timestamp,
 } from 'drizzle-orm/pg-core';
-import { users } from './users.table';
+import { users } from './external/auth';
 
 export const households = pgTable(
   'households',
