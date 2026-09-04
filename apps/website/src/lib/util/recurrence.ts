@@ -128,8 +128,7 @@ export function formatDuration(duration: Duration): string {
  * exact same mapping (`P3M` <-> `3 mons`, `P14D` <-> `14 days`).
  */
 export function toPostgresInterval(recurrence: string | Duration): string {
-  const duration =
-    typeof recurrence === 'string' ? parseDuration(recurrence) : recurrence;
+  const duration = normalizeRecurrence(recurrence);
   switch (duration.unit) {
     case 'day':
       return `${duration.count} days`;

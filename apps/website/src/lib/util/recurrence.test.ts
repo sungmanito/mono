@@ -84,6 +84,15 @@ describe('toPostgresInterval', () => {
   it('accepts a parsed Duration', () => {
     expect(toPostgresInterval({ unit: 'month', count: 6 })).toBe('6 mons');
   });
+
+  it('validates a constructed Duration same as it would a string', () => {
+    expect(() =>
+      toPostgresInterval({ unit: 'day', count: -5 } as Duration),
+    ).toThrow(RecurrenceError);
+    expect(() =>
+      toPostgresInterval({ unit: 'month', count: 0 } as Duration),
+    ).toThrow(RecurrenceError);
+  });
 });
 
 describe('RECURRENCE_PRESETS', () => {
