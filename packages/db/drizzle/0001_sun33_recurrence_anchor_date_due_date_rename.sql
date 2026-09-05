@@ -24,23 +24,27 @@ ALTER TABLE "bills" ADD COLUMN "anchor_date" date;
 
 -- 2. Backfill anchor_date: the next occurrence of the existing day-of-month
 --    due_date on/after today. Mirrors resolveNextDueDate
---    (apps/website/src/lib/server/reminders.ts).
+--    (apps/website/src/lib/server/reminders.ts). due_date has no DB-level
+--    range check today (only one of the three app write paths enforces
+--    1-28), so legacy rows could hold 0, 29-31, or other out-of-range
+--    values that would make `make_date` error or misbehave - clamp to
+--    1-28 first so the backfill can't fail on bad legacy data.
 UPDATE "bills" SET "anchor_date" =
   CASE
-    WHEN "due_date" >= extract(day FROM current_date)
+    WHEN LEAST(GREATEST("due_date", 1), 28) >= extract(day FROM current_date)
       THEN make_date(
         extract(year  FROM current_date)::int,
         extract(month FROM current_date)::int,
-        "due_date")
+        LEAST(GREATEST("due_date", 1), 28))
     ELSE (make_date(
         extract(year  FROM current_date)::int,
         extract(month FROM current_date)::int,
-        "due_date") + interval '1 month')::date
+        LEAST(GREATEST("due_date", 1), 28)) + interval '1 month')::date
   END;
 --> statement-breakpoint
 
--- 3. Lock anchor_date down now that every row has a value. due_date is
---    already constrained to 1-28 today, so this check can't fail here.
+-- 3. Lock anchor_date down now that every row has a value - the backfill
+--    above clamps due_date to 1-28 regardless of what was stored.
 ALTER TABLE "bills" ALTER COLUMN "anchor_date" SET NOT NULL;
 --> statement-breakpoint
 ALTER TABLE "bills" ADD CONSTRAINT "bills_anchor_day_chk"

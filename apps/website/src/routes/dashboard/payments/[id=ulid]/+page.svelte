@@ -36,6 +36,7 @@
   {@const monthYear = payment.dueDate.toLocaleDateString(undefined, {
     month: 'long',
     year: 'numeric',
+    timeZone: 'Etc/UTC',
   })}
 
   <div class="container mx-auto" class:px-4={component}>
@@ -96,6 +97,7 @@
               {
                 month: 'long',
                 year: 'numeric',
+                timeZone: 'Etc/UTC',
               },
             )}
             <div

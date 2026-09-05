@@ -27,8 +27,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "for_month_d": {
-          "name": "for_month_d",
+        "due_date": {
+          "name": "due_date",
           "type": "date",
           "primaryKey": false,
           "notNull": true
@@ -42,8 +42,8 @@
         }
       },
       "indexes": {
-        "bill_reminder_bill_month_idx": {
-          "name": "bill_reminder_bill_month_idx",
+        "bill_reminder_bill_due_date_idx": {
+          "name": "bill_reminder_bill_due_date_idx",
           "columns": [
             {
               "expression": "bill_id",
@@ -52,7 +52,7 @@
               "nulls": "last"
             },
             {
-              "expression": "for_month_d",
+              "expression": "due_date",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -137,6 +137,19 @@
           "notNull": true,
           "default": 16
         },
+        "recurrence": {
+          "name": "recurrence",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'1 mon'"
+        },
+        "anchor_date": {
+          "name": "anchor_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
         "household_id": {
           "name": "household_id",
           "type": "text",
@@ -199,7 +212,12 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "bills_anchor_day_chk": {
+          "name": "bills_anchor_day_chk",
+          "value": "extract(day from \"bills\".\"anchor_date\") between 1 and 28"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.households": {
@@ -556,8 +574,8 @@
           "notNull": true,
           "default": "now()"
         },
-        "for_month_d": {
-          "name": "for_month_d",
+        "due_date": {
+          "name": "due_date",
           "type": "date",
           "primaryKey": false,
           "notNull": true
@@ -588,8 +606,8 @@
         }
       },
       "indexes": {
-        "billId_month": {
-          "name": "billId_month",
+        "payments_bill_due_date_uq": {
+          "name": "payments_bill_due_date_uq",
           "columns": [
             {
               "expression": "bill_id",
@@ -598,7 +616,7 @@
               "nulls": "last"
             },
             {
-              "expression": "for_month_d",
+              "expression": "due_date",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -609,11 +627,11 @@
           "method": "btree",
           "concurrently": false
         },
-        "month_idx": {
-          "name": "month_idx",
+        "payments_due_date_idx": {
+          "name": "payments_due_date_idx",
           "columns": [
             {
-              "expression": "for_month_d",
+              "expression": "due_date",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
