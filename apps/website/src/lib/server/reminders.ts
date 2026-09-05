@@ -87,14 +87,14 @@ export async function getUpcomingUnpaidBillsByHousehold(
       .select({
         billId: schema.payments.billId,
         paidAt: schema.payments.paidAt,
-        forMonthKey: sql<string>`to_char(${schema.payments.forMonthD}, 'YYYY-MM-DD')`,
+        dueDateKey: sql<string>`to_char(${schema.payments.dueDate}, 'YYYY-MM-DD')`,
       })
       .from(schema.payments)
       .where(inArray(schema.payments.billId, billIds)),
     db
       .select({
         billId: schema.billReminders.billId,
-        forMonthKey: sql<string>`to_char(${schema.billReminders.forMonthD}, 'YYYY-MM-DD')`,
+        dueDateKey: sql<string>`to_char(${schema.billReminders.dueDate}, 'YYYY-MM-DD')`,
       })
       .from(schema.billReminders)
       .where(inArray(schema.billReminders.billId, billIds)),
@@ -114,10 +114,10 @@ export async function getUpcomingUnpaidBillsByHousehold(
   const excludedKeys = new Set<string>();
   for (const payment of payments) {
     if (payment.paidAt)
-      excludedKeys.add(`${payment.billId}|${payment.forMonthKey}`);
+      excludedKeys.add(`${payment.billId}|${payment.dueDateKey}`);
   }
   for (const reminder of reminders) {
-    excludedKeys.add(`${reminder.billId}|${reminder.forMonthKey}`);
+    excludedKeys.add(`${reminder.billId}|${reminder.dueDateKey}`);
   }
 
   const memberEmailsByHousehold = new Map<string, string[]>();

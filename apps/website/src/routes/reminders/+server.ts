@@ -35,11 +35,11 @@ export const GET: RequestHandler = async ({ request }) => {
         bills.map((bill) => ({
           billId: bill.id,
           householdId,
-          forMonthD: bill.dueDate,
+          dueDate: bill.dueDate,
         })),
       )
       .onConflictDoNothing({
-        target: [schema.billReminders.billId, schema.billReminders.forMonthD],
+        target: [schema.billReminders.billId, schema.billReminders.dueDate],
       })
       .returning();
 

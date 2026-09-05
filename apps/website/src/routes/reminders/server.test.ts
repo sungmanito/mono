@@ -91,7 +91,7 @@ describe('GET /reminders', () => {
           id: 'reminder-1',
           billId: 'bill-1',
           householdId: 'household-1',
-          forMonthD: dueDate,
+          dueDate,
         },
       ]) as never,
     );
@@ -138,7 +138,7 @@ describe('GET /reminders', () => {
           id: 'reminder-1',
           billId: 'bill-1',
           householdId: 'household-1',
-          forMonthD: dueDate,
+          dueDate,
         },
       ]) as never,
     );

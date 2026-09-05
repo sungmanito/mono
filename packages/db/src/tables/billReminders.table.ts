@@ -22,11 +22,11 @@ export const billReminders = pgTable(
     householdId: text('household_id')
       .notNull()
       .references(() => households.id, { onDelete: 'cascade' }),
-    forMonthD: date('for_month_d', { mode: 'date' }).notNull(),
+    dueDate: date('due_date', { mode: 'date' }).notNull(),
     sentAt: timestamp('sent_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  ({ billId, forMonthD, householdId }) => [
-    uniqueIndex('bill_reminder_bill_month_idx').on(billId, forMonthD),
+  ({ billId, dueDate, householdId }) => [
+    uniqueIndex('bill_reminder_bill_due_date_idx').on(billId, dueDate),
     index('bill_reminder_household_idx').on(householdId),
   ],
 );

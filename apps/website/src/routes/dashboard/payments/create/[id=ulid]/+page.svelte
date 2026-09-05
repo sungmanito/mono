@@ -80,7 +80,7 @@
         <FormLabel label="For Month:">
           <MonthDropdown
             class="select"
-            value={payment.forMonthD.getMonth()}
+            value={payment.dueDate.getMonth()}
             readonly
             disabled
           />

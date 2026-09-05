@@ -126,9 +126,9 @@
         {/snippet}
         {@const labels = billData.payments
           .slice()
-          .sort((a, b) => a.forMonthD.getTime() - b.forMonthD.getTime())
+          .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())
           .map((p) =>
-            p.forMonthD.toLocaleDateString(undefined, {
+            p.dueDate.toLocaleDateString(undefined, {
               year: 'numeric',
               month: 'short',
               timeZone: 'Etc/UTC',
@@ -142,7 +142,7 @@
             {
               data: billData.payments
                 .slice()
-                .sort((a, b) => a.forMonthD.getTime() - b.forMonthD.getTime())
+                .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())
                 .map((p) => Number(p.amount) ?? null),
               label: `${billData.billName} (Actual)`,
               type: 'line',
@@ -178,7 +178,7 @@
                   showPaymentDetails(payment.id);
                 }}
               >
-                {payment.forMonthD.toLocaleDateString(undefined, {
+                {payment.dueDate.toLocaleDateString(undefined, {
                   month: 'long',
                   year: 'numeric',
                   timeZone: 'Etc/UTC',
