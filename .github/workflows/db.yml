@@ -4,26 +4,59 @@ on:
     branches: main
     paths:
       - ./packages/db/src/**/*.ts
+  pull_request:
+    paths:
+      - ./packages/db/src/**/*.ts
+
+permissions:
+  contents: read
 
 jobs:
   db:
     name: Drizzle Migrate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        name: Install PNPM
+      - uses: actions/checkout@v7
         with:
-          version: 9
-      - uses: actions/cache@v3
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        name: Install PNPM
+
+      - uses: actions/cache@v6
         name: Setup PNPM Cache
         with:
           path: ${{ env.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{hashFiles('**/pnpm-lock.yaml')}}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store
-      - uses: actions/setup-node@v4
+            ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+            ${{ runner.os }}-pnpm-store-
+            ${{ runner.os }}-pnpm-
+      - uses: actions/setup-node@v7
         with:
           node-version: '24.x'
       - run: pnpm i --frozen-lockfile
-      - run: cd packages/db && pnpm db:push
+      - run: cd packages/db && pnpm db:migrate
+  check-migration:
+    if: github.event_name == 'pull_request'
+    name: Check migration included
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Verify a migration was added for schema changes
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          CHANGED_SRC=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- 'packages/db/src' | grep -E '\.ts$' || true)
+          CHANGED_MIGRATIONS=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- 'packages/db/drizzle' | grep -E '\.sql$' || true)
+
+          if [ -n "$CHANGED_SRC" ] && [ -z "$CHANGED_MIGRATIONS" ]; then
+            echo "Schema files changed under packages/db/src but no migration was added in packages/db/drizzle/:"
+            echo "$CHANGED_SRC"
+            echo
+            echo "Run 'pnpm --filter @sungmanito/db db:generate' and commit the generated migration."
+            exit 1
+          fi
