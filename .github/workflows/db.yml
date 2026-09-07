@@ -10,20 +10,21 @@ jobs:
     name: Drizzle Migrate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         name: Install PNPM
-        with:
-          version: 9
-      - uses: actions/cache@v3
+
+      - uses: actions/cache@v6
         name: Setup PNPM Cache
         with:
           path: ${{ env.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{hashFiles('**/pnpm-lock.yaml')}}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store
-      - uses: actions/setup-node@v4
+            ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+            ${{ runner.os }}-pnpm-store-
+            ${{ runner.os }}-pnpm-
+      - uses: actions/setup-node@v7
         with:
           node-version: '24.x'
       - run: pnpm i --frozen-lockfile
-      - run: cd packages/db && pnpm db:push
+      - run: cd packages/db && pnpm db:migrate
