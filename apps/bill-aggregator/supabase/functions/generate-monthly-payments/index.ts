@@ -34,13 +34,13 @@ Deno.serve(async (_req) => {
       const payments = bills.map((bill) => ({
         bill_id: bill.id,
         household_id: bill.household_id,
-        for_month_d: nextMonthDateFor(bill.due_date, now),
+        due_date: nextMonthDateFor(bill.due_date, now),
       }));
 
       const { data: inserted, error: insertError } = await supabase
         .from('payments')
         .upsert(payments, {
-          onConflict: 'bill_id,for_month_d',
+          onConflict: 'bill_id,due_date',
           ignoreDuplicates: true,
         })
         .select('id');
@@ -73,7 +73,10 @@ Deno.serve(async (_req) => {
     error: errorMessage,
   });
   if (jobRunError) {
-    console.error(`[${JOB_NAME}] failed to write job_run:`, jobRunError.message);
+    console.error(
+      `[${JOB_NAME}] failed to write job_run:`,
+      jobRunError.message,
+    );
   }
 
   console.log(`[${JOB_NAME}]`, JSON.stringify(summary));

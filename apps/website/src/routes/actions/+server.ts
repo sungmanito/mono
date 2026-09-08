@@ -22,11 +22,11 @@ export const GET: RequestHandler = async () => {
       and(
         eq(schema.payments.billId, schema.bills.id),
         eq(
-          sql`extract('month' from ${schema.payments.forMonthD})`,
+          sql`extract('month' from ${schema.payments.dueDate})`,
           sql`extract('month' from now() + interval '5 days')`,
         ),
         eq(
-          sql`extract(YEAR from ${schema.payments.forMonthD})`,
+          sql`extract(YEAR from ${schema.payments.dueDate})`,
           sql`extract(YEAR from now() + interval '5 days')`,
         ),
       ),
@@ -35,7 +35,7 @@ export const GET: RequestHandler = async () => {
   const mapped = bills.map((bill) => {
     return {
       billId: bill.id,
-      forMonthD: new Date(`${bill.nextYear}-${bill.nextMonth}-${bill.dueDate}`),
+      dueDate: new Date(`${bill.nextYear}-${bill.nextMonth}-${bill.dueDate}`),
       householdId: bill.householdId,
     } satisfies typeof schema.payments.$inferInsert;
   });
@@ -44,7 +44,7 @@ export const GET: RequestHandler = async () => {
     .insert(schema.payments)
     .values(mapped)
     .onConflictDoNothing({
-      target: [schema.payments.billId, schema.payments.forMonthD],
+      target: [schema.payments.billId, schema.payments.dueDate],
     })
     .returning()
     .execute();

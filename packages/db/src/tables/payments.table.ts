@@ -30,7 +30,7 @@ export const payments = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
-    forMonthD: date('for_month_d', { mode: 'date' }).notNull(),
+    dueDate: date('due_date', { mode: 'date' }).notNull(),
     notes: text('notes'),
     proofImage: uuid('proof_image_id').references(() => objects.id, {
       onDelete: 'set null',
@@ -41,9 +41,9 @@ export const payments = pgTable(
       .notNull()
       .references(() => households.id, { onDelete: 'no action' }),
   },
-  ({ billId, forMonthD, proofImage, householdId }) => ({
-    billIdMonth: uniqueIndex('billId_month').on(billId, forMonthD),
-    monthIndex: index('month_idx').on(forMonthD),
+  ({ billId, dueDate, proofImage, householdId }) => ({
+    billIdMonth: uniqueIndex('payments_bill_due_date_uq').on(billId, dueDate),
+    monthIndex: index('payments_due_date_idx').on(dueDate),
     proofImageIndex: uniqueIndex('proof_image_idx').on(proofImage),
     householdIndex: index('payment_household_idx').on(householdId),
   }),

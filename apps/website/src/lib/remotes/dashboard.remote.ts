@@ -33,11 +33,11 @@ export const getUserHouseholdBills = query(async () => {
       schema.payments,
       and(
         eq(
-          sql`extract('month' from ${schema.payments.forMonthD})`,
+          sql`extract('month' from ${schema.payments.dueDate})`,
           today.getMonth() + 1,
         ),
         eq(
-          sql`extract('year' from ${schema.payments.forMonthD})`,
+          sql`extract('year' from ${schema.payments.dueDate})`,
           sql`extract('year' from now())`,
         ),
         eq(schema.payments.billId, schema.bills.id),

@@ -1,5 +1,6 @@
 import { query, form } from '$app/server';
 import { db } from '$lib/server/db';
+import { resolveNextDueDate } from '$lib/server/reminders';
 import { exportedSchema as schema } from '@sungmanito/db';
 import { and, asc, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import { getUser, getUserHouseholds } from './common.remote';
@@ -74,8 +75,8 @@ export const getUserBillsWithPaymentStatus = query(
       .leftJoin(
         schema.payments,
         and(
-          eq(sql`extract('month' from ${schema.payments.forMonthD})`, month),
-          eq(sql`extract('year' from ${schema.payments.forMonthD})`, year),
+          eq(sql`extract('month' from ${schema.payments.dueDate})`, month),
+          eq(sql`extract('year' from ${schema.payments.dueDate})`, year),
           eq(schema.payments.billId, schema.bills.id),
         ),
       )
@@ -157,7 +158,7 @@ export const getBillWithPayments = query(ulidValidator, async (id) => {
             userHouseholds.map((h) => h.id),
           ),
         ),
-      orderBy: (fields, { desc }) => desc(fields.forMonthD),
+      orderBy: (fields, { desc }) => desc(fields.dueDate),
       limit: 12,
     }),
   ]);
@@ -227,6 +228,10 @@ export const createBill = form(billCreateValidator, async (data) => {
           billName: names[i],
           householdId: householdIdsInput[i],
           dueDate: dueDates[i],
+          // recurrence isn't set here - defaults to monthly ('1 mon'). SUN-37
+          // adds a recurrence picker to bill creation; until then every new
+          // bill is monthly, anchored on its day-of-month due date.
+          anchorDate: resolveNextDueDate(dueDates[i], today),
           amount: amounts[i] > 0 ? amounts[i] : undefined,
           currency: currencies[i] || 'USD',
         })),
@@ -238,11 +243,7 @@ export const createBill = form(billCreateValidator, async (data) => {
       .filter((bill) => bill.dueDate >= today.getDate())
       .map((bill) => ({
         billId: bill.id,
-        forMonthD: new Date(
-          today.getFullYear(),
-          today.getMonth(),
-          bill.dueDate,
-        ),
+        dueDate: new Date(today.getFullYear(), today.getMonth(), bill.dueDate),
         householdId: bill.householdId,
       }));
 

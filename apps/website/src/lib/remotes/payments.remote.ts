@@ -60,11 +60,11 @@ export const getCurrentPayments = query(
             schema.payments.householdId,
             userHouseholds.map((h) => h.id),
           ),
-          eq(sql`extract('month' from ${schema.payments.forMonthD})`, isoMonth),
-          eq(sql`extract(YEAR from ${schema.payments.forMonthD})`, isoYear),
+          eq(sql`extract('month' from ${schema.payments.dueDate})`, isoMonth),
+          eq(sql`extract(YEAR from ${schema.payments.dueDate})`, isoYear),
         ),
       )
-      .orderBy(schema.payments.forMonthD);
+      .orderBy(schema.payments.dueDate);
   },
 );
 
@@ -216,7 +216,7 @@ export const getPayment = query(ulidValidator, async (id) => {
         ),
       ),
     )
-    .orderBy(desc(schema.payments.forMonthD))
+    .orderBy(desc(schema.payments.dueDate))
     .limit(1)
     .then((r) => r[0]);
 });
@@ -342,8 +342,8 @@ export const getPaymentHistoryMonths = query(async () => {
     db
       .selectDistinct({
         month:
-          sql<string>`date_trunc('month', ${schema.payments.forMonthD})::timestamp at time zone 'UTC'`.mapWith(
-            schema.payments.forMonthD,
+          sql<string>`date_trunc('month', ${schema.payments.dueDate})::timestamp at time zone 'UTC'`.mapWith(
+            schema.payments.dueDate,
           ),
       })
       .from(schema.payments)
@@ -400,11 +400,11 @@ export const getPaymentWithDetails = query(ulidValidator, async (id) => {
     where(fields, { and, eq, lt }) {
       return and(
         eq(fields.billId, payment.billId),
-        lt(fields.forMonthD, payment.forMonthD),
+        lt(fields.dueDate, payment.dueDate),
       );
     },
     orderBy(fields, { desc }) {
-      return desc(fields.forMonthD);
+      return desc(fields.dueDate);
     },
     limit: 12,
   });

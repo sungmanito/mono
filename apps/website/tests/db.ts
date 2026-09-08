@@ -34,9 +34,9 @@ async function withClient<T>(
  * household detail view's inner join. Seeding directly makes the household
  * detail filter assertions deterministic on every calendar day.
  *
- * Matches `getHouseholdDetail`'s join, which keys on month/year of `for_month_d`
+ * Matches `getHouseholdDetail`'s join, which keys on month/year of `due_date`
  * (the day component is irrelevant there). Idempotent via the
- * `(bill_id, for_month_d)` unique index.
+ * `(bill_id, due_date)` unique index.
  */
 export async function ensureCurrentMonthPayment(
   billName: string,
@@ -58,16 +58,16 @@ export async function ensureCurrentMonthPayment(
     }
 
     const now = new Date();
-    const forMonthD =
+    const dueDate =
       `${now.getUTCFullYear()}-` +
       `${String(now.getUTCMonth() + 1).padStart(2, '0')}-` +
       `${String(bill.due_date).padStart(2, '0')}`;
 
     await client.query(
-      `insert into payments (bill_id, household_id, for_month_d)
+      `insert into payments (bill_id, household_id, due_date)
        values ($1, $2, $3)
-       on conflict (bill_id, for_month_d) do nothing`,
-      [bill.id, bill.household_id, forMonthD],
+       on conflict (bill_id, due_date) do nothing`,
+      [bill.id, bill.household_id, dueDate],
     );
   });
 }

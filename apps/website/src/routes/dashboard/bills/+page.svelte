@@ -104,7 +104,7 @@
             status: b.status === 'paid' ? 'paid' : 'pending',
             name: b.billName,
             date:
-              b.payment?.forMonthD ??
+              b.payment?.dueDate ??
               (selectedMonth
                 ? new Date(
                     Date.UTC(

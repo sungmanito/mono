@@ -33,9 +33,10 @@
   {/snippet}
 
   {@const payment = await getPaymentWithDetails(id)}
-  {@const monthYear = payment.forMonthD.toLocaleDateString(undefined, {
+  {@const monthYear = payment.dueDate.toLocaleDateString(undefined, {
     month: 'long',
     year: 'numeric',
+    timeZone: 'Etc/UTC',
   })}
 
   <div class="container mx-auto" class:px-4={component}>
@@ -91,11 +92,14 @@
         <Header tag="h2" class="my-4">Payment History</Header>
         <div class="flex flex-col gap-3">
           {#each payment.history as pastPayment (pastPayment.id)}
-            {@const paymentDateString =
-              pastPayment.forMonthD.toLocaleDateString(undefined, {
+            {@const paymentDateString = pastPayment.dueDate.toLocaleDateString(
+              undefined,
+              {
                 month: 'long',
                 year: 'numeric',
-              })}
+                timeZone: 'Etc/UTC',
+              },
+            )}
             <div
               class="card"
               class:variant-filled-primary={pastPayment.paidAt !== null}

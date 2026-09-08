@@ -176,8 +176,8 @@ export const getHouseholdDetail = query(ulidValidator, async (id) => {
       schema.payments,
       and(
         eq(schema.payments.billId, schema.bills.id),
-        sql`extract(month from ${schema.payments.forMonthD}) = extract(month from now())`,
-        sql`extract(year from ${schema.payments.forMonthD}) = extract(year from now())`,
+        sql`extract(month from ${schema.payments.dueDate}) = extract(month from now())`,
+        sql`extract(year from ${schema.payments.dueDate}) = extract(year from now())`,
       ),
     )
     .where(eq(schema.bills.householdId, id));
